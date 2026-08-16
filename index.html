@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>手机截图手机号识别 & 吉凶查询</title>
+<!-- Tesseract.js v5：浏览器端 OCR，无需后端 -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1115; --card:#1a1d23; --card2:#22262e; --line:#2c313a;
+    --txt:#e6e8ec; --sub:#9aa3b2; --blue:#4f8cff; --green:#3fb950;
+    --red:#f85149; --purple:#a371f7; --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.5;padding:24px;}
+  .wrap{max-width:1080px;margin:0 auto;}
+  h1{font-size:22px;margin:0 0 4px;}
+  .lead{color:var(--sub);font-size:13px;margin-bottom:20px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;margin-bottom:16px;}
+  .card h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
+  .card h2 .tag{font-size:11px;color:var(--sub);font-weight:400;}
+  /* 上传区 */
+  #drop{border:2px dashed var(--line);border-radius:var(--radius);padding:28px;text-align:center;
+    color:var(--sub);cursor:pointer;transition:.15s;background:var(--card2);}
+  #drop.over{border-color:var(--blue);color:var(--blue);background:#1b2533;}
+  #drop b{color:var(--txt);}
+  .thumbs{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
+  .thumb{position:relative;width:96px;height:96px;border-radius:8px;overflow:hidden;
+    border:1px solid var(--line);background:#000;}
+  .thumb img{width:100%;height:100%;object-fit:cover;}
+  .thumb .x{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;
+    border:none;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;line-height:1;}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+  label.opt{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:6px;}
+  button{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;
+    font-size:13px;cursor:pointer;font-weight:600;}
+  button:hover{filter:brightness(1.08);}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);font-weight:500;}
+  button.green{background:var(--green);}
+  button:disabled{opacity:.45;cursor:not-allowed;}
+  .progress{height:6px;background:var(--card2);border-radius:6px;overflow:hidden;margin-top:10px;display:none;}
+  .progress > i{display:block;height:100%;width:0;background:var(--blue);transition:.2s;}
+  .log{font-size:12px;color:var(--sub);margin-top:8px;max-height:120px;overflow:auto;
+    font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;}
+  /* 结果 */
+  .phones{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+  .phone{background:var(--card2);border:1px solid var(--line);border-radius:8px;
+    padding:6px 10px;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .phone .src{font-size:10px;color:var(--sub);border-left:1px solid var(--line);padding-left:8px;}
+  .phone button{cadding:0;background:none;border:none;color:var(--blue);cursor:pointer;font-size:12px;padding:0 0 0 2px;}
+  .empty{color:var(--sub);font-size:13px;}
+  /* 网站 */
+  .sites{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;margin-top:6px;}
+  .site{display:flex;align-items:flex-start;gap:8px;background:var(--card2);border:1px solid var(--line);
+    border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer;}
+  .site input{margin-top:3px;}
+  .site .meta{display:flex;flex-direction:column;}
+  .site .nm{font-weight:600;}
+  .site .u{color:var(--sub);font-size:11px;word-break:break-all;}
+  .addform{margin-top:12px;display:grid;grid-template-columns:1fr 2fr auto;gap:8px;}
+  .addform input{background:var(--card2);border:1px solid var(--line);border-radius:8px;
+    padding:8px 10px;color:var(--txt);font-size:13px;}
+  .addform input::placeholder{color:#5d6675;}
+  /* 查询链接 */
+  .qcard{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:8px;}
+  .qcard .p{font-weight:700;font-size:15px;margin-bottom:6px;}
+  .qcard .links{display:flex;flex-wrap:wrap;gap:6px;}
+  .qlink{font-size:12px;color:var(--blue);text-decoration:none;border:1px solid var(--line);
+    border-radius:6px;padding:3px 8px;background:var(--card);}
+  .qlink:hover{background:#1b2533;}
+  .hint{font-size:12px;color:var(--sub);background:#1b2230;border:1px solid #2a3550;
+    border-radius:8px;padding:8px 10px;margin-top:10px;}
+  .hint code{color:var(--purple);}
+  .count{font-size:12px;color:var(--sub);margin-left:auto;}
+  .del-site{background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;padding:0;}
+  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:#2b3340;color:#fff;border:1px solid var(--line);padding:10px 16px;border-radius:10px;
+    font-size:13px;opacity:0;transition:.2s;pointer-events:none;z-index:99;max-width:80vw;text-align:center;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📱 手机截图手机号识别 &amp; 吉凶查询</h1>
+  <div class="lead">批量上传手机截图 → 自动 OCR 提取 11 位手机号 → 勾选多个吉凶查询网站 → 一键打开查询页</div>
+
+  <!-- 1. 上传 -->
+  <div class="card">
+    <h2>① 上传手机截图 <span class="tag">支持多张 / 拖拽</span></h2>
+    <div id="drop">
+      点击选择，或把截图<b>拖到这里</b><br />
+      <span style="font-size:12px">也支持 <b>Ctrl/⌘+V 直接粘贴</b>（手机截图经微信输入法同步到电脑剪贴板后，点一下页面再粘贴即可），可连续粘贴多张</span>
+    </div>
+    <input id="file" type="file" accept="image/*" multiple hidden />
+    <div class="thumbs" id="thumbs"></div>
+  </div>
+
+  <!-- 2. 识别 -->
+  <div class="card">
+    <h2>② 识别手机号 <span class="tag">浏览器本地 OCR，图片不上传</span></h2>
+    <div class="row">
+      <label class="opt">识别语言
+        <select id="lang" style="background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 8px;">
+          <option value="eng">英文/数字（快，推荐）</option>
+          <option value="chi_sim+eng">中文+数字（更准，较慢）</option>
+        </select>
+      </label>
+      <button id="run" class="green">开始识别</button>
+      <span class="count" id="rcount"></span>
+    </div>
+    <div class="progress" id="pbar"><i></i></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <!-- 3. 结果 -->
+  <div class="card">
+    <h2>③ 识别结果 <span class="tag">已按正规号段校验 · 自动去重</span></h2>
+    <div class="row" style="margin-bottom:8px">
+      <button class="ghost" id="copyAll">复制全部号码</button>
+      <button class="ghost" id="exportTxt">导出 .txt</button>
+      <button class="ghost" id="showRaw">查看原始OCR文本</button>
+      <button class="ghost" id="clearPhones">清空</button>
+    </div>
+    <div id="rawBox" style="display:none;margin-bottom:10px;"></div>
+    <div id="phones" class="phones"><div class="empty">尚未识别。上传截图后点「开始识别」。</div></div>
+  </div>
+
+  <!-- 4. 网站 -->
+  <div class="card">
+    <h2>④ 选择吉凶查询网站 <span class="tag">可多选，可自定义</span></h2>
+    <div class="sites" id="sites"></div>
+    <div class="addform">
+      <input id="sn" placeholder="网站名称，如：号令天下" />
+      <input id="su" placeholder="查询URL，号码位置用 {PHONE} 代替，如 https://.../?phone={PHONE}" />
+      <button id="addSite">添加</button>
+    </div>
+    <div class="hint">
+      💡 内置的「搜索引擎聚合」一定会打开且会列出多个吉凶网站的测算结果。<br />
+      想加你常用的真实吉凶站？打开它 → 输入一个测试号码 → 看地址栏 URL 是否变成含号码的形式（如 <code>...?phone=13800138000</code>），把号码部分换成 <code>{PHONE}</code> 粘进来即可。
+    </div>
+  </div>
+
+  <!-- 5. 查询 -->
+  <div class="card">
+    <h2>⑤ 生成查询链接 <span class="tag">每个号码 × 每个选中网站</span></h2>
+    <div class="row" style="margin-bottom:10px">
+      <button id="gen">生成查询链接</button>
+      <button id="openAll" class="ghost">全部打开（新标签）</button>
+      <button id="copyUrls" class="ghost">复制全部链接</button>
+      <span class="count" id="qcount"></span>
+    </div>
+    <div id="qlinks"></div>
+    <div class="hint" id="openHint" style="display:none">
+      ⚠️ 浏览器可能拦截大量弹窗。若被拦，请在地址栏允许弹窗，或直接点下面的链接逐个打开。
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ============ 数据 ============ */
+// 已上传图片：[{file, url}]
+let images = [];
+// 识别出的手机号（含来源图索引集合）：Map phone -> Set(imgIndex)
+let phones = new Map();
+// 网站列表：[{name, url, builtin}]
+let sites = [
+  {name:'百度聚合（手机号吉凶）', url:'https://www.baidu.com/s?wd={PHONE}%20手机号码吉凶', builtin:true},
+  {name:'搜狗聚合（手机号吉凶）', url:'https://www.sogou.com/web?query={PHONE}%20手机号吉凶', builtin:true},
+  {name:'必应聚合（手机号吉凶）', url:'https://www.bing.com/search?q={PHONE}%20手机号吉凶', builtin:true},
+];
+
+/* ============ 工具 ============ */
+const $ = id => document.getElementById(id);
+const PHONE_RE = /1[3-9]\d{9}/g;
+// OCR 常见误识字符纠正：去空白 + O->0, l/I->1, Z->2, S->5, B->8, g->9
+function cleanOcrText(text){
+  return text.replace(/\s+/g,'').replace(/[Oo]/g,'0').replace(/[lIi|]/g,'1')
+             .replace(/[Zz]/g,'2').replace(/[Ss]/g,'5').replace(/[B]/g,'8').replace(/[g]/g,'9');
+}
+// 中国手机号段（前3位）白名单，来源：用户整理的正规号段清单
+const MOBILE_PREFIXES = new Set([
+  // 中国移动
+  '134','135','136','137','138','139','147','150','151','152','157','158','159','172','178','182','183','184','187','188','195','197','198',
+  // 中国联通
+  '130','131','132','145','155','156','166','175','176','185','186','196',
+  // 中国电信
+  '133','149','153','173','177','180','181','189','190','191','193','199',
+  // 中国广电
+  '192',
+  // 虚拟运营商
+  '162','165','167','170','171'
+]);
+const CARRIER = {
+  移动:['134','135','136','137','138','139','147','150','151','152','157','158','159','172','178','182','183','184','187','188','195','197','198'],
+  联通:['130','131','132','145','155','156','166','175','176','185','186','196'],
+  电信:['133','149','153','173','177','180','181','189','190','191','193','199'],
+  广电:['192'],
+  虚商:['162','165','167','170','171']
+};
+function carrierOf(p){
+  const pre=p.slice(0,3);
+  for(const k in CARRIER){ if(CARRIER[k].includes(pre)) return k; }
+  return '未知';
+}
+
+function log(msg){ const el=$('log'); el.textContent += msg + '\n'; el.scrollTop = el.scrollHeight; }
+function setProgress(p){ const b=$('pbar'); b.style.display='block'; b.firstElementChild.style.width = Math.round(p*100)+'%'; }
+
+/* ============ ① 上传 ============ */
+const drop = $('drop'), fileInput = $('file');
+drop.onclick = () => fileInput.click();
+fileInput.onchange = e => addFiles(e.target.files);
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop', e=> addFiles(e.dataTransfer.files));
+
+function addFiles(fileList){
+  [...fileList].forEach(f=>{
+    if(!f.type.startsWith('image/')) return;
+    images.push({file:f, url:URL.createObjectURL(f), name:f.name});
+  });
+  renderThumbs();
+}
+function renderThumbs(){
+  const t=$('thumbs'); t.innerHTML='';
+  images.forEach((im,i)=>{
+    const d=document.createElement('div'); d.className='thumb';
+    d.innerHTML=`<img src="${im.url}"/><button class="x" title="移除">×</button>`;
+    d.querySelector('.x').onclick=()=>{ URL.revokeObjectURL(im.url); images.splice(i,1); renderThumbs(); };
+    t.appendChild(d);
+  });
+}
+
+/* ============ ② 识别 ============ */
+$('run').onclick = async ()=>{
+  if(images.length===0){ alert('请先上传截图'); return; }
+  const btn=$('run'); btn.disabled=true; $('log').textContent='';
+  const lang = $('lang').value;
+  log('初始化 OCR 引擎（语言：'+lang+'）…');
+  let worker;
+  try{
+    // 简化写法：createWorker 自动 load + loadLanguage + initialize
+    worker = await Tesseract.createWorker(lang, 1, { logger: m=>{
+      if(m.status==='recognizing text') setProgress(m.progress);
+      else if(m.status) log('· '+m.status+(m.progress?(' '+(m.progress*100).toFixed(0)+'%'):''));
+    }});
+  }catch(e){ log('OCR 初始化失败：'+e.message); btn.disabled=false; return; }
+
+  phones = new Map();
+  for(let i=0;i<images.length;i++){
+    log(`识别第 ${i+1}/${images.length} 张：${images[i].name}`);
+    try{
+      const { data } = await worker.recognize(images[i].file);
+      images[i].rawText = data.text || '';
+      const candRaw = data.text.match(PHONE_RE) || [];
+      const candClean = cleanOcrText(data.text).match(PHONE_RE) || [];
+      const candidates = [...new Set([...candRaw, ...candClean])];
+      // 仅保留有效号段（前3位在白名单），过滤 OCR 误拼出的非标准号码
+      const valid = candidates.filter(p => MOBILE_PREFIXES.has(p.slice(0,3)));
+      const dropped = candidates.length - valid.length;
+      valid.forEach(p=>{
+        if(!phones.has(p)) phones.set(p, new Set());
+        phones.get(p).add(i);
+      });
+      log(`  → 本张有效号码 ${valid.length}${dropped?('，已过滤非标准号段 '+dropped+' 个'):''}`);
+    }catch(e){ log('  → 识别失败：'+e.message); }
+  }
+  await worker.terminate();
+  setProgress(1);
+  renderPhones();
+  log(`完成。共提取去重后 ${phones.size} 个手机号。`);
+  btn.disabled=false;
+};
+
+/* ============ ③ 结果 ============ */
+function renderPhones(){
+  const box=$('phones'); box.innerHTML='';
+  if(phones.size===0){ box.innerHTML='<div class="empty">未识别到手机号。可尝试切换为「中文+数字」语言，或截图更清晰些。</div>'; $('rcount').textContent=''; return; }
+  [...phones.keys()].forEach(p=>{
+    const srcs=[...phones.get(p)].map(i=>images[i].name).join('、');
+    const d=document.createElement('div'); d.className='phone';
+    d.innerHTML=`<span>${p}</span><span class="src">${srcs}</span><span class="src" style="border-left:none;padding-left:4px;color:var(--blue)">${carrierOf(p)}</span>`;
+    const cp=document.createElement('button'); cp.textContent='复制';
+    cp.onclick=()=>{navigator.clipboard.writeText(p);cp.textContent='已复制';setTimeout(()=>cp.textContent='复制',1200);};
+    d.appendChild(cp); box.appendChild(d);
+  });
+  $('rcount').textContent='共 '+phones.size+' 个';
+}
+$('copyAll').onclick=()=>{ const s=[...phones.keys()].join('\n'); if(s){navigator.clipboard.writeText(s);alert('已复制 '+phones.size+' 个号码');} };
+$('exportTxt').onclick=()=>{
+  if(phones.size===0) return;
+  const blob=new Blob([...phones.keys()].join('\n'),{type:'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='phones.txt'; a.click();
+  URL.revokeObjectURL(a.href);
+};
+$('clearPhones').onclick=()=>{ phones.clear(); renderPhones(); };
+$('showRaw').onclick=()=>{
+  const box=$('rawBox');
+  if(box.style.display==='none'){ box.style.display='block'; renderRaw(); } else { box.style.display='none'; }
+};
+function renderRaw(){
+  const box=$('rawBox'); box.innerHTML='';
+  if(images.every(im=>!im.rawText)){ box.innerHTML='<div class="empty">还没有识别记录，请先点「开始识别」。</div>'; return; }
+  images.forEach((im,i)=>{
+    const d=document.createElement('details'); d.style.margin='4px 0';
+    d.innerHTML=`<summary style="cursor:pointer;color:var(--sub);font-size:12px">${i+1}. ${im.name}</summary><pre style="white-space:pre-wrap;background:var(--card2);padding:8px;border-radius:6px;font-size:11px;color:var(--txt)">${(im.rawText||'(无)').replace(/</g,'&lt;')}</pre>`;
+    box.appendChild(d);
+  });
+}
+
+/* ============ ④ 网站 ============ */
+const LS_KEY='phone_lucky_custom_sites';
+function loadCustom(){ try{ const c=JSON.parse(localStorage.getItem(LS_KEY)||'[]'); sites.push(...c); }catch(e){} }
+function saveCustom(){ const c=sites.filter(s=>!s.builtin); localStorage.setItem(LS_KEY, JSON.stringify(c)); }
+function allSites(){ return sites; }
+function renderSites(){
+  const box=$('sites'); box.innerHTML='';
+  sites.forEach((s,idx)=>{
+    const d=document.createElement('label'); d.className='site';
+    d.innerHTML=`<input type="checkbox" ${s.builtin?'checked':''} data-i="${idx}"/>
+      <span class="meta"><span class="nm">${s.name}${s.builtin?'':' <span style="color:var(--sub);font-weight:400">[自定义]</span>'}</span>
+      <span class="u">${s.url}</span></span>`;
+    if(!s.builtin){
+      const del=document.createElement('button'); del.className='del-site'; del.textContent='删除';
+      del.onclick=(e)=>{e.preventDefault(); sites.splice(idx,1); saveCustom(); renderSites();};
+      d.querySelector('.meta').appendChild(del);
+    }
+    box.appendChild(d);
+  });
+}
+$('addSite').onclick=()=>{
+  const nm=$('sn').value.trim(), u=$('su').value.trim();
+  if(!nm||!u){ alert('请填写名称和 URL'); return; }
+  if(!u.includes('{PHONE}')){ alert('URL 中必须包含 {PHONE} 占位符'); return; }
+  sites.push({name:nm, url:u, builtin:false}); saveCustom(); renderSites();
+  $('sn').value=''; $('su').value='';
+};
+function selectedSites(){ return sites.filter((s,i)=>{ const cb=document.querySelector(`input[data-i="${i}"]`); return cb&&cb.checked; }); }
+
+/* ============ ⑤ 查询 ============ */
+$('gen').onclick=()=>{
+  const ss=selectedSites(); const ps=[...phones.keys()];
+  const box=$('qlinks'); box.innerHTML=''; qrUrls=[];
+  if(ps.length===0){ box.innerHTML='<div class="empty">请先识别手机号。</div>'; return; }
+  if(ss.length===0){ box.innerHTML='<div class="empty">请至少勾选一个网站。</div>'; return; }
+  ps.forEach(p=>{
+    const c=document.createElement('div'); c.className='qcard';
+    c.innerHTML=`<div class="p">${p}</div>`;
+    const links=document.createElement('div'); links.className='links';
+    ss.forEach(s=>{
+      const url=s.url.replaceAll('{PHONE}', p);
+      qrUrls.push(url);
+      const a=document.createElement('a'); a.className='qlink'; a.href=url; a.target='_blank'; a.textContent=s.name;
+      links.appendChild(a);
+    });
+    c.appendChild(links); box.appendChild(c);
+  });
+  $('qcount').textContent= ps.length+' 个号码 × '+ss.length+' 个网站';
+};
+$('openAll').onclick=()=>{
+  const ss=selectedSites(); const ps=[...phones.keys()];
+  if(ps.length===0||ss.length===0) return;
+  let n=0;
+  ps.forEach(p=> ss.forEach(s=>{ window.open(s.url.replaceAll('{PHONE}',p),'_blank'); n++; }));
+  $('openHint').style.display = n>5 ? 'block':'none';
+};
+
+/* ============ 粘贴截图（手机→电脑剪贴板同步）+ 复制查询链接 ============ */
+let qrUrls = []; // 生成的查询链接汇总，供"复制全部链接"使用
+function flash(msg){ const t=$('toast'); if(!t) return; t.textContent=msg; t.classList.add('show'); clearTimeout(flash._t); flash._t=setTimeout(()=>t.classList.remove('show'),1800); }
+// 全局监听粘贴：从剪贴板取图片文件（微信输入法同步的手机截图即在此）
+document.addEventListener('paste', e=>{
+  const ae=document.activeElement;
+  if(ae && (ae.tagName==='INPUT'||ae.tagName==='TEXTAREA')) return; // 输入框内粘贴文本时不干扰
+  const items = e.clipboardData ? e.clipboardData.items : [];
+  let added=0;
+  for(const it of items){
+    if(it.kind==='file' && it.type.startsWith('image/')){
+      const f=it.getAsFile();
+      if(f){ images.push({file:f, url:URL.createObjectURL(f), name:f.name||('pasted-'+Date.now()+'.png')}); added++; }
+    }
+  }
+  if(added){ renderThumbs(); flash('已粘贴 '+added+' 张截图，可继续粘贴或点「开始识别」'); }
+});
+// 复制所有查询链接：方便粘到微信，在手机上打开
+$('copyUrls').onclick=()=>{ if(qrUrls.length){ navigator.clipboard.writeText(qrUrls.join('\n')); alert('已复制 '+qrUrls.length+' 个查询链接，可粘到微信发手机打开'); } };
+
+/* ============ 启动 ============ */
+loadCustom(); renderSites(); renderPhones();
+</script>
+</body>
+</html>
