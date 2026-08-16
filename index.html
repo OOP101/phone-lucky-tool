@@ -136,6 +136,10 @@
   <div class="card">
     <h2>④ 选择吉凶查询网站 <span class="tag">可多选，可自定义</span></h2>
     <div class="sites" id="sites"></div>
+    <div class="row" style="margin:10px 0 4px">
+      <label class="opt"><input type="checkbox" id="autoGen" checked /> 识别后自动生成查询链接</label>
+      <label class="opt"><input type="checkbox" id="autoOpen" /> 识别后自动打开直链网站（可能被浏览器拦截）</label>
+    </div>
     <div class="addform">
       <input id="sn" placeholder="网站名称，如：号令天下" />
       <input id="su" placeholder="查询URL，号码位置用 {PHONE} 代替，如 https://.../?phone={PHONE}" />
@@ -143,15 +147,16 @@
     </div>
     <div class="hint">
       💡 标注「<b>直接查询</b>」的网站点击即出结果；标注「<b>首页手动输入</b>」的站点是表单提交（带防刷令牌，纯前端无法直链），点击后需把号码粘贴进输入框。<br />
+      开启「识别后自动生成查询链接」，识别完即可在 ⑤ 区看到所有链接；开启「识别后自动打开直链网站」则会直接弹出新标签查结果（可能被浏览器拦截，建议只开前者）。<br />
       想加更多站？打开目标站 → 输入测试号码 → 看地址栏是否变成含号码的 URL（如 <code>?number=13800138000</code>），把号码换成 <code>{PHONE}</code> 粘进来即可。
     </div>
   </div>
 
   <!-- 5. 查询 -->
   <div class="card">
-    <h2>⑤ 生成查询链接 <span class="tag">每个号码 × 每个选中网站</span></h2>
+    <h2>⑤ 查询链接 / 结果 <span class="tag">识别后可自动生成</span></h2>
     <div class="row" style="margin-bottom:10px">
-      <button id="gen">生成查询链接</button>
+      <button id="gen">重新生成查询链接</button>
       <button id="openAll" class="ghost">全部打开（新标签）</button>
       <button id="copyUrls" class="ghost">复制全部链接</button>
       <span class="count" id="qcount"></span>
@@ -293,6 +298,11 @@ $('run').onclick = async ()=>{
   setProgress(1);
   renderPhones();
   addToHistory([...phones.keys()]); // 识别结果自动并入历史
+  // 自动查询流程：识别到号码后自动生成链接，勾选了"自动打开"再弹窗打开直链站
+  if(phones.size>0){
+    if($('autoGen').checked){ gen(); }
+    if($('autoOpen').checked){ openDirectOnly(); }
+  }
   log(`完成。共提取去重后 ${phones.size} 个手机号（已同步到历史记录）。`);
   btn.disabled=false;
 };
@@ -403,9 +413,10 @@ function selectedSites(){ return sites.filter((s,i)=>{ const cb=document.querySe
 
 /* ============ ⑤ 查询 ============ */
 $('gen').onclick=()=>{
-  const ss=selectedSites(); const ps=[...phones.keys()];
+  const ss=selectedSites(); let ps=[...phones.keys()];
   const box=$('qlinks'); box.innerHTML=''; qrUrls=[];
-  if(ps.length===0){ box.innerHTML='<div class="empty">请先识别手机号。</div>'; return; }
+  if(ps.length===0 && history.length>0){ ps = history.map(h=>h.phone); }
+  if(ps.length===0){ box.innerHTML='<div class="empty">请先识别手机号，或从历史记录里选择号码。</div>'; return; }
   if(ss.length===0){ box.innerHTML='<div class="empty">请至少勾选一个网站。</div>'; return; }
   ps.forEach(p=>{
     const c=document.createElement('div'); c.className='qcard';
@@ -422,12 +433,25 @@ $('gen').onclick=()=>{
   $('qcount').textContent= ps.length+' 个号码 × '+ss.length+' 个网站';
 };
 $('openAll').onclick=()=>{
-  const ss=selectedSites(); const ps=[...phones.keys()];
+  const ss=selectedSites(); let ps=[...phones.keys()];
+  if(ps.length===0 && history.length>0) ps = history.map(h=>h.phone);
   if(ps.length===0||ss.length===0) return;
   let n=0;
   ps.forEach(p=> ss.forEach(s=>{ window.open(s.url.replaceAll('{PHONE}',p),'_blank'); n++; }));
   $('openHint').style.display = n>5 ? 'block':'none';
 };
+// 仅自动打开"直链"网站（URL 含 {PHONE}），避开需要手动输入的 POST 首页
+function openDirectOnly(){
+  const ss=selectedSites().filter(s=>s.url.includes('{PHONE}'));
+  let ps=[...phones.keys()];
+  if(ps.length===0 && history.length>0) ps = history.map(h=>h.phone);
+  if(ps.length===0||ss.length===0) return;
+  let n=0;
+  ps.forEach(p=> ss.forEach(s=>{ window.open(s.url.replaceAll('{PHONE}',p),'_blank'); n++; }));
+  if(n===0) return;
+  $('openHint').style.display = n>5 ? 'block':'none';
+  flash('已自动打开 '+n+' 个直链查询页');
+}
 
 /* ============ 粘贴截图（手机→电脑剪贴板同步）+ 复制查询链接 ============ */
 let qrUrls = []; // 生成的查询链接汇总，供"复制全部链接"使用
