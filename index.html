@@ -77,6 +77,9 @@
   .hint code{color:var(--purple);}
   .count{font-size:12px;color:var(--sub);margin-left:auto;}
   .del-site{background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;padding:0;}
+  .hitem{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .hitem .src{font-size:10px;color:var(--sub);border-left:1px solid var(--line);padding-left:8px;}
+  .hitem .rm{margin-left:auto;background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;}
   #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
     background:#2b3340;color:#fff;border:1px solid var(--line);padding:10px 16px;border-radius:10px;
     font-size:13px;opacity:0;transition:.2s;pointer-events:none;z-index:99;max-width:80vw;text-align:center;}
@@ -157,6 +160,22 @@
     <div class="hint" id="openHint" style="display:none">
       ⚠️ 浏览器可能拦截大量弹窗。若被拦，请在地址栏允许弹窗，或直接点下面的链接逐个打开。
     </div>
+  </div>
+
+  <!-- 6. 历史记录 -->
+  <div class="card">
+    <h2>⑥ 手机号历史记录 <span class="tag">本地保存 · 刷新不丢</span></h2>
+    <div class="row" style="margin-bottom:8px">
+      <textarea id="histInput" placeholder="粘贴或输入手机号，支持多行 / 空格 / 逗号分隔，自动提取 11 位号码" style="flex:1;min-height:44px;background:var(--card2);border:1px solid var(--line);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:13px;resize:vertical;"></textarea>
+      <button id="addHist">加入历史</button>
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <button class="ghost" id="copyHist">复制全部</button>
+      <button class="ghost" id="exportHist">导出 .txt</button>
+      <button class="ghost" id="clearHist">清空历史</button>
+      <span class="count" id="hcount"></span>
+    </div>
+    <div id="histList" class="phones"></div>
   </div>
 </div>
 <div id="toast"></div>
@@ -273,7 +292,8 @@ $('run').onclick = async ()=>{
   await worker.terminate();
   setProgress(1);
   renderPhones();
-  log(`完成。共提取去重后 ${phones.size} 个手机号。`);
+  addToHistory([...phones.keys()]); // 识别结果自动并入历史
+  log(`完成。共提取去重后 ${phones.size} 个手机号（已同步到历史记录）。`);
   btn.disabled=false;
 };
 
@@ -312,6 +332,45 @@ function renderRaw(){
     box.appendChild(d);
   });
 }
+
+/* ============ ⑥ 历史记录（本地持久化） ============ */
+const HIST_KEY='phone_lucky_history';
+let history = [];
+function loadHistory(){ try{ history = JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); }catch(e){ history=[]; } }
+function saveHistory(){ localStorage.setItem(HIST_KEY, JSON.stringify(history)); }
+// 从任意文本提取合法手机号（去非数字 + 号段校验 + 去重）
+function parsePhones(text){
+  const clean=(text||'').replace(/[^0-9]/g,'');
+  const cand=clean.match(PHONE_RE)||[];
+  const set=new Set();
+  cand.forEach(p=>{ if(MOBILE_PREFIXES.has(p.slice(0,3))) set.add(p); });
+  return [...set];
+}
+function addToHistory(list){
+  list.forEach(p=>{ if(!history.some(h=>h.phone===p)) history.push({phone:p, carrier:carrierOf(p), at:Date.now()}); });
+  saveHistory(); renderHistory();
+}
+function renderHistory(){
+  const box=$('histList'); box.innerHTML='';
+  if(history.length===0){ box.innerHTML='<div class="empty">暂无历史。识别出的号码会自动存入这里，也可手动输入加入。</div>'; $('hcount').textContent=''; return; }
+  history.forEach((h,i)=>{
+    const d=document.createElement('div'); d.className='hitem';
+    const t=new Date(h.at); const ts=`${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+    d.innerHTML=`<span>${h.phone}</span><span class="src">${h.carrier}</span><span class="src" style="border-left:none;padding-left:4px">${ts}</span>`;
+    const rm=document.createElement('button'); rm.className='rm'; rm.textContent='删除';
+    rm.onclick=()=>{ history.splice(i,1); saveHistory(); renderHistory(); };
+    d.appendChild(rm); box.appendChild(d);
+  });
+  $('hcount').textContent='共 '+history.length+' 个';
+}
+$('addHist').onclick=()=>{
+  const list=parsePhones($('histInput').value);
+  if(list.length===0){ flash('未提取到合法手机号'); return; }
+  addToHistory(list); $('histInput').value=''; flash('已加入 '+list.length+' 个号码');
+};
+$('copyHist').onclick=()=>{ if(history.length){ navigator.clipboard.writeText(history.map(h=>h.phone).join('\n')); flash('已复制 '+history.length+' 个号码'); } };
+$('exportHist').onclick=()=>{ if(history.length===0) return; const blob=new Blob([history.map(h=>h.phone).join('\n')],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='phone-history.txt'; a.click(); URL.revokeObjectURL(a.href); };
+$('clearHist').onclick=()=>{ if(history.length && confirm('确定清空全部历史记录？')){ history=[]; saveHistory(); renderHistory(); } };
 
 /* ============ ④ 网站 ============ */
 const LS_KEY='phone_lucky_custom_sites';
@@ -392,6 +451,7 @@ $('copyUrls').onclick=()=>{ if(qrUrls.length){ navigator.clipboard.writeText(qrU
 
 /* ============ 启动 ============ */
 loadCustom(); renderSites(); renderPhones();
+loadHistory(); renderHistory();
 </script>
 </body>
 </html>
