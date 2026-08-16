@@ -142,8 +142,8 @@
       <button id="addSite">添加</button>
     </div>
     <div class="hint">
-      💡 内置的「搜索引擎聚合」一定会打开且会列出多个吉凶网站的测算结果。<br />
-      想加你常用的真实吉凶站？打开它 → 输入一个测试号码 → 看地址栏 URL 是否变成含号码的形式（如 <code>...?phone=13800138000</code>），把号码部分换成 <code>{PHONE}</code> 粘进来即可。
+      💡 标注「<b>直接查询</b>」的网站点击即出结果；标注「<b>首页手动输入</b>」的站点是表单提交（带防刷令牌，纯前端无法直链），点击后需把号码粘贴进输入框。<br />
+      想加更多站？打开目标站 → 输入测试号码 → 看地址栏是否变成含号码的 URL（如 <code>?number=13800138000</code>），把号码换成 <code>{PHONE}</code> 粘进来即可。
     </div>
   </div>
 
@@ -188,9 +188,9 @@ let images = [];
 let phones = new Map();
 // 网站列表：[{name, url, builtin}]
 let sites = [
-  {name:'百度聚合（手机号吉凶）', url:'https://www.baidu.com/s?wd={PHONE}%20手机号码吉凶', builtin:true},
-  {name:'搜狗聚合（手机号吉凶）', url:'https://www.sogou.com/web?query={PHONE}%20手机号吉凶', builtin:true},
-  {name:'必应聚合（手机号吉凶）', url:'https://www.bing.com/search?q={PHONE}%20手机号吉凶', builtin:true},
+  {name:'易算·号令天下（直接查询）', url:'https://yisuan.net/app/haoma?number={PHONE}', builtin:true},
+  {name:'周易占卜 手机号吉凶（首页手动输入）', url:'https://zhouyizhanbu.cn/shouji', builtin:true},
+  {name:'农历网 手机号测吉凶（首页手动输入）', url:'https://www.nongli.com/item5/shouji/index.html', builtin:true},
 ];
 
 /* ============ 工具 ============ */
