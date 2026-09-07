@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="QIhIgq7ErTfEsMFI50Xq6c">
+<head data-page-node-id="Y9BXiTKJfR3A8eiYimjZxz">
+<meta charset="UTF-8" data-page-node-id="rrSyTwaLozJSYJBpoP58JG" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="O4yYKezPJ9GHowUkgqnHzA" />
+<title>乔晓 · AI 应用开发工程师</title>
+<meta name="description" content="乔晓 - AI应用开发工程师，专注 RAG 全链路与多智能体（Multi-Agent）工程化落地" data-page-node-id="BUf4wYx0I1gcYEbPeVovdr" />
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --text: #1c2333;
+    --muted: #5b6478;
+    --primary: #2f6bff;
+    --primary-soft: #e8efff;
+    --accent: #7c5cff;
+    --border: #e5e8f0;
+    --tag-bg: #f0f2f8;
+    --shadow: 0 8px 30px rgba(28, 35, 51, .07);
+    --radius: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: clip; /* 横向溢出兜底，防止小屏被撑宽 */
+  }
+  a { color: inherit; text-decoration: none; }
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* ===== Nav ===== */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { font-weight: 700; font-size: 18px; }
+  .logo span { color: var(--primary); }
+  .nav-links { display: flex; gap: 28px; font-size: 14px; color: var(--muted); }
+  .nav-links a:hover { color: var(--primary); }
+
+  /* ===== Hero ===== */
+  header {
+    padding: 130px 0 100px;
+    background:
+      radial-gradient(600px 300px at 15% 0%, rgba(47,107,255,.10), transparent),
+      radial-gradient(500px 260px at 85% 10%, rgba(124,92,255,.10), transparent);
+  }
+  .hero-badge {
+    display: inline-block; padding: 9px 22px; border-radius: 999px;
+    background: var(--primary-soft); color: var(--primary);
+    font-size: 19px; font-weight: 600; margin-bottom: 28px;
+  }
+  h1 { font-size: 46px; line-height: 1.3; letter-spacing: -1px; margin-bottom: 16px; overflow-wrap: anywhere; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero-sub { font-size: 20px; color: var(--muted); max-width: 720px; margin-bottom: 34px; }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 14px 30px; font-size: 15.5px; color: var(--muted); }
+  .hero-meta b { color: var(--text); font-weight: 600; }
+  .btn {
+    display: inline-block; margin-top: 38px; margin-right: 14px;
+    padding: 13px 30px; border-radius: 10px; font-size: 16px; font-weight: 600;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 6px 18px rgba(47,107,255,.35); }
+  .btn-ghost { border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+
+  /* ===== Sections ===== */
+  section { padding: 84px 0; }
+  .section-title { font-size: 32px; margin-bottom: 10px; }
+  .section-title::before { content: ""; display: inline-block; width: 8px; height: 24px; border-radius: 4px; background: linear-gradient(180deg, var(--primary), var(--accent)); margin-right: 12px; vertical-align: -3px; }
+  .section-desc { color: var(--muted); margin-bottom: 40px; font-size: 15px; }
+
+  /* About cards */
+  .about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow);
+  }
+  .card .icon { font-size: 26px; margin-bottom: 10px; }
+  .card h3 { font-size: 16px; margin-bottom: 6px; }
+  .card p { font-size: 14px; color: var(--muted); }
+  .about-intro {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px 30px; box-shadow: var(--shadow);
+    margin-bottom: 24px; font-size: 15.5px;
+  }
+  .about-intro strong { color: var(--primary); }
+
+  /* Skills */
+  .skill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .skill-card h3 { font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    padding: 5px 13px; border-radius: 8px; background: var(--tag-bg);
+    font-size: 13px; color: #3a4358; transition: background .15s;
+  }
+  .tag:hover { background: var(--primary-soft); color: var(--primary); }
+  a.tag { color: inherit; text-decoration: none; cursor: pointer; }
+  .skill-note { margin-top: 14px; font-size: 13.5px; color: var(--muted); }
+
+  /* Projects timeline */
+  .project {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 32px; margin-bottom: 28px;
+  }
+  .project-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+  .project-head h3 { font-size: 21px; }
+  .project-role { font-size: 13px; color: var(--primary); background: var(--primary-soft); padding: 3px 12px; border-radius: 999px; font-weight: 600; }
+  .project-time { font-size: 13px; color: var(--muted); margin-left: auto; }
+  .project p.desc { color: var(--muted); font-size: 14.5px; margin: 10px 0 16px; }
+  .project ul { margin: 0 0 18px 18px; font-size: 14.5px; }
+  .project ul li { margin-bottom: 8px; }
+  .project ul li b { color: var(--text); }
+  .hl { color: var(--primary); font-weight: 600; }
+
+  /* Future */
+  .future-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .future-card { border: 1.5px dashed #c9d2e6; background: transparent; }
+  .future-card .status { display: inline-block; font-size: 12px; padding: 2px 10px; border-radius: 999px; margin-bottom: 10px; font-weight: 600; }
+  .status-doing { background: #fff4e0; color: #c07b00; }
+  .status-plan { background: #eef1f7; color: #6b7690; }
+
+  footer { padding: 40px 0 60px; text-align: center; color: var(--muted); font-size: 13.5px; border-top: 1px solid var(--border); }
+  footer a { color: var(--primary); }
+
+  /* ===== Skill Modal ===== */
+  body.modal-open { overflow: hidden; }
+  .modal-mask {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(28, 35, 51, .45); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+    opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s;
+  }
+  .modal-mask.open { opacity: 1; visibility: visible; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: 0 20px 60px rgba(28,35,51,.28);
+    max-width: 480px; width: 100%; max-height: 82vh; overflow-y: auto;
+    padding: 28px 30px 26px; position: relative;
+    transform: translateY(16px) scale(.97); transition: transform .2s ease;
+  }
+  .modal-mask.open .modal { transform: translateY(0) scale(1); }
+  .modal-close {
+    position: absolute; top: 14px; right: 14px; width: 32px; height: 32px;
+    border: none; border-radius: 8px; background: var(--tag-bg); color: var(--muted);
+    font-size: 15px; cursor: pointer; line-height: 1;
+    transition: background .15s, color .15s;
+  }
+  .modal-close:hover { background: var(--primary-soft); color: var(--primary); }
+  .modal .m-cat {
+    display: inline-block; font-size: 12.5px; font-weight: 600;
+    color: var(--primary); background: var(--primary-soft);
+    padding: 3px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+  .modal h3 { font-size: 21px; margin-bottom: 10px; padding-right: 32px; }
+  .modal .m-body { font-size: 14.5px; color: #2c3345; line-height: 1.8; }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 36px; }
+    .hero-sub { font-size: 17px; }
+    .nav-links { gap: 16px; font-size: 13px; }
+    .project { padding: 24px; }
+    .project-time { margin-left: 0; width: 100%; }
+    .about-grid, .skill-grid, .future-grid { grid-template-columns: 1fr; }
+    .hero-meta { flex-direction: column; gap: 8px; }
+  }
+  @media (max-width: 400px) {
+    .nav-links { gap: 10px; font-size: 12px; }
+    .logo { font-size: 15px; }
+  }
+</style>
+</head>
+<body data-page-node-id="SyAQg8Z3WdpxK1EKCpy7HM">
+
+<nav data-page-node-id="Fr3XGW6MmigmzavTrZPSiL">
+  <div class="container nav-inner" data-page-node-id="Y0xsoSwfNV7E2yT60HtYQV">
+    <div class="logo" data-page-node-id="mGmIRSo5ZQRKQD2xeaQmRY">Qiao<span data-page-node-id="X4uzF1NoPMiej6aQQZGHm5">Xiao</span> · 个人主页</div>
+    <div class="nav-links" data-page-node-id="WKngOZhF2HfJSV3AUyEATq">
+      <a href="#about" data-page-node-id="kWa1TfbsL0tZRALJc0ptmt">介绍</a>
+      <a href="#skills" data-page-node-id="vzeKJ6xq71G8OFj8Oj8zhh">技术栈</a>
+      <a href="#projects" data-page-node-id="aaool8vQmNLRuleKeaRrDQ">工作项目</a>
+      <a href="#personal" data-page-node-id="NT2i4GsRLfES5ZjYAcmFUc">个人项目</a>
+      <a href="#aboutme" data-page-node-id="Tasn922B0rLrpDMXDpNIwP">关于我</a>
+      <a href="#aiway" data-page-node-id="zZscHQFICZLTO4VAnQAPAI">AI 协作</a>
+      <a href="#future" data-page-node-id="mAxYMP8H9mc4ZaypbiUDKj">持续学习</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== Hero ===== -->
+<header data-page-node-id="VFkUQmAH20wVGKyuXtgC6y">
+  <div class="container" data-page-node-id="uWcZTZPQAzdlw8kUReUrp7">
+    <span class="hero-badge" data-page-node-id="C4HK9eDVgIP7MmOzCjzZG7">Hello, I'm 乔晓</span>
+    <h1 data-page-node-id="fkGvAlCY9glJ8SD9lkj1EU">AI 应用开发工程师<br  data-page-node-id="F72irDKHx5P6o3jqqV7SLM"/><em data-page-node-id="15CFAGAWYJrtaZwuLIZ5JM">RAG × Multi-Agent 工程化落地</em></h1>
+    <p class="hero-sub" data-page-node-id="tKHj3oCDfCgdlMJgv20Dea">
+      专注大模型应用工程：RAG 全链路、LangGraph 多智能体编排、FastAPI 高性能服务。
+      把 AI 能力做成「可运行、可评测、可降级」的真实产品。
+    </p>
+    <div class="hero-meta" data-page-node-id="1XKzYpZlHotkkGRTr84G89">
+      <span data-page-node-id="GBzQn0rkHxfmXOoFhFiD0c">📍 <b data-page-node-id="V9olGD2p8iruuqxYX1HfbH">陕西 · 西安</b></span>
+      <span data-page-node-id="MsOXV7b0pCrYZ3xHmoeDBA">🎓 <b data-page-node-id="UPTBHQYY2pqa9wb7feLYsL">软件工程 本科</b></span>
+      <span data-page-node-id="YgBoF7AaYTz9JBvop9PsYs">💼 <b data-page-node-id="90jghi899qnbe9pDWl0AlI">AI 应用开发工程师</b></span>
+      <span data-page-node-id="tETV3LaI8kPGFs47QkZZKf">✉️ <b data-page-node-id="C1uV3BfqscFJNUcfHNUfIS">3078782713@qq.com</b></span>
+      <span data-page-node-id="wGCfMxWKMDrO0p0fPA1XxU">📱 <b data-page-node-id="A8FsM2IJq5yH6FNN50z4nr">13256626645</b></span>
+    </div>
+    <a class="btn btn-primary" href="#projects" data-page-node-id="QCzMgtU52vHOfWv3pTOEyY">看我的项目 →</a>
+    <a class="btn btn-ghost" href="mailto:3078782713@qq.com" data-page-node-id="3tLrtpnVBmpYAA38NKaIzL">联系我</a>
+  </div>
+</header>
+
+<!-- ===== About ===== -->
+<section id="about" data-page-node-id="LznELpJIBwm5KFOml8WhXz">
+  <div class="container" data-page-node-id="3R3pcxRtAEZVKpMLQx3jOu">
+    <h2 class="section-title" data-page-node-id="WXbOS6TNMdNZ5Nlw3YF4xk">个人介绍</h2>
+    <p class="section-desc" data-page-node-id="RMbuJ05pOzlL6IiJYXiBBA">关于我，以及我在做的事</p>
+
+    <div class="about-intro" data-page-node-id="PKg1IqBVsxELORoCbK4kul">
+      我是<b data-page-node-id="FOI8u80OoFlY9ari2KafFn">乔晓</b>，软件工程专业出身，一名深耕 <strong data-page-node-id="FgKyIuDSKnPYQj2TWAyIyR">AI 工程化落地</strong> 的应用开发工程师。
+      我的核心能力是：把大模型能力从 PoC 推到生产 —— 从 <strong data-page-node-id="yRAEUD3RXmw51gHedDlXdO">RAG 全链路</strong>（多格式解析 → 语义切片 → 混合检索 → 重排序 → 流式生成），
+      到 <strong data-page-node-id="CPBcqrgs7tZ87XNS8tNrzp">LangGraph 多智能体系统</strong>（意图路由、Supervisor 调度、工具调用闭环），再到 <strong data-page-node-id="eyizLTnqRmHOdxwcL3AiEJ">FastAPI 高性能服务</strong>（SSE 流式、asyncio 并发、可观测性建设）。
+      我相信：企业级 AI 落地，<strong data-page-node-id="H8UqaasJ4LZQ2U44jKhK3R">工程厚度比模型效果更关键</strong>，PoC 到生产差的往往不是算法，而是稳定性与可观测性。
+      工作之外，我在运营「<strong data-page-node-id="28JDW07fzGZiIIKMncrSEX">AI 元年</strong>」项目——元年不由发布会宣布，由每个把 AI 真正用起来的人启动；我自己的做法，就是把 AI 编排进日常工作的每一环，并把协作方法沉淀成可复用的流程。
+    </div>
+
+    <div class="about-grid" data-page-node-id="XvUHJzYohac18KREFTzdri">
+      <div class="card" data-page-node-id="HTfeJ0A4wJfbFCVPYjx4v2">
+        <div class="icon" data-page-node-id="EUEHlRDRiurcTnGeWY12N5">🧠</div>
+        <h3 data-page-node-id="cV4JFnYo3A1tFar4yGkLvK">RAG 全链路</h3>
+        <p data-page-node-id="BK35npELNwsKjh7vX3P7qR">Hybrid Retrieval（BM25 + 向量 + RRF）、Rerank 重排、增量更新、知识溯源，企业级问答准确率优化实战。</p>
+      </div>
+      <div class="card" data-page-node-id="xVE3G4ZsHotxQkT7z7JMYO">
+        <div class="icon" data-page-node-id="YXd0T6Q7BEAjlOgCroNVWi">🤖</div>
+        <h3 data-page-node-id="dwCLh6SiRH5h5VqGi2ti7Q">Multi-Agent 编排</h3>
+        <p data-page-node-id="Wx4kdWOC8a47jFHaF6jxDw">LangGraph StateGraph 有状态工作流、意图路由、Supervisor 调度、Memory 设计与工具生态（MCP）。</p>
+      </div>
+      <div class="card" data-page-node-id="yV5VBF85vQKqe5zemumZbQ">
+        <div class="icon" data-page-node-id="QFxg3AhLiOi48ungxCQw6i">⚙️</div>
+        <h3 data-page-node-id="YoUnKmqW2HZeMzEg9L4N8u">工程交付</h3>
+        <p data-page-node-id="nhHHVNjCeOmDOl2gKcL4mu">FastAPI + SSE 流式、异步并发治理、Docker Compose 部署、监控日志与全链路降级体系。</p>
+      </div>
+      <div class="card" data-page-node-id="rXKiRfdG8GkhGGapcSKpV4">
+        <div class="icon" data-page-node-id="DpSbStegPOZ0NJe9fAYEXL">🔍</div>
+        <h3 data-page-node-id="qwOVDeHfD3WpkwJVuBETOa">调优思维</h3>
+        <p data-page-node-id="DimtvL6O676jqWaIvsNCgu">数据驱动、坏例驱动迭代，针对真实线上问题（阻塞、串单、越权、幻觉）做根因分析与修复。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Skills ===== -->
+<section id="skills" style="background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);" data-page-node-id="5Tx4W96UH2MDxb7vCyMYjM">
+  <div class="container" data-page-node-id="zCfSA6cFGGIxGlUqdeWiHw">
+    <h2 class="section-title" data-page-node-id="ojQWgZL8sLsZud4GmfDMjH">掌握的技术栈</h2>
+    <p class="section-desc" data-page-node-id="x4YfLwiNrAn6Q350N0FFIl">围绕「大模型应用工程化」构建的技能体系 · 点击技能标签查看一句话要点</p>
+
+    <div class="skill-grid" data-page-node-id="Ar01o3DEgbWTCvEglVBdVs">
+      <div class="card skill-card" data-page-node-id="PaOjIMRwEXIebvVyNU5tYp">
+        <h3 data-page-node-id="cLQyMknBvF6oQg52RZ8qPL">🕸️ 多智能体编排与工作流</h3>
+        <div class="tags" data-page-node-id="OWzXg7FCebtk0uP8Pta7W9">
+          <a class="tag" data-page-node-id="LBcA4j3HNuL7G0pHFWSOBg" href="tech-guide.html#k-langchain">LangChain</a><a class="tag" data-page-node-id="aOFlJ5vQCT2RZkQqkODjMe" href="tech-guide.html#k-langgraph">LangGraph</a><a class="tag" data-page-node-id="YN6hSnyAoZlWIBKurFEq95" href="tech-guide.html#k-stategraph">StateGraph</a>
+          <a class="tag" data-page-node-id="mHiAsSQjXyFryvDQi9GU5L" href="tech-guide.html#k-intent-routing">意图路由</a><a class="tag" data-page-node-id="z57OonvLqH1kQaPHkIlCSO" href="tech-guide.html#k-supervisor">Supervisor 调度</a><a class="tag" data-page-node-id="T28h7D2RB3Lxq1T7RcDHEf" href="tech-guide.html#k-agent-memory">Agent Memory</a><a class="tag" data-page-node-id="nDMEdPkzEXvskLGcJReyBQ" href="tech-guide.html#k-redis-state">Redis 状态缓存</a>
+        </div>
+        <p class="skill-note" data-page-node-id="wTGuuaUkwBiwPgTeVbeU2P">任务规划、意图识别、Agent 路由、状态管理与工具调用的完整闭环设计。</p>
+      </div>
+
+      <div class="card skill-card" data-page-node-id="toF5rOmNo6gbpLMIo3A6E8">
+        <h3 data-page-node-id="GxMdYH7cM4OCYdrpGFJRZf">📚 RAG 全链路与检索优化</h3>
+        <div class="tags" data-page-node-id="VR0TQCgjF5KAWi8aq7thxD">
+          <a class="tag" data-page-node-id="W9VFzK8GBQ1OQngj0k6osw" href="tech-guide.html#k-doc-parser">多格式文档解析</a><a class="tag" data-page-node-id="NVwHhEVNYbBQuJpDpHgme3" href="tech-guide.html#k-chunking">语义切片</a><a class="tag" data-page-node-id="Dn5neE04vtjbvLfEpvu6l9" href="tech-guide.html#k-embedding">Embedding</a>
+          <a class="tag" data-page-node-id="WgRVZXvFePB1WT11eJ242z" href="tech-guide.html#k-bm25">BM25</a><a class="tag" data-page-node-id="Cp4aDI9TkzrBEtRp96gpou" href="tech-guide.html#k-vector-search">向量检索</a><a class="tag" data-page-node-id="R2cE5SlKmRwhucVvA45O66" href="tech-guide.html#k-rrf">RRF 融合</a>
+          <a class="tag" data-page-node-id="DDHHqK7aG2nZfW3awkbhvt" href="tech-guide.html#k-rerank">Rerank 重排</a><a class="tag" data-page-node-id="dXbjZVDRBWuWpE5fwXKVx6" href="tech-guide.html#k-query-rewrite">Query Rewrite</a><a class="tag" data-page-node-id="bH1IVya1vFZAHHRn6lvv8P" href="tech-guide.html#k-chromadb">ChromaDB</a>
+        </div>
+        <p class="skill-note" data-page-node-id="7Pz5ZD8RtwhTMPFXwyUfDp">混合检索 + 二次重排解决幻觉与检索精度问题；知识库增量 / 全量更新迭代。</p>
+      </div>
+
+      <div class="card skill-card" data-page-node-id="sjkQFyHKm0WzpGGhdbjeAN">
+        <h3 data-page-node-id="jfRvvDLATmXXGgWbyC4TJF">🧩 大模型接入与应用开发</h3>
+        <div class="tags" data-page-node-id="zSGBzgasCko6L2taa7kpKm">
+          <a class="tag" data-page-node-id="vBIqtdSSUpxHE4bNkWP83Y" href="tech-guide.html#k-deepseek">DeepSeek</a><a class="tag" data-page-node-id="xxks1UaCxo9LTEhk3uWiUt" href="tech-guide.html#k-qwen">Qwen</a><a class="tag" data-page-node-id="r6BqdC6GLYyLg6w9ieFJxB" href="tech-guide.html#k-moonshot">Moonshot</a><a class="tag" data-page-node-id="IRgXN5asAOCGX4eFFauZ1A" href="tech-guide.html#k-glm">GLM</a><a class="tag" data-page-node-id="DcV5zZYB59b3WSyfu6YOjr" href="tech-guide.html#k-hunyuan">混元</a>
+          <a class="tag" data-page-node-id="7CqHGMyRxVlq8m8lq1g5uk" href="tech-guide.html#k-openai-compat">OpenAI 兼容封装</a><a class="tag" data-page-node-id="73fuqDOpQJmHW0RShkDDXA" href="tech-guide.html#k-prompt">Prompt Engineering</a><a class="tag" data-page-node-id="8kC9s41QM8LdRvxJaFn1ox" href="tech-guide.html#k-function-calling">Function Calling</a><a class="tag" data-page-node-id="FwXeLUfX9ffENqFVTuGAYA" href="tech-guide.html#k-vllm">vLLM</a><a class="tag" data-page-node-id="ISxusAKWg30Sy8eGRr5MjQ" href="tech-guide.html#k-lora">LoRA 微调</a>
+        </div>
+        <p class="skill-note" data-page-node-id="kGmNoNAvA5BEzUQ1asFs2X">多模型运行时热切换、结构化输出、私有化部署与垂直场景微调适配。</p>
+      </div>
+
+      <div class="card skill-card" data-page-node-id="xFtAUSV3kmvNwkepfAAvH1">
+        <h3 data-page-node-id="Gayli4GWGOODKsYJLPmQ5k">🛡️ Agent 高阶能力与风控</h3>
+        <div class="tags" data-page-node-id="S7CP718vDygdD6JbxuoxxD">
+          <a class="tag" data-page-node-id="GOh8aWM1nK1u57dB06r41l" href="tech-guide.html#k-custom-tools">自定义工具集</a><a class="tag" data-page-node-id="TJMw3gADzOxsjkhtOVEwNn" href="tech-guide.html#k-mcp">MCP 协议</a><a class="tag" data-page-node-id="6CzM6Ulxh9uATy5poShZ1U" href="tech-guide.html#k-prompt-masking">Prompt 脱敏</a>
+          <a class="tag" data-page-node-id="VmVlyWMeoHhFMBxKYcKDvn" href="tech-guide.html#k-compliance">内容合规校验</a><a class="tag" data-page-node-id="jCvkq8sHqcy2ryUql6fB2B" href="tech-guide.html#k-token-stats">Token 统计</a><a class="tag" data-page-node-id="hFpXsBItCyCblBeSgZM1Pj" href="tech-guide.html#k-log-trace">日志溯源</a><a class="tag" data-page-node-id="6kyRNdRY3KitZ8THnCT2NH" href="tech-guide.html#k-neo4j">Neo4j 知识图谱</a>
+        </div>
+        <p class="skill-note" data-page-node-id="aWWsqVDuv6PY0dBDxfmFHa">自主决策与任务闭环执行；安全风控与 LLM 观测监控体系搭建。</p>
+      </div>
+
+      <div class="card skill-card" data-page-node-id="yGz68L685kVnvCHseV899I">
+        <h3 data-page-node-id="wcspPC0G1ccQgCrOd2BHZ4">🔧 后端服务与中间件</h3>
+        <div class="tags" data-page-node-id="8ZTKSk1cfuAcCsoqqVBky2">
+          <a class="tag" data-page-node-id="P89uVMYGqbfKaJZF0qtXGF" href="tech-guide.html#k-python">Python</a><a class="tag" data-page-node-id="dpsDrZB2NtqgzpyNJyAppz" href="tech-guide.html#k-fastapi">FastAPI</a><a class="tag" data-page-node-id="3FhI6WFuUGXAa16NVsjEdH" href="tech-guide.html#k-sse">SSE 流式</a><a class="tag" data-page-node-id="MG0njlTYIoWUiQV9R9bl2K" href="tech-guide.html#k-asyncio">asyncio</a>
+          <a class="tag" data-page-node-id="t6iyM2NtEBbHh9YI9N06BQ" href="tech-guide.html#k-mysql">MySQL</a><a class="tag" data-page-node-id="LXJqqrNdaXXP6ncnK23PPK" href="tech-guide.html#k-postgresql">PostgreSQL</a><a class="tag" data-page-node-id="YZ4WJZ1kqDpeJvIoMcx91i" href="tech-guide.html#k-redis">Redis</a><a class="tag" data-page-node-id="saZECc3gOfktDBBzDzgR6f" href="tech-guide.html#k-kafka">Kafka</a><a class="tag" data-page-node-id="BBAWzRm6ntUpnc9Py5u0KV" href="tech-guide.html#k-sqlite">SQLite</a>
+        </div>
+        <p class="skill-note" data-page-node-id="7kStyYuArkzJz06gduIqVF">高性能接口开发、会话历史管理、权限体系与业务存储设计。</p>
+      </div>
+
+      <div class="card skill-card" data-page-node-id="hSdmccK6DfEUA70VoGFxXQ">
+        <h3 data-page-node-id="fHpmwTUjLRBx9sS61hWPcd">🚀 部署运维与效率工具</h3>
+        <div class="tags" data-page-node-id="vlbE3NMJOq8FRk4Jfqs8nR">
+          <a class="tag" data-page-node-id="u93RSHH2qog0vtKaGGX1OL" href="tech-guide.html#k-docker">Docker</a><a class="tag" data-page-node-id="O27ioEfCbiCBzih5iQQ23B" href="tech-guide.html#k-compose">Docker Compose</a><a class="tag" data-page-node-id="PFRB1KDRJ0N6xVQ172CxtO" href="tech-guide.html#k-linux">Linux</a><a class="tag" data-page-node-id="sL12bB3GAjuBTNqNkEtjoJ" href="tech-guide.html#k-nginx">Nginx</a>
+          <a class="tag" data-page-node-id="ZJF0AjYOKBm4u0gBLyCixD" href="tech-guide.html#k-prometheus">Prometheus</a><a class="tag" data-page-node-id="b9oB1UhGC54NAIF76LDJRb" href="tech-guide.html#k-numpy">NumPy</a><a class="tag" data-page-node-id="ic2WNys8Pq0MVhmfgLzf9q" href="tech-guide.html#k-pandas">Pandas</a><a class="tag" data-page-node-id="cRAJ1oVGPVXyvAanrt8zek" href="tech-guide.html#k-sklearn">Scikit-learn</a>
+          <a class="tag" data-page-node-id="FOwNnP35Wbo7zVtBSN6sgD" href="tech-guide.html#k-ai-dev">AI 辅助开发</a>
+        </div>
+        <p class="skill-note" data-page-node-id="2OQv9ozvQ2WHAn2uwiFhMJ">容器化多服务编排、一站式部署运维；熟练使用 AI 编程工具覆盖开发全流程。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Projects ===== -->
+<section id="projects" data-page-node-id="KGD3CyjsbBSU3jehBqN30F">
+  <div class="container" data-page-node-id="rc00QiGBXI1pu1rH5sAA3b">
+    <h2 class="section-title" data-page-node-id="E4lm62Cfu4bGUp8QAgnDJh">目前的项目</h2>
+    <p class="section-desc" data-page-node-id="Bb55kGlPsfevcdV7D40M7q">三个从 0 到 1 落地的 AI 应用项目</p>
+
+    <div class="project" data-page-node-id="EGjqm9kz9ws0BphOZ2upFn">
+      <div class="project-head" data-page-node-id="5gJgqJRp9DnykNHPz2ghQx">
+        <h3 data-page-node-id="ijGaCJgqGFqa5APT8Yx7I3">🧠 企业智能知识中枢 · RAG 底座</h3>
+        <span class="project-role" data-page-node-id="Yz5Ui59YqIAxHKQoMTy4zo">RAG应用开发工程师</span>
+        <span class="project-time" data-page-node-id="wHByWPW1HqnSVWyYXvVL5M">2026.05 ~ 至今</span>
+      </div>
+      <p class="desc" data-page-node-id="5ju8QNgu47YHdSsAVME26D">
+        将分散在 SOP、技术文档、规章制度中的企业知识统一收口为可自然语言检索的问答服务：
+        员工提问即可获得<b data-page-node-id="lscLKbh7kOv9Jt3QC8d1MB">带来源</b>的标准答案，支持多轮追问、跨文档检索与「查完即办」的工具调用闭环。
+      </p>
+      <ul data-page-node-id="lFVGEHlI84jhPe5rGJAsAe">
+        <li data-page-node-id="lzjexKLo7SfcKNPtG32w3F"><b data-page-node-id="vOSd8IyJvZmgeuGbmq2McZ">自研多格式解析器</b>：PDF / Word / Markdown 自动加载与智能切片，按 <span class="hl" data-page-node-id="lAKzKZwPFg9paL2GJjSAvK">doc_id 定向增量更新</span>，新 SOP 分钟级生效。</li>
+        <li data-page-node-id="dVffBkg8KfnONqt0EfJZYi"><b data-page-node-id="BvDuEuqlU9z12LzctO5WRK">混合检索 + 二次重排</b>：自研 HybridRetriever 调度 Chroma 向量召回与 BM25 稀疏召回，<span class="hl" data-page-node-id="sEH3E1vOMb6mckmKEQWG54">RRF 融合</span>后二次精排，解决专业术语场景命中不稳。</li>
+        <li data-page-node-id="ivTEGXKz7iECBija0XjoW2"><b data-page-node-id="icGAkj3r5HOzQVkHXGl8pg">多轮会话记忆</b>：基于 ConversationBufferMemory 按 session_id 管理历史，支持指代消解，按轮数裁剪防止记忆膨胀。</li>
+        <li data-page-node-id="iQhHKoda86dhrOibEJQIgq"><b data-page-node-id="W3qJIe3Attkr3cGjqBEhG2">LangGraph 有状态工作流</b>：route → act 两节点编排，规则分类器判断「纯问答 or 行动办理」，知识检索与流程执行<span class="hl" data-page-node-id="Jq5fKWKEWAQiy4ycRoN7eD">串成闭环</span>。</li>
+        <li data-page-node-id="0AGFeAiBApa0XMi4wqO1wx"><b data-page-node-id="iu4N0daxUxbmG6xuTHEcuG">多模型无缝切换</b>：LLMManager 多服务商注册表（DeepSeek / Qwen / OpenAI / Moonshot），运行时切换零业务改动；<span class="hl" data-page-node-id="wDyv1EERzBMVP4gtzrump5">离线降级模式</span>保证全链路可验证。</li>
+      </ul>
+      <div class="tags" data-page-node-id="aI0dcKbhH8GCfq6FZxZqnY">
+        <span class="tag" data-page-node-id="HUYJMlrHt03ga8MJ1gT2HG">Python 3.11</span><span class="tag" data-page-node-id="YkRpMd57DiHx2aaL8LIYxQ">LangChain 0.3</span><span class="tag" data-page-node-id="3Mpt7jSj5yRdSqaosiAU3i">LangGraph</span><span class="tag" data-page-node-id="NGjU65ZwMLMaY6fMczWD42">FastAPI</span>
+        <span class="tag" data-page-node-id="0AqJdrr5CI5zDwCpPXq5k7">ChromaDB</span><span class="tag" data-page-node-id="Q0WFvXqsNQ5pAhWTVZtq52">BM25 + RRF</span><span class="tag" data-page-node-id="AcBTzG0YeFCD1GBqINBipg">SSE</span><span class="tag" data-page-node-id="ValBQomRYLBW2NM82qTalR">Docker Compose</span>
+      </div>
+    </div>
+
+    <div class="project" data-page-node-id="Fy5eS8zIKVctzOWUNkEX34">
+      <div class="project-head" data-page-node-id="yRlyERAGSFwLFT83gHuEXb">
+        <h3 data-page-node-id="1dEFllkVMF3BcrhohzrMax">🚗 企业智慧出行 Corporate Journey Hub</h3>
+        <span class="project-role" data-page-node-id="lLUqJxOUfYEn6BRyn66AAT">AI应用全栈开发者</span>
+        <span class="project-time" data-page-node-id="U7TIHc8er8bB04AXjS9zT5">2026.01 ~ 2026.05</span>
+      </div>
+      <p class="desc" data-page-node-id="BNtydY6nbUB2ghT7mBe82O">
+        基于大模型多智能体协作的企业差旅管理平台：三个 FastAPI 微服务（Agent 编排中心 / 行程规划引擎 / 实时感知引擎），
+        覆盖差旅「行前规划 → 行中保障 → 行后归档」全链路，含 RAG 政策库、审批门禁与多源实时监控。
+      </p>
+      <ul data-page-node-id="5oq2HaI0uk4xgiOPpLLO1i">
+        <li data-page-node-id="o1HsusZz5CPBwryVpiBb6P"><b data-page-node-id="h8k6XmA17aA3Snl8J3sLMi">多 Agent 意图路由</b>：LangGraph StateGraph 构建规划 / 问答 / 管理 / 应急<span class="hl" data-page-node-id="a0QkHKeuEYXN93ePQJMLzH">四类意图</span>工作流，平台能力下沉公共层零重复代码。</li>
+        <li data-page-node-id="FHpIqhMKZu5BKHbp60X1aM"><b data-page-node-id="oo6uKCAOfYjIscL85xTzAp">流式行程生成</b>：大模型参数提取 + 规则生成多日结构化行程 JSON，SSE 逐 token 流式输出，多模型热切换全链路透传。</li>
+        <li data-page-node-id="gENgGdQdHHqe0tpZzhuAgM"><b data-page-node-id="F2hFXDDGRM64liKqqHi91u">性能治理实战</b>：修复 async 路由同步调用 LLM 阻塞事件循环（线程池化）、生成器单例并发串单、JSON 非原子写等问题，<span class="hl" data-page-node-id="BzCxV4JRSp7WwtO3PJkAh4">问答首字响应优化至 1.3 秒</span>。</li>
+        <li data-page-node-id="WHqRsMSvmBfOHn8uqH0hxH"><b data-page-node-id="AEADaH35rvwVZwAPFDMxje">企业管控闭环</b>：职级差旅政策自动匹配、超标审批门禁（行程待审批不可调整），覆盖组织架构 / 政策 / 审批全流程。</li>
+        <li data-page-node-id="KU4Sg9JqvpAK6kjQRhpjPT"><b data-page-node-id="HjKNA6HDHAG665cgLYM2ZL">全链路降级体系</b>：LLM 走模板行程、向量检索降级关键词、感知数据源降级 Mock，<span class="hl" data-page-node-id="TlS0TDjQF5PrHdN3XWWxRi">任何依赖缺失下功能链路不断</span>。</li>
+      </ul>
+      <div class="tags" data-page-node-id="z1Nd91F40yVOZQh6kUQ2xT">
+        <span class="tag" data-page-node-id="NSyp8Eu6E6In6hj7UHOQ3b">FastAPI 微服务</span><span class="tag" data-page-node-id="BpIK7lIkQbRTY8TryQZyaz">LangGraph</span><span class="tag" data-page-node-id="cyhpILDFdbDQDgvlDkUbqK">React 19</span><span class="tag" data-page-node-id="yYGBX26cairn8aHLw52Did">bge-large-zh</span>
+        <span class="tag" data-page-node-id="vYt3DWUl9YHzXHV4dH0dL8">APScheduler</span><span class="tag" data-page-node-id="y3Q7ujTzdSQEGsqAtdUbPz">SSE</span><span class="tag" data-page-node-id="VuqpeVT4v2XOnfTClc9fuW">Prometheus</span><span class="tag" data-page-node-id="oCUwPsTgeA2i80NEXpWGHr">E2E 自动化验证</span>
+      </div>
+    </div>
+
+    <div class="project" data-page-node-id="8jPURLbMEeWCL7B6nnoTU9">
+      <div class="project-head" data-page-node-id="ubu58LQWPAHVfoWp8vGjhK">
+        <h3 data-page-node-id="x4hJiFFsAB0VeZ9E8yhrBB">🌍 跨境电商一站式 AI 运营平台</h3>
+        <span class="project-role" data-page-node-id="AjZGAovNlAN23jZoEBhSub">AI大模型应用开发工程师</span>
+        <span class="project-time" data-page-node-id="YFAclPQSbEXhDUnhNfh5qX">2025.08 ~ 2025.12</span>
+      </div>
+      <p class="desc" data-page-node-id="ZUKY76OddGjibW3a9liZek">
+        基于 DeepSeek + RAG + Agent 的外贸智能服务平台，覆盖智能客服、多语言翻译、智能文案、知识库管理、数据洞察与管理后台六大模块，
+        通过持久化术语库与翻译记忆保证 30+ 语种译法一致性。
+      </p>
+      <ul data-page-node-id="XI3GFec0uyFErXCocv56Af">
+        <li data-page-node-id="tXEGJB8Thl12MMJYg9Xft2"><b data-page-node-id="RBHtZUDbpkryFl4QdR9LGD">可插拔抽象层</b>：LLM / Embedding / 向量库工厂模式设计，默认 Mock 无 Key 跑通全链路，改配置即切真实模型。</li>
+        <li data-page-node-id="JoH48bGzOOAIwnRgsiz8QS"><b data-page-node-id="f1fdLTQsN0dYCV9GrhiUC1">Hybrid Retrieval 体系</b>：向量 + BM25 + <span class="hl" data-page-node-id="NPJAmvokw16GcaEzIKjqMD">RRF 融合 + 可插拔重排</span>，回答支持知识溯源；BM25 语料指纹缓存消除全量重建开销。</li>
+        <li data-page-node-id="uF31YQLmWQUkKbMShyDbvi"><b data-page-node-id="HFzGup4NCXOKEpI94cvcOx">持久化术语库</b>：FOB / CIF / L/C 等外贸术语注入 Prompt 强约束译法；「LRU + SQLite」<span class="hl" data-page-node-id="cytDGP4NPHlBckfGLuVKES">两级翻译记忆缓存</span>跨重启命中。</li>
+        <li data-page-node-id="0RLgwGgqxY4rZGa9NuxDTF"><b data-page-node-id="ys93sUprVf8S8BkDRD2IFb">并发生成</b>：asyncio.gather 多段文案并发 + SSE 打字机渲染，生成延迟从串行之和降为<span class="hl" data-page-node-id="7hGiWaanjHjbWtwKtALPaP">最慢单段</span>。</li>
+        <li data-page-node-id="q2qbh5mVkdEk5AXTuwEUEy"><b data-page-node-id="RfzYRHFjqDE1stZf656jsJ">安全与可观测</b>：PBKDF2 + HS256 JWT 零第三方依赖认证、多角色权限、Token 真实 usage 成本看板、20 项冒烟 + 单元测试。</li>
+      </ul>
+      <div class="tags" data-page-node-id="JoJj5i4Ax1TDVlu6ecN5op">
+        <span class="tag" data-page-node-id="eeScO2xTjtfwjKDPaD06q7">DeepSeek</span><span class="tag" data-page-node-id="Dy67eHU6FfY2QEblpW5DQu">FastAPI</span><span class="tag" data-page-node-id="cfVRVFs9YLKxy0uEyxGzYT">RAG</span><span class="tag" data-page-node-id="XEQ6xVpGr333ER0mfu9Tv1">JWT</span>
+        <span class="tag" data-page-node-id="4AFZo2KH5WlE0jEpy1OGGu">asyncio</span><span class="tag" data-page-node-id="ZHD44Dzh3SiS3ltYgz3wTc">SQLite</span><span class="tag" data-page-node-id="baJJqor01ZuMjzRJJtRCjQ">Docker</span><span class="tag" data-page-node-id="0POyNcP99BvdrluyvLSENP">SSE</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Personal Projects ===== -->
+<section id="personal" data-page-node-id="eeHprwDpfALP4RKs6CxR9C">
+  <div class="container" data-page-node-id="S26ETRXepDZfjcZGACDkkI">
+    <h2 class="section-title" data-page-node-id="pFYeHjAeiHKkEe8XrvTtai">个人项目</h2>
+    <p class="section-desc" data-page-node-id="fnDdbf9gLbBxLYRZ5iBoh6">工作之外自研与深度参与的开源项目</p>
+
+    <div class="project" data-page-node-id="vKGaLmoQMuWID3KJgoxeWH">
+      <div class="project-head" data-page-node-id="9O7a0uc1Q0gX63YcJLVRxv">
+        <h3 data-page-node-id="5diEaA5oBQAxcGjSXeY71p">✨ Magic Resume · 魔方简历（在线简历编辑器）</h3>
+        <span class="project-role" data-page-node-id="rtsEuFpHHl8s7wTMKDzKeV">AI 能力定制</span>
+        <span class="project-time" data-page-node-id="wmQuAqqzQfe7uQwjBBpTBr">2026/08 - 至今</span>
+      </div>
+      <p class="desc" data-page-node-id="OAGp4n8ZgyGjHZQeAmCQvM">
+        基于 TanStack Start 的现代化在线简历编辑器（开源 Apache-2.0，曾登 Trendshift 榜单），支持实时预览、自定义主题、PDF 导出与硬盘级本地存储。
+        我在其基础上负责<b data-page-node-id="vEHwOUrGrNC8Bugi42Zzrc">扩展国产大模型 AI 能力</b>，让产品可一键调用国内模型完成简历润色与语法检查。
+      </p>
+      <ul data-page-node-id="qM82nxOEpbO0TEOGQQCwqz">
+        <li data-page-node-id="gTAHYB4aKHHCI10zfxGFKe"><b data-page-node-id="76s9duFdUyopdOUa3eASHn">接入硅基流动（SiliconFlow）</b>：在配置中心 <code data-page-node-id="FHIhUwzzurvAVEL43FEysr">src/config/ai.ts</code> 与 zustand store 新增 SiliconFlow provider，UI 做分组模型选择，与 doubao / deepseek / openai / gemini / hunyuan 并列可选，润色与语法检查两处发请求点统一加分支。</li>
+        <li data-page-node-id="i7yrDzGcSGWtT4ReSEZc7j"><b data-page-node-id="MW46P6M5k2QlUdr0Sqa0Iz">AI 润色与语法检查</b>：基于 AIPolishDialog 一键润色、useGrammarStore 实时语法纠错，统一走 OpenAI 兼容 fetch 封装，新增厂商只需改 config、路由层不动。</li>
+        <li data-page-node-id="kmETje4RO1IJ24KAPLKnZo"><b data-page-node-id="kjl66my1j7SpMOZTIf1g8U">PDF 导入解析</b>：resume-import 接口基于大模型解析 PDF 简历，回流编辑器继续编辑。</li>
+        <li data-page-node-id="dDFiii1D71oqjjfFJRiKy0"><b data-page-node-id="zwtGqll0BBDc1iEBOAylGk">产品能力</b>：自动一页纸、多语言、自定义主题、深色模式、实时预览、自动保存、本地存储。</li>
+      </ul>
+      <div class="tags" data-page-node-id="nEFDrKjMRfQgxCM5x9fWmF">
+        <span class="tag" data-page-node-id="RqVcHnuTm4bzyPsVP22bP6">TanStack Start</span><span class="tag" data-page-node-id="6gumxCOja2mDz7qoNukOvb">React 18</span><span class="tag" data-page-node-id="hOsG4XfB4ExN8pnUwyMLta">TypeScript</span><span class="tag" data-page-node-id="YhF3iDYPBI7ktPBWR7cHRj">Tiptap</span>
+        <span class="tag" data-page-node-id="FdAzgOru1SsaaXFmapHbMJ">Zustand</span><span class="tag" data-page-node-id="EYfwGyNumvxNP8gBgLT1Cy">SiliconFlow</span><span class="tag" data-page-node-id="6AOIYbka68OWEj0IwInp6c">Motion</span><span class="tag" data-page-node-id="N4goUYI3gijsNtw3zgZjyt">Docker</span>
+      </div>
+    </div>
+
+    <div class="project" data-page-node-id="gMfKeh1g8UffvBcCdUPWtp">
+      <div class="project-head" data-page-node-id="sj6veVWbogEaUq6UuUARXR">
+        <h3 data-page-node-id="3yiuy7RmvXtBZ9ve8B4VfQ">📝 NoteDesk 笔记（本地优先 Markdown 桌面软件）</h3>
+        <span class="project-role" data-page-node-id="4zwNyNBXf0ESbttPq6Lvlw">独立自研</span>
+        <span class="project-time" data-page-node-id="fRYA5hDaGHeA6XTb4PBSEk">2026/08 - 至今</span>
+      </div>
+      <p class="desc" data-page-node-id="szLDaIbfvOB3EZiLDigciO">
+        一款<b data-page-node-id="Xc4VRCTj69bEDCmou1tt1F">本地优先</b>的 Electron 桌面笔记软件：直接打开你电脑上的文件夹就能用，不导入、不拷贝，文件始终留在原地，用任何编辑器都能打开同一批文件。
+      </p>
+      <ul data-page-node-id="6xtyQmge4Dvtnpmbt7xP7f">
+        <li data-page-node-id="u8wDbSxTxxnKJDA4PTF4Vd"><b data-page-node-id="uPtrm7WJyQmT3rpmMkEqPb">工作区直读</b>：选本地文件夹即三栏（目录树 / 文件列表 / 阅读区），支持 .md / .markdown / .txt，GBK 中文自动识别，相对路径图片内嵌离线可看。</li>
+        <li data-page-node-id="YQrmGj1Gb9umdB9yIO0XHU"><b data-page-node-id="41RU6U9Do0s7VvtS6uATs0">Typora 式实时编辑</b>：打开即渲染，锁定时点段落即复制、解锁点段即编辑；源码模式与实时区一致；<span class="hl" data-page-node-id="oHBnid4UGdd1NNcL3FO5nr">原子写 + mtime 冲突检测</span>防丢稿、防静默覆盖。</li>
+        <li data-page-node-id="YXwcB2EIYXf7zcabrh1MTl"><b data-page-node-id="KAWJ75t23rc0YsVsvtQrTg">文件管理与体验</b>：新建 / 重命名 / 回收站还原 / 右键菜单，明暗主题、实时搜索、视图与上次文件全部记忆，完全离线、数据不上传。</li>
+        <li data-page-node-id="3V9UaJfNyB57WrIP9GO6Nm"><b data-page-node-id="ZiUqwQlu3Of08Bq1HBs6ID">安全渲染</b>：marked + highlight.js 内联渲染并过滤危险属性；主进程上下文隔离，渲染进程不接触文件系统。</li>
+      </ul>
+      <div class="tags" data-page-node-id="NDVokBaJugQgbk0OKsIHTG">
+        <span class="tag" data-page-node-id="5Y2QIHXq5RiZOTGSvmRMfz">Electron 33</span><span class="tag" data-page-node-id="4wnVaCIEfFSH9mBUA4LEq1">Node.js</span><span class="tag" data-page-node-id="QRSDirqP8kNVXEqJ4d8JyC">marked</span><span class="tag" data-page-node-id="O5edDQchrDLHEFUKa6hJsF">highlight.js</span>
+        <span class="tag" data-page-node-id="Ea6Tr9vROyTCqCUrjyuFo8">原生 JS</span><span class="tag" data-page-node-id="sh4Mexy4e2q5OOvtXUtGkg">原子写</span><span class="tag" data-page-node-id="ZFJSn1olxoqPNsLtDDRU5R">离线优先</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== About Me (interests) ===== -->
+<section id="aboutme" data-page-node-id="L2d83KUG4kFBfCuC6x0y8y">
+  <div class="container" data-page-node-id="v8gt4Eg6mC2mIy7bULLjtd">
+    <h2 class="section-title" data-page-node-id="TwV33ViFF2q7Ls7eqIjWFn">关于我</h2>
+    <p class="section-desc" data-page-node-id="tkvehzU8wnje0nhzUBWAfe">代码之外，也读史、看车、临画、写几句</p>
+
+    <div class="about-intro" style="font-size:16px;" data-page-node-id="L2AMTbdUWk2gIOUw25nAv5">
+      「纵此生也不过百岁，何必沾惹愁滋味。莫叹去日不可追，来日犹可为。」<br  data-page-node-id="mMW4xetoUiiwo3AkHfhxDj"/>
+      做事喜欢把一件事做透，闲暇也偏爱能在时间里沉淀下来的东西。
+    </div>
+
+    <div class="about-grid" data-page-node-id="peqEcOSaJyp7Bp6Ze8pQGj">
+      <div class="card" data-page-node-id="crYy9kdwyCJzYnoU6EAdUl">
+        <div class="icon" data-page-node-id="4o5iLhCMLbGdW8vtKvzWpm">📜</div>
+        <h3 data-page-node-id="Zoo2JB9gxDU7mJBw7LUB06">读史</h3>
+        <p data-page-node-id="c2i7Sjo8FH3pm8mmy27vwr">喜欢翻历史，「五十年过去，弹指一挥间」——读的是岁月里人的选择与代价，也常拿来对照做产品的取舍。</p>
+      </div>
+      <div class="card" data-page-node-id="XSow7dmoxldCq2CdDsoxrE">
+        <div class="icon" data-page-node-id="BewCldBFnYUS215gaEJq0f">🚗</div>
+        <h3 data-page-node-id="tpwkAEsg7ILgfXtavl17NT">汽车与机械</h3>
+        <p data-page-node-id="QKptYwBSyWJz8m60APTJHI">对工程细节着迷，比如汽车上的一键启动，背后是十几年的人机工程与安全逻辑演进，而非一个按钮那么简单。</p>
+      </div>
+      <div class="card" data-page-node-id="6FazG5Hn7JpnkASHkY3frV">
+        <div class="icon" data-page-node-id="d7MCObgTzoQbvDcgOJD59Z">🖌️</div>
+        <h3 data-page-node-id="gTQnmjaPkJQmGepwo2FzP8">国画与传统文化</h3>
+        <p data-page-node-id="1Cx8aPWF3NXQc8gJwMoJBv">闲暇临工笔画、看传统神仙画像，线条与设色里的秩序感，和写代码追求的结构清晰异曲同工。</p>
+      </div>
+      <div class="card" data-page-node-id="t14aG1uTj5sAMwQnagjoMA">
+        <div class="icon" data-page-node-id="uM0EwMkW1zLxeOUPImfl07">✒️</div>
+        <h3 data-page-node-id="49SzDhDj6yCzyoow512Mv6">诗词随笔</h3>
+        <p data-page-node-id="GZPR6D10jf0sNSHKHZnme8">随手记几句，多是些关于时间与生活的白描。写下来，是为了把飘着的事想清楚。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== AI Collaboration ===== -->
+<section id="aiway" data-page-node-id="IXLV1HAnESp22y77Hsz6OJ">
+  <div class="container" data-page-node-id="gbPaDd0IwSa9MMJWFM1twh">
+    <h2 class="section-title" data-page-node-id="XdrKrIbeoegcgQpjRyg0lV">我与 AI 的协作</h2>
+    <p class="section-desc" data-page-node-id="XBi2tEqBj6mTl8YUlFBgp5">把 AI 当系统层，而不是问答机 —— 我的协作原则与对话习惯</p>
+
+    <div class="about-intro" data-page-node-id="H2a8weJwcDy3jm7aOaeh1v">
+      我给常用的 AI 助手起名叫「<strong data-page-node-id="d3v4sIbuWN0szzLbBcqKY7">AI 操作系统</strong>」：它不该只在问答框里待命，而应该像系统软件一样常驻——读文件、跑脚本、盯数据流，把重复劳动接管掉。下面这几条原则，是在一次次真实协作里磨出来的。
+    </div>
+
+    <div class="about-grid" data-page-node-id="Qf9WA5CEYcNvUdiri5VyDG">
+      <div class="card" data-page-node-id="vdbue82d8s5BmbuRiDL95h">
+        <div class="icon" data-page-node-id="DtYVtRKarNv7S7M5r4P3NA">🚀</div>
+        <h3 data-page-node-id="sPNoECiFVYu0VqoqjQtfC9">先跑起来，再迭代</h3>
+        <p data-page-node-id="W1u0bysGYME9gHrG4GKl9i">不先写完美需求文档：v1 当天出活，用真实产物代替空想，再拿「这对我没用」的真实反馈做减法——需求是迭代出来的，不是一次问出来的。</p>
+      </div>
+      <div class="card" data-page-node-id="Mwd9GmRji59ME1NMtvhtjI">
+        <div class="icon" data-page-node-id="oaN46poVUgljgEXWyyZDqT">🔍</div>
+        <h3 data-page-node-id="wAUkvM8k64wizESM5eQFrB">先审来源，再谈质量</h3>
+        <p data-page-node-id="V3lto3f6ndILyELIcRHZ8O">拿到 AI 产出先问三件事：数据从哪来（接口还是搜索）、文案谁写的、能不能控。上游不可控，就自己加一层二次编辑兜底，不让通稿直接进交付物。</p>
+      </div>
+      <div class="card" data-page-node-id="Cy8NJuynFpqaDapbJnqa8b">
+        <div class="icon" data-page-node-id="NeDAVo6hW1KCHv7oLTBGfj">✂️</div>
+        <h3 data-page-node-id="HmZRA4FYvelQKO7oGhamGW">信噪比优先</h3>
+        <p data-page-node-id="iktNXJ2HBPbiuFnGeMvKs0">100 篇全量不如 20 篇硬货：砍榜单、砍通稿、砍重复报道，只要「一句话结论 + 为什么值得关注」。信息消费本身，也值得做一次工程优化。</p>
+      </div>
+      <div class="card" data-page-node-id="xAbUCg2IXYX1ItzRyNlzx6">
+        <div class="icon" data-page-node-id="eZVJfjh3RDjOImmjEzegfF">🗂️</div>
+        <h3 data-page-node-id="aeQXZp2IwJ94NeVrowzWaY">多项目并行编排</h3>
+        <p data-page-node-id="BYZnmSUmEanEcOuSzjfb1Q">让 AI 按项目各管各的上下文：知识库、差旅平台、跨境电商、个人主页互不串台。人负责方向与取舍，AI 负责执行与产出。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Future ===== -->
+<section id="future" style="background: var(--surface); border-top: 1px solid var(--border);" data-page-node-id="g9Z0WjtnnQ0wIlfDwFFQNR">
+  <div class="container" data-page-node-id="LBKTupas4i9CGA5XScMeio">
+    <h2 class="section-title" data-page-node-id="1V3EpjZ7eNNYSxvUtf3I3P">持续学习</h2>
+    <p class="section-desc" data-page-node-id="lmIsoerKpNKoL2ytCm7rS3">以项目带学习，以输出倒逼输入 —— 学过的做成项目，项目的沉淀成文</p>
+
+    <div class="about-intro" data-page-node-id="Z5m3KxooddSWBF1CnevtUs">
+      我的学习方法有三条：<strong data-page-node-id="4aqD4DvwCtVuWgCmLfPTly">以项目带学习</strong>——想学什么就把它做成能跑的项目，AIOps、微调、向量库都是先立项再深潜；<strong data-page-node-id="NINB3B3Gi3PBhiIon8AFlf">以输出倒逼输入</strong>——<a href="glossary.html" style="color: var(--primary);" data-page-node-id="ErUwbsi5xe7ZIkMOjnGVFO">术语小词典</a>、每周论文硬货精选，都是学习过程留下的沉淀物；<strong data-page-node-id="SGWzcKMgeJ3RbDiC1O3kBG">把一件事做透</strong>——宁可窄而深，不做宽而浅。这个板块会随学习进度持续更新。
+    </div>
+
+    <div class="future-grid" data-page-node-id="8IfNsmKm0wR3L97W7W5hq6">
+      <div class="card future-card" data-page-node-id="N8Ajf6PpuWYCcG3ubKnycv">
+        <span class="status status-doing" data-page-node-id="jlWqDUas9gysriXPBKH2uu">🔄 学习中</span>
+        <h3 data-page-node-id="BxyoaP5bRpQUWXwosYeNf3">多 Agent AIOps 智能运维</h3>
+        <p data-page-node-id="cpp8dFh8LKkSEAW4zfTnAg">Python / Java / Go 多语言技术栈的 AIOps 多智能体项目实践，探索大模型在运维告警收敛、根因定位中的工程应用。</p>
+      </div>
+      <div class="card future-card" data-page-node-id="s0EY9C6BdSc1F2Mnm7Fzcj">
+        <span class="status status-doing" data-page-node-id="PFq4Gis2ZLsHodKfvLS9d0">🔄 学习中</span>
+        <h3 data-page-node-id="GYUwgjNAaN931u0sARhPEB">模型微调深化</h3>
+        <p data-page-node-id="jG1wLixvjdtmR3RDjRQJql">QLoRA / LLaMA-Factory 全流程实践，从 LoRA 业务适配走向更完整的垂直领域模型训练与评测体系。</p>
+      </div>
+      <div class="card future-card" data-page-node-id="tkFxFAaZPPgnJJBnWLBJBo">
+        <span class="status status-plan" data-page-node-id="sEgaM7abkAXwWTVFN8FtuB">📋 规划中</span>
+        <h3 data-page-node-id="1zSvhffbHibN48nIO6I4pG">向量检索进阶</h3>
+        <p data-page-node-id="DCq8O2eVu9Kv3b2hPgDcLg">从 ChromaDB 走向 Milvus / PgVector 生产级向量库，探索更大规模知识库下的分片、索引与检索调优。</p>
+      </div>
+      <div class="card future-card" data-page-node-id="pUGM7PZXyTGfvv9n6aNwI0">
+        <span class="status status-doing" data-page-node-id="ZMteigzQEAZjwIJQalQvHz">🔄 实践中</span>
+        <h3 data-page-node-id="sgR0JtgE2VRN5LnnTElqrB">AI 信息流工作流</h3>
+        <p data-page-node-id="k4iJQBw20DoMVeykWzoDd1">用公开数据接口 + 二次编辑搭建每周「论文硬货精选」：三方向筛选、跨源去重、逐篇改写——把信息消费本身做成一条可复用的工程流水线。</p>
+      </div>
+      <div class="card future-card" data-page-node-id="sCHIlJrj5bKE3qoAivFvJw">
+        <span class="status status-plan" data-page-node-id="G5b9S8CipIhNH0G8K9dC5a">📋 规划中</span>
+        <h3 data-page-node-id="IAHR622g9i9Omkt4rNjmAs">「AI 元年」内容体系</h3>
+        <p data-page-node-id="iu388wfjiTjh6LIWBNM68d">把周报、教程与实战案例沉淀成体系化内容，也把这套「人与 AI 的协作方法」写下来——元年属于每个把 AI 用起来的人。</p>
+      </div>
+      <div class="card future-card" data-page-node-id="nssmNtZWw56De5JSm8B403">
+        <span class="status status-plan" data-page-node-id="MwtehAOP8FpKDwChyZAJCG">📋 规划中</span>
+        <h3 data-page-node-id="vOGkCkm0513n1gHRhV915A">更多项目持续补充</h3>
+        <p data-page-node-id="QUVzQw6nO7KauCAnp9Qdsu">新学习的项目完成后会更新到这个板块，敬请期待。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer data-page-node-id="OHTxQz7r1JvSHqrZarZ2cD">
+  <div class="container" data-page-node-id="nUzVq3aCFLGLBNS3fLcOBN">
+    <p data-page-node-id="rrcVquROEzaSmJDtNKvome">乔晓 · AI 应用开发工程师 · 西安</p>
+    <p data-page-node-id="vT5M5Nx1i8SdcmAw5rGbIK">📮 <a href="mailto:3078782713@qq.com" data-page-node-id="uKjJiZlP1Vw1tbdsat8k6V">3078782713@qq.com</a> ｜ 📱 13256626645</p>
+    <p style="margin-top: 12px;" data-page-node-id="7VD15i9Aw7FmkHigtz7emT"><a href="glossary.html" data-page-node-id="tpNbVdwvoKQYyGS4NFh3Pr">术语小词典</a></p>
+    <p style="margin-top: 12px; opacity: .6;" data-page-node-id="p5nK0ZmKe3mv54jBBjfcUw">© 2026 Qiao Xiao · Built with ❤️</p>
+  </div>
+</footer>
+
+<!-- ===== Skill Modal ===== -->
+<div class="modal-mask" id="skillModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <button class="modal-close" id="modalClose" aria-label="关闭">✕</button>
+    <span class="m-cat">⚡ 一句话面试要点</span>
+    <h3 id="mTitle"></h3>
+    <div class="m-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // 技能速查数据：与 tech-guide.html「技能速查」区保持同步（id -> 名称 / 要点 / 详解章节锚点）
+  var SKILLS = {
+    "k-langchain": { name: "LangChain", text: "核心抽象是可组合的调用链（Chain），面试常问与 LangGraph 的区别：Chain 适合线性流程，有状态、要循环就得上 LangGraph。", sec: "c4" },
+    "k-langgraph": { name: "LangGraph", text: "核心是 StateGraph：节点处理共享状态、边决定流向，面试必问怎么用条件边实现循环工作流与人工介入。", sec: "c4" },
+    "k-stategraph": { name: "StateGraph", text: "StateGraph 是 LangGraph 的骨架：State 对象在节点间流转，面试常问 State 字段怎么设计、reducer 如何合并并发写入。", sec: "c4" },
+    "k-intent-routing": { name: "意图路由", text: "意图路由即先分类再分发，面试答思路：规则分类器兜高频简单意图控成本，LLM 分类兜长尾语义，两层配合。", sec: "c4" },
+    "k-supervisor": { name: "Supervisor 调度", text: "Supervisor 是中心化多 Agent 编排：调度 Agent 决定任务交给谁、何时结束，面试常与去中心化 swarm 模式对比取舍。", sec: "c4" },
+    "k-agent-memory": { name: "Agent Memory", text: "面试必分清短期记忆（会话历史 + 窗口裁剪）与长期记忆（向量库沉淀），并强调按 session_id 隔离防串话。", sec: "c8" },
+    "k-redis-state": { name: "Redis 状态缓存", text: "把 Agent 状态放 Redis 可实现多实例无状态部署，面试常问过期策略、状态一致性与缓存失效后的降级路径。", sec: "c8" },
+    "k-doc-parser": { name: "多格式文档解析", text: "面试常问 PDF 表格和扫描件怎么处理：解析库抽文本与表格、OCR 兜底，并强调解析质量直接决定 RAG 上限。", sec: "c1" },
+    "k-chunking": { name: "语义切片", text: "切片是 RAG 第一坑：固定长度会截断语义，面试答「按标题/段落结构切 + 重叠窗口 + 元数据随片继承」。", sec: "c1" },
+    "k-embedding": { name: "Embedding", text: "Embedding 把文本映射为稠密向量、语义相近则向量相近，面试常问选型三维度：中文效果、向量维度、推理成本。", sec: "c6" },
+    "k-bm25": { name: "BM25", text: "BM25 是基于词频与逆文档频率的稀疏检索，面试必问与向量检索的互补性：专有名词、型号、编号类查询它显著更强。", sec: "c2" },
+    "k-vector-search": { name: "向量检索", text: "向量检索依赖 ANN 索引（HNSW / IVF），面试常问召回率与速度的权衡，以及余弦相似度与内积该怎么选。", sec: "c2" },
+    "k-rrf": { name: "RRF 融合", text: "RRF 用 1/(k+rank) 按排名融合多路检索结果，面试亮点：不需要调各路分数的权重、对异构检索器天然鲁棒。", sec: "c2" },
+    "k-rerank": { name: "Rerank 重排", text: "Rerank 用交叉编码器对粗排 Top-N 逐对精排，面试必问为什么不直接全库交叉编码：算力开销完全不可接受。", sec: "c3" },
+    "k-query-rewrite": { name: "Query Rewrite", text: "Query Rewrite 解决多轮指代与口语化提问，面试可举例：把「它怎么配置」用 LLM 改写成含上下文的完整独立查询。", sec: "c1" },
+    "k-chromadb": { name: "ChromaDB", text: "Chroma 是轻量嵌入式向量库，面试常问与 Milvus / PgVector 的边界：十万级以下开发期首选，生产大规模换分布式方案。", sec: "c1" },
+    "k-deepseek": { name: "DeepSeek", text: "面试常问 DeepSeek 的特点：MoE 架构性价比高、推理与代码能力强，API 兼容 OpenAI 协议、可私有化部署。", sec: "c5" },
+    "k-qwen": { name: "Qwen", text: "Qwen 系列全开源可私有化，面试答选型理由：中文与结构化输出要求高、需要本地部署时优先考虑。", sec: "c5" },
+    "k-moonshot": { name: "Moonshot", text: "Moonshot（Kimi）以超长上下文见长，面试点：整本文档、长合同分析等场景的默认候选。", sec: "c5" },
+    "k-glm": { name: "GLM", text: "智谱 GLM 对话与工具调用能力均衡，面试点：国产合规要求场景与 Agent 工具链生态支持。", sec: "c5" },
+    "k-hunyuan": { name: "混元", text: "腾讯混元与腾讯云生态深度绑定，面试点：业务已在腾讯云体系时的默认选型与内网部署优势。", sec: "c5" },
+    "k-openai-compat": { name: "OpenAI 兼容封装", text: "面试亮点：国内主流模型 API 全部兼容 OpenAI 协议，封装一层多服务商注册表即可运行时热切换、零业务改动。", sec: "c5" },
+    "k-prompt": { name: "Prompt Engineering", text: "面试常考三件套：Few-shot 示例、思维链引导、结构化输出约束（JSON mode），核心是「角色 + 示例 + 输出格式」。", sec: "c5" },
+    "k-function-calling": { name: "Function Calling", text: "Function Calling 让模型输出结构化的函数调用参数，面试必问怎么防幻觉参数：JSON Schema 严格校验 + 工具白名单。", sec: "c5" },
+    "k-vllm": { name: "vLLM", text: "vLLM 靠 PagedAttention 做高吞吐推理服务，面试常问为什么快：显存分页复用 + continuous batching 连续调度。", sec: "c5" },
+    "k-lora": { name: "LoRA 微调", text: "LoRA 冻结原权重只训低秩增量矩阵，面试必问：可训参数降千倍、可插拔换任务，效果与全量微调差距很小。", sec: "c12" },
+    "k-custom-tools": { name: "自定义工具集", text: "面试常问工具设计规范：输入输出用 JSON Schema 描述、带超时与异常回传，工具描述质量直接决定调用准确率。", sec: "c4" },
+    "k-mcp": { name: "MCP 协议", text: "MCP 是模型连接外部工具与资源的开放协议（类比为 AI 界的 USB-C），面试点：统一了工具发现与调用接口，一次接入多端复用。", sec: null },
+    "k-prompt-masking": { name: "Prompt 脱敏", text: "Prompt 脱敏在请求发出前抹掉手机号、密钥等敏感信息，面试答：正则 + NER 双通道识别，可逆映射本地留存以便回填。", sec: "c9" },
+    "k-compliance": { name: "内容合规校验", text: "输出合规是 LLM 结果的最后一道闸，面试点：敏感词库 + 分类模型双层过滤，命中即拦截并触发重写或拒答。", sec: "c9" },
+    "k-token-stats": { name: "Token 统计", text: "Token 统计是成本治理的基础，面试可答：读取响应里的 usage 字段落库，按会话与用户聚合出实时成本看板。", sec: "c10" },
+    "k-log-trace": { name: "日志溯源", text: "日志溯源要求一次问答可完整回放，面试点：用 request_id 串联检索命中、最终 Prompt、模型输出三段日志。", sec: "c10" },
+    "k-neo4j": { name: "Neo4j 知识图谱", text: "Neo4j 用图结构存实体与关系，面试常问 GraphRAG：图谱补足向量检索做不了的多跳关系推理（A 的上级的上游部门）。", sec: null },
+    "k-python": { name: "Python", text: "面试必问 GIL：全局锁让同一进程只有一个线程执行字节码，所以 IO 密集用协程/线程、CPU 密集用多进程。", sec: null },
+    "k-fastapi": { name: "FastAPI", text: "FastAPI 基于 ASGI + Pydantic，面试常问为什么快（原生异步）、依赖注入怎么用、类型标注换自动文档与校验。", sec: null },
+    "k-sse": { name: "SSE 流式", text: "SSE 是服务器单向推送的 HTTP 长连接，面试必问与 WebSocket 区别（单向更轻）；实战坑：Nginx 要关 proxy_buffering。", sec: "c7" },
+    "k-asyncio": { name: "asyncio", text: "面试必问坑点：async 函数里调同步阻塞代码会卡死整个事件循环，解法是丢线程池——这是实战修过的真实问题。", sec: "c7" },
+    "k-mysql": { name: "MySQL", text: "面试常问三件套：B+ 树索引为什么快、四种事务隔离级别区别、InnoDB 与 MyISAM 的取舍（行锁 + 崩溃恢复）。", sec: null },
+    "k-postgresql": { name: "PostgreSQL", text: "面试点：MVCC 多版本并发控制、与 MySQL 的取舍——复杂查询 / JSON / GIS 更强，还有 PgVector 向量插件。", sec: null },
+    "k-redis": { name: "Redis", text: "面试必问缓存三兄弟：穿透（空值缓存）、击穿（互斥锁）、雪崩（过期时间打散），以及单线程为什么还快。", sec: null },
+    "k-kafka": { name: "Kafka", text: "面试常问为什么快：顺序写磁盘 + 零拷贝 + 批量压缩；怎么不丢消息：ack=all + 幂等生产者 + 手动提交位移。", sec: null },
+    "k-sqlite": { name: "SQLite", text: "SQLite 是嵌入式单文件数据库，面试点：适合本地与低并发场景，开 WAL 模式可支持读写并发，零部署成本。", sec: null },
+    "k-docker": { name: "Docker", text: "面试必问容器与虚拟机的区别：容器共享宿主内核所以秒级启动，镜像分层靠 UnionFS 复用存储。", sec: "c11" },
+    "k-compose": { name: "Docker Compose", text: "Compose 用一份 YAML 声明多服务编排，面试点：depends_on 只保证启动顺序，就绪等待要自己配 healthcheck。", sec: "c11" },
+    "k-linux": { name: "Linux", text: "面试常问排查命令链：top / ps 定位进程，ss / netstat 查端口占用，journalctl 与 tail -f 追日志。", sec: "c11" },
+    "k-nginx": { name: "Nginx", text: "面试常问反向代理与负载均衡策略；实战点：SSE 流式场景必须关 proxy_buffering，否则打字机效果变一次性吐出。", sec: "c11" },
+    "k-prometheus": { name: "Prometheus", text: "Prometheus 是拉取式指标监控，面试点：PromQL 查询聚合、exporter 暴露 /metrics 端点、与 Grafana 配套告警。", sec: "c10" },
+    "k-numpy": { name: "NumPy", text: "面试点：向量化运算代替 Python 循环、广播机制规则，快的原因是 C 实现 + 连续内存布局。", sec: null },
+    "k-pandas": { name: "Pandas", text: "面试常问 loc 与 iloc 区别（标签 vs 位置）、DataFrame 与 SQL 的概念对应、大数据量分块读取。", sec: null },
+    "k-sklearn": { name: "Scikit-learn", text: "面试点：fit / transform / predict 的统一接口约定、用 Pipeline 封装预处理防止交叉验证时数据泄漏。", sec: null },
+    "k-ai-dev": { name: "AI 辅助开发", text: "面试亮点：AI 工具覆盖脚手架、重构、测试全流程，但强调人审闭环——AI 产出必须过测试与 code review 才合入。", sec: null }
+  };
+
+  var mask = document.getElementById('skillModal');
+  var mTitle = document.getElementById('mTitle');
+  var mBody = document.getElementById('mBody');
+  var mClose = document.getElementById('modalClose');
+  var lastFocus = null;
+
+  function openModal(info) {
+    mTitle.textContent = info.name;
+    mBody.textContent = info.text;
+    lastFocus = document.activeElement;
+    mask.classList.add('open');
+    mask.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    mClose.focus();
+  }
+
+  function closeModal() {
+    mask.classList.remove('open');
+    mask.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  // 拦截所有指向技术详解锚点的技能标签，改为弹窗
+  document.querySelectorAll('a.tag[href^="tech-guide.html#"]').forEach(function (a) {
+    a.setAttribute('role', 'button');
+    a.setAttribute('tabindex', '0');
+    var handler = function (e) {
+      var anchorId = a.getAttribute('href').split('#')[1];
+      var info = SKILLS[anchorId];
+      if (!info) return; // 无数据时保持默认跳转
+      e.preventDefault();
+      openModal(info);
+    };
+    a.addEventListener('click', handler);
+    a.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(e); }
+    });
+  });
+
+  mClose.addEventListener('click', closeModal);
+  mask.addEventListener('click', function (e) { if (e.target === mask) closeModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && mask.classList.contains('open')) closeModal();
+  });
+})();
+</script>
+
+</body>
+</html>

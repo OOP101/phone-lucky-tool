@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>术语小词典 · 乔晓</title>
+<style>
+  :root {
+    --bg:#f6f7fb; --surface:#fff; --text:#1c2333; --muted:#5b6478;
+    --primary:#2f6bff; --primary-soft:#e8efff; --accent:#7c5cff;
+    --border:#e5e8f0; --tag-bg:#f0f2f8; --shadow:0 8px 30px rgba(28,35,51,.07);
+    --radius:16px; --ok:#1f9d6b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.75;}
+  a{color:inherit;text-decoration:none;}
+  .container{max-width:920px;margin:0 auto;padding:0 24px;}
+  header{padding:72px 0 44px;background:radial-gradient(600px 280px at 12% 0%,rgba(47,107,255,.10),transparent),radial-gradient(500px 260px at 88% 10%,rgba(124,92,255,.10),transparent);}
+  .back{display:inline-block;font-size:14px;color:var(--primary);margin-bottom:16px;}
+  h1{font-size:34px;letter-spacing:-1px;margin-bottom:8px;}
+  h1 em{font-style:normal;background:linear-gradient(90deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .lead{color:var(--muted);font-size:15.5px;max-width:720px;}
+
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 8px;}
+  .filters button{border:1px solid var(--border);background:var(--surface);color:var(--muted);padding:7px 16px;border-radius:999px;font-size:13.5px;cursor:pointer;font-family:inherit;}
+  .filters button.on{background:var(--primary);color:#fff;border-color:var(--primary);}
+
+  .group{margin-top:30px;}
+  .group h2{font-size:18px;margin:18px 0 12px;color:var(--primary);display:flex;align-items:center;gap:8px;}
+  .group h2:before{content:"";width:6px;height:18px;border-radius:4px;background:linear-gradient(180deg,var(--primary),var(--accent));}
+
+  .term{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:10px;box-shadow:var(--shadow);}
+  .term .en{font-weight:700;font-size:16px;}
+  .term .en code{background:var(--tag-bg);padding:1px 8px;border-radius:6px;font-family:Consolas,Menlo,monospace;font-size:14px;color:var(--accent);}
+  .term .zh{color:var(--muted);font-size:13.5px;margin-left:8px;}
+  .term .plain{font-size:14.5px;margin-top:6px;color:#2c3345;}
+  .term .proj{font-size:13.5px;margin-top:5px;color:var(--primary);}
+  .term .proj:before{content:"📌 项目里：";opacity:.8;}
+  .term .iv{font-size:13.5px;margin-top:6px;color:var(--ok);border-left:3px solid var(--ok);padding-left:10px;}
+  .term .iv:before{content:"🎤 面试一句话：";opacity:.85;font-weight:600;}
+
+  .end{text-align:center;color:var(--muted);font-size:13.5px;padding:30px 0 50px;border-top:1px solid var(--border);margin-top:30px;}
+  .end a{color:var(--primary);}
+  @media(max-width:640px){h1{font-size:26px;}.term .en{font-size:15px;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <a class="back" href="tech-guide.html">← 返回技术详解</a>
+    <h1>术语<em>小词典</em></h1>
+    <p class="lead">概念你都懂，就是英文词看着发怵？这里把主页和技术详解里出现的每个专业词，用人话讲清「它是什么 + 在你项目里干嘛 + 面试时一句话怎么答」。点上面的分类可以快速跳。</p>
+    <div class="filters">
+      <button class="on" data-cat="all">全部</button>
+      <button data-cat="llm">大模型</button>
+      <button data-cat="rag">RAG</button>
+      <button data-cat="agent">Agent</button>
+      <button data-cat="eng">工程</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- 大模型 -->
+  <div class="group" data-cat="llm">
+    <h2>🤖 大模型基础</h2>
+    <div class="term"><div class="en">LLM <span class="zh">Large Language Model，大语言模型</span></div><div class="plain">就是 ChatGPT、DeepSeek、通义千问这类「读得懂人话、写得来人话」的 AI 模型。你做的所有产品都围着它转。</div><div class="proj">三个工作项目 + 魔方简历的 AI 润色，底层都是 LLM。</div><div class="iv">就是能读懂人话写出人话的大模型，我做的问答、润色、翻译都跑在它上面。</div></div>
+    <div class="term"><div class="en">Transformer <span class="zh">底层架构</span></div><div class="plain">现在所有大模型的「发动机」结构。你不用会推导公式，记住它是「能理解上下文关系」的基础架构就行。</div><div class="iv">所有大模型的底层结构，我不用推导公式，知道它擅长抓上下文关系就够了。</div></div>
+    <div class="term"><div class="en">Token <span class="zh">词元</span></div><div class="plain">模型不是按「字」算账，是按 token（大致=一个词或半个词）计费。你成本看板里的「花了多少钱」就是数 token。</div><div class="proj">技术详解里「Token 统计」就是为了算每次回答的成本。</div><div class="iv">模型按 token 计费的最小单位，我的成本看板就是统计每次回答消耗多少 token。</div></div>
+    <div class="term"><div class="en">Prompt <span class="zh">提示词</span></div><div class="plain">你写给模型的「指令 / 题目要求」。比如「用正式语气写一封邮件」就是 prompt。</div><div class="iv">写给模型的指令，我靠它把检索结果和约束塞进去控输出。</div></div>
+    <div class="term"><div class="en">Prompt Engineering <span class="zh">提示词工程</span></div><div class="plain">研究怎么把 prompt 写清楚、写巧，让模型答得更准。你的核心技能之一。</div><div class="iv">怎么把指令写清楚让模型答得准，是我的日常核心技能之一。</div></div>
+    <div class="term"><div class="en">Fine-tuning <span class="zh">微调</span></div><div class="plain">拿现成大模型，用你自己的数据再训练一遍，让它更懂你的业务口吻/格式。贵、慢，所以你只用它做「垂直适配」。</div><div class="iv">用自有数据再训模型做垂直适配，贵且慢，我只用它补风格不补知识。</div></div>
+    <div class="term"><div class="en">LoRA <span class="zh">一种轻量微调方法</span></div><div class="plain">微调的「省钱版」：原模型冻住，只训练塞进去的很小一部分参数。显存省、训练和切换都快。</div><div class="proj">领铄经历里用 LoRA 提升模型在垂直场景的适配效果。</div><div class="iv">微调的省钱版，只训一小部分参数，显存省、切换快，领铄用它做垂直适配。</div></div>
+    <div class="term"><div class="en">vLLM <span class="zh">推理加速框架</span></div><div class="plain">把大模型「跑起来对外提供服务」的工具，比裸跑快很多。你私有化部署 DeepSeek/Qwen 就靠它。</div><div class="iv">把大模型跑成服务的推理加速框架，我私有化部署 DeepSeek/Qwen 靠它。</div></div>
+    <div class="term"><div class="en">Function Calling <span class="zh">函数调用</span></div><div class="plain">让模型不只是聊天，还能「调用你写的某个函数」去查库、发邮件、算数。Agent 能干活就靠它。</div><div class="iv">让模型能调用我写的函数去查库、发请求，Agent 能干活就靠它。</div></div>
+  </div>
+
+  <!-- RAG -->
+  <div class="group" data-cat="rag">
+    <h2>📚 RAG 检索增强生成</h2>
+    <div class="term"><div class="en">RAG <span class="zh">Retrieval-Augmented Generation</span></div><div class="plain">「先查资料，再让模型回答」。解决模型不知道你公司私活、还爱瞎编的问题。你最拿手的方向。</div><div class="proj">企业智能知识中枢、跨境电商平台，全是 RAG。</div><div class="iv">先查资料再让模型回答，解决模型不懂私活还爱编的问题，我最拿手的方向。</div></div>
+    <div class="term"><div class="en">Embedding <span class="zh">嵌入 / 向量化</span></div><div class="plain">把一段文字变成一长串数字（向量），意思相近的文字向量也相近。检索时就比「谁的数字更像」。</div><div class="proj">你选型锁了 bge-large-zh（1024 维），中文效果好。</div><div class="iv">把文字变成向量，意思近的向量也近，检索就比谁更像，我锁了 bge-large-zh。</div></div>
+    <div class="term"><div class="en">ChromaDB / Milvus / PgVector <span class="zh">向量数据库</span></div><div class="plain">专门存「文字→向量」的数据库，负责按相似度快速找出相关片段。相当于 RAG 的「资料柜」。</div><div class="proj">问答底座用 ChromaDB。</div><div class="iv">专门存向量的数据库，相当于 RAG 的资料柜，我底座用 ChromaDB。</div></div>
+    <div class="term"><div class="en">Chunk <span class="zh">切片 / 分块</span></div><div class="plain">长文档太大，切成小段再存。切好检索才准。你用 RecursiveCharacterTextSplitter 递归切。</div><div class="iv">长文切小块再存，切好检索才准，我用递归切片器按结构切。</div></div>
+    <div class="term"><div class="en">BM25 <span class="zh">关键词检索算法</span></div><div class="plain">老牌检索算法，按「词频」算相关，精确匹配强（"FOB""L/C" 一抓一个准），但不懂语义。</div><div class="iv">老牌关键词检索，专名言术语一抓一个准，但不懂语义。</div></div>
+    <div class="term"><div class="en">Hybrid Retrieval <span class="zh">混合检索</span></div><div class="plain">「语义检索 + 关键词检索」两条一起跑，互补短板。你项目的标准打法。</div><div class="iv">语义+关键词两路一起跑互补，我项目的标准打法。</div></div>
+    <div class="term"><div class="en">RRF <span class="zh">Reciprocal Rank Fusion，倒数排名融合</span></div><div class="plain">把两路检索的结果按「排名」合成一榜的算法，不关心分数大小，只看谁排得靠前。你用它融合 BM25 和向量。</div><div class="iv">把两路结果按排名合成一榜的算法，不看分数大小只看谁靠前。</div></div>
+    <div class="term"><div class="en">Rerank <span class="zh">重排</span></div><div class="plain">先粗召回几十条，再用更准的模型精排挑 top3~5 给模型。等于「先海选再面试」。</div><div class="iv">先粗召回几十条再精排挑 top，等于先海选再面试。</div></div>
+    <div class="term"><div class="en">知识溯源 <span class="zh">给出处</span></div><div class="plain">回答时附上「这段话来自哪份文档」，证明不是编的。企业合规必需。</div><div class="iv">回答附上来自哪份文档，证明不是编的，企业合规必需。</div></div>
+  </div>
+
+  <!-- Agent -->
+  <div class="group" data-cat="agent">
+    <h2>🕸️ Agent 多智能体</h2>
+    <div class="term"><div class="en">Agent <span class="zh">智能体</span></div><div class="plain">不只会聊天的 AI：能「想步骤 → 调工具 → 执行 → 看结果」循环干活。本质是 大模型 + 工具 + 记忆。</div><div class="iv">会想步骤、调工具、循环干活的 AI，不是只会聊天的。</div></div>
+    <div class="term"><div class="en">Multi-Agent <span class="zh">多智能体</span></div><div class="plain">多个 Agent 分工协作：一个懂问、一个查库、一个执行，配合完成复杂任务。你主页标题里的词。</div><div class="iv">多个 Agent 分工协作，我主页标题就是它。</div></div>
+    <div class="term"><div class="en">LangChain <span class="zh">大模型应用框架</span></div><div class="plain">把「链、检索器、工具」等组件打包好的工具库，帮你少写重复代码。适合直线流程。</div><div class="iv">打包好链/检索器/工具的框架，直线流程用它省代码。</div></div>
+    <div class="term"><div class="en">LangGraph <span class="zh">用图编排 Agent 的框架</span></div><div class="plain">在 LangChain 之上，用「状态图」编排有循环/分支/记忆的 Agent。你要状态机就上它。</div><div class="proj">智慧出行的意图路由、RAG 底座的 route→act 闭环都用它。</div><div class="iv">用图编排有循环分支记忆的 Agent，要状态机就上它。</div></div>
+    <div class="term"><div class="en">StateGraph <span class="zh">状态图</span></div><div class="plain">LangGraph 里的「流程图」：节点=步骤，边=流转，共享状态在节点间传。你简历里的核心概念。</div><div class="iv">LangGraph 里的流程图，节点是步骤、边是流转，共享状态传意图。</div></div>
+    <div class="term"><div class="en">意图路由 <span class="zh">Intent Routing</span></div><div class="plain">先判断用户想干嘛（问答/规划/管理/应急），再分给对应 Agent。相当于前台分诊。</div><div class="iv">先判用户想干嘛再分给对应 Agent，相当于前台分诊。</div></div>
+    <div class="term"><div class="en">Supervisor <span class="zh">主管 / 调度者</span></div><div class="plain">一个「管家」Agent，决定下一步交给哪个子 Agent。多 Agent 系统的指挥中心。</div><div class="iv">多 Agent 里的调度管家，决定下一步交给谁。</div></div>
+    <div class="term"><div class="en">Memory <span class="zh">记忆</span></div><div class="plain">让 Agent/对话记住之前聊过什么，支持多轮追问。你用 ConversationBufferMemory + Redis。</div><div class="iv">让对话记住聊过什么支持多轮，我用 Redis 存。</div></div>
+    <div class="term"><div class="en">MCP <span class="zh">Model Context Protocol，模型上下文协议</span></div><div class="plain">一套「让大模型安全调用外部工具/系统」的标准接口。你封装了企业内部能力的工具生态。</div><div class="iv">让大模型安全调外部工具的标准协议，我封装了企业能力工具生态。</div></div>
+    <div class="term"><div class="en">Tool Calling <span class="zh">工具调用</span></div><div class="plain">Agent 在过程中实际去执行某个工具（查库、发请求）。和 Function Calling 一回事，角度不同。</div><div class="iv">Agent 实际去执行某个工具，和 Function Calling 一回事。</div></div>
+  </div>
+
+  <!-- 工程 -->
+  <div class="group" data-cat="eng">
+    <h2>⚙️ 工程与部署</h2>
+    <div class="term"><div class="en">FastAPI <span class="zh">Python 后端框架</span></div><div class="plain">用 Python 写网站后端接口（API）的主流框架，快、好写。你三个后端项目都用它。</div><div class="iv">写后端接口的 Python 框架，我三个后端都用它。</div></div>
+    <div class="term"><div class="en">SSE <span class="zh">Server-Sent Events，服务端推送</span></div><div class="plain">服务端往浏览器「逐字推流」的协议。模型慢慢生成，前端就慢慢显示，不用干等。你首字 1.3 秒靠它。</div><div class="iv">服务端逐字推流，模型慢慢生成前端慢慢显示，我首字压到 1.3 秒靠它。</div></div>
+    <div class="term"><div class="en">asyncio <span class="zh">异步并发</span></div><div class="plain">让一个程序「同时处理很多请求不卡住」的能力。你用 run_in_executor 把阻塞调用扔到线程池，避免整服务卡死。</div><div class="iv">异步并发，让单服务不卡，我把阻塞调用扔线程池避免整服务死。</div></div>
+    <div class="term"><div class="en">Redis <span class="zh">内存缓存数据库</span></div><div class="plain">超快的临时存储，常放会话历史、Agent 状态。多实例共享状态就靠它。</div><div class="iv">超快临时存储，放会话和 Agent 状态，多实例共享靠它。</div></div>
+    <div class="term"><div class="en">MySQL / PostgreSQL <span class="zh">关系型数据库</span></div><div class="plain">正经存业务数据（用户、权限、订单）的数据库。一个偏传统，一个偏开源强大。</div><div class="iv">存业务数据的正经数据库。</div></div>
+    <div class="term"><div class="en">JWT <span class="zh">JSON Web Token，登录令牌</span></div><div class="plain">用户登录后发的「电子门票」，之后每次请求亮票就知是谁。你用 PBKDF2+HS256 自实现，零第三方依赖。</div><div class="iv">登录后发的电子门票，之后亮票就知道是谁，我自实现零依赖。</div></div>
+    <div class="term"><div class="en">HS256 / PBKDF2 <span class="zh">两种加密算法名</span></div><div class="plain">HS256 是 JWT 的签名算法（对称密钥）；PBKDF2 是把密码「加盐哈希」存的安全做法。面试常问，技术详解里有答。</div><div class="iv">JWT 签名算法和口令加盐哈希做法，面试常问我在技术详解里答了。</div></div>
+    <div class="term"><div class="en">Docker / Compose <span class="zh">容器化 / 编排</span></div><div class="plain">把应用和它依赖打包成「集装箱」，到哪都能一模一样跑；Compose 管多个集装箱一起起。你多服务部署靠它。</div><div class="iv">把应用打包成集装箱到哪都能跑，多服务一起起靠 Compose。</div></div>
+    <div class="term"><div class="en">Nginx <span class="zh">反向代理服务器</span></div><div class="plain">放在应用前面的「门卫」：管 HTTPS、把请求转发到正确服务、扛静态资源。</div><div class="iv">应用前的门卫，管 HTTPS 和转发请求。</div></div>
+    <div class="term"><div class="en">Prometheus <span class="zh">监控指标系统</span></div><div class="plain">收集「QPS、延迟、token 消耗」等数字，画成图看系统健康。你技术详解「可观测性」那节。</div><div class="iv">收集 QPS/延迟/token 画图的监控系统，可观测性那节。</div></div>
+    <div class="term"><div class="en">原子写 <span class="zh">Atomic Write</span></div><div class="plain">写文件时先写临时文件、再一次性改名替换，中途崩了也不会留下半个坏文件。NoteDesk 防丢稿就靠它。</div><div class="proj">NoteDesk 笔记 + 智慧出行 JSON 存储都用了原子写。</div><div class="iv">先写临时文件再改名，崩了也不留半个坏文件，NoteDesk 防丢稿靠它。</div></div>
+  </div>
+
+  <div class="end">
+    <p>📌 配合 <a href="index.html">个人主页</a> 与 <a href="tech-guide.html">技术详解与面试题</a> 一起看效果最好。</p>
+    <p style="margin-top:10px;opacity:.6;">© 2026 乔晓 · AI 应用开发工程师</p>
+  </div>
+</div>
+
+<script>
+  const btns = document.querySelectorAll('.filters button');
+  const groups = document.querySelectorAll('.group');
+  btns.forEach(b => b.onclick = () => {
+    btns.forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    const c = b.dataset.cat;
+    groups.forEach(g => g.style.display = (c === 'all' || g.dataset.cat === c) ? '' : 'none');
+  });
+</script>
+
+</body>
+</html>
