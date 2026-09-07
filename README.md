@@ -12,9 +12,7 @@ AI 应用开发工程师（RAG × Multi-Agent）的个人静态主页，纯 HTML
 
 ## 📸 预览
 
-| 主页 | 术语小词典 | 技术详解 |
-|---|---|---|
-| ![主页](docs/screenshots/home.png) | ![术语小词典](docs/screenshots/glossary.png) | ![技术详解](docs/screenshots/tech-guide.png) |
+![主页](docs/screenshots/home.png)
 
 ## ✨ 特性
 
