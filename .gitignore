@@ -1,3 +1,7 @@
 .workbuddy/
 Thumbs.db
 .DS_Store
+
+# 草稿与设计源文件，不入库
+初始.json
+个人主页风格版2.html

@@ -12,7 +12,7 @@
     --radius: 16px; --ok: #1f9d6b; --q: #c07b00;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: auto; } /* 锚点即时定位：不做长距离平滑滚动，点了就到 */
   body { font-family: "PingFang SC","Microsoft YaHei","Segoe UI",sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; }
   a { color: inherit; text-decoration: none; }
   .container { max-width: 980px; margin: 0 auto; padding: 0 24px; }
@@ -51,6 +51,58 @@
   .end { text-align: center; color: var(--muted); font-size: 13.5px; padding: 30px 0 50px; border-top: 1px solid var(--border); margin-top: 30px; }
   .end a { color: var(--primary); }
 
+  /* 浮动导航：深页随时一键回速查/回顶部 */
+  .float-nav {
+    position: fixed; right: 22px; bottom: 28px; z-index: 150;
+    display: flex; flex-direction: column; gap: 10px;
+    opacity: 0; visibility: hidden; transform: translateY(10px);
+    transition: opacity .2s ease, transform .2s ease, visibility .2s;
+  }
+  .float-nav.show { opacity: 1; visibility: visible; transform: translateY(0); }
+  .float-nav a {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--primary); color: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; line-height: 1.15; text-align: center;
+    box-shadow: 0 6px 18px rgba(47,107,255,.35);
+  }
+  .float-nav a .ico { font-size: 15px; }
+  .float-nav a.f-ghost { background: var(--surface); color: var(--primary); border: 1px solid var(--border); box-shadow: var(--shadow); font-size: 18px; }
+  .float-nav a:hover { transform: translateY(-2px); }
+
+  /* ===== 章节抽屉：点「深入」右侧滑出，读完收回，原位不动 ===== */
+  body.drawer-open { overflow: hidden; }
+  .drawer-mask {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(28, 35, 51, .42); backdrop-filter: blur(3px);
+    opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility .25s;
+  }
+  .drawer-mask.open { opacity: 1; visibility: visible; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 310;
+    width: min(680px, 94vw);
+    background: var(--bg);
+    box-shadow: -12px 0 40px rgba(28,35,51,.18);
+    transform: translateX(100%); transition: transform .28s ease;
+    display: flex; flex-direction: column;
+  }
+  .drawer-mask.open .drawer { transform: translateX(0); }
+  .d-head {
+    flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 20px; background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  .d-head .d-label { font-size: 13.5px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+  .d-head .d-label:before { content: ""; width: 6px; height: 16px; border-radius: 3px; background: linear-gradient(180deg, var(--primary), var(--accent)); }
+  .d-head .d-hint { font-size: 12px; color: var(--muted); }
+  .d-close {
+    width: 32px; height: 32px; border: none; border-radius: 8px; flex: none;
+    background: var(--tag-bg); color: var(--muted); font-size: 15px; cursor: pointer; line-height: 1;
+    transition: background .15s, color .15s;
+  }
+  .d-close:hover { background: var(--primary-soft); color: var(--primary); }
+  .d-body { flex: 1; overflow-y: auto; padding: 20px 22px 46px; }
+  .d-body .block { box-shadow: none; margin-bottom: 0; }
+
 
   /* Quick reference 技能速查 */
   .k-group h3 { font-size: 16px; margin: 22px 0 10px; color: var(--primary); }
@@ -69,7 +121,7 @@
 </head>
 <body data-page-node-id="hQB0iEEtpf7tHYWDjERqFQ">
 
-<header data-page-node-id="FjM9hMqHo2HMMUjufCOP4e">
+<header id="top" data-page-node-id="FjM9hMqHo2HMMUjufCOP4e">
   <div class="container" data-page-node-id="VD3PzaFjMT1hEECEEZrFHq">
     <a class="back" href="index.html" data-page-node-id="iUEgwRF1Y9fCf9SlfyOVgq">← 返回个人主页</a>
     <h1 data-page-node-id="I6OM4f88hy6NdsYp14otDA">技术详解 &amp; <em data-page-node-id="EIkpLJldLJ0y5ZHUahulLb">面试高频题</em></h1>
@@ -475,6 +527,78 @@
     <p style="margin-top:10px;opacity:.6;" data-page-node-id="4d2bl0mUvrxBiMMsGZ9sKM">© 2026 乔晓 · AI 应用开发工程师</p>
   </div>
 </div>
+
+<!-- 章节抽屉 -->
+<div class="drawer-mask" id="drawerMask" aria-hidden="true">
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label="章节详解">
+    <div class="d-head">
+      <span class="d-label">📖 章节详解</span>
+      <span class="d-hint">读完点 ✕ 或空白处返回原位</span>
+      <button class="d-close" id="dClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="d-body" id="dBody"></div>
+  </aside>
+</div>
+
+<!-- 浮动导航 -->
+<div class="float-nav" id="floatNav">
+  <a href="#quickref" title="回到技能速查"><span class="ico">⚡</span>速查</a>
+  <a href="#top" class="f-ghost" title="回到顶部">↑</a>
+</div>
+
+<script>
+(function () {
+  var nav = document.getElementById('floatNav');
+  function toggle() {
+    nav.classList.toggle('show', window.scrollY > 420);
+  }
+  window.addEventListener('scroll', toggle, { passive: true });
+  toggle();
+
+  // ===== 章节抽屉：点「深入」右侧滑出完整章节，原位不动 =====
+  var mask = document.getElementById('drawerMask');
+  var dBody = document.getElementById('dBody');
+  var dClose = document.getElementById('dClose');
+  var lastFocus = null;
+
+  function openDrawer(link) {
+    var sec = document.querySelector(link.getAttribute('href'));
+    var block = sec && sec.querySelector('.block');
+    if (!block) return; // 找不到章节时保持默认跳转
+    dBody.innerHTML = '';
+    dBody.appendChild(block.cloneNode(true));
+    dBody.scrollTop = 0;
+    lastFocus = document.activeElement;
+    mask.classList.add('open');
+    mask.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('drawer-open');
+    dClose.focus();
+  }
+
+  function closeDrawer() {
+    mask.classList.remove('open');
+    mask.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('drawer-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  document.querySelectorAll('.k-name a[href^="#c"]').forEach(function (a) {
+    a.setAttribute('role', 'button');
+    a.setAttribute('tabindex', '0');
+    var handler = function (e) { e.preventDefault(); openDrawer(a); };
+    a.addEventListener('click', handler);
+    a.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(e); }
+    });
+  });
+
+  dClose.addEventListener('click', closeDrawer);
+  mask.addEventListener('click', function (e) { if (e.target === mask) closeDrawer(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && mask.classList.contains('open')) closeDrawer();
+  });
+})();
+</script>
 
 </body>
 </html>
