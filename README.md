@@ -25,6 +25,7 @@ resume_data.yaml（唯一要改的文件）
 - **构建即校验**：div 配平、证件照数量、章节数、PDF 页数自动检查，排版炸了第一时间知道
 - **结构化强调**：YAML 里写 `<span class="hl">关键指标</span>`，渲染时自动标红
 - **可选附录合并**：`export_appendix.py` 把一页技术附录 PDF 合并进主简历（自动同步求职意向口径）
+- **投递前自查**：`jd_match.py` 拿岗位 JD 对照简历数据源，输出技能词覆盖率与缺失清单（内置中英混合词表 + 英文词自动抽取，零新增依赖）
 
 ## 快速开始
 
@@ -63,6 +64,26 @@ python scripts/export_appendix.py --appx appendix/技术附录.html --main outpu
 ```
 
 产出 `*_含项目附录.pdf`（需要 `pip install pymupdf`）。
+
+## JD 关键词匹配（投递前自查）
+
+把目标岗位的 JD 存成文本文件，对照你的简历数据源跑一遍：
+
+```bash
+python scripts/jd_match.py examples/sample-jd.txt            # 用仓库自带的示例 JD
+python scripts/jd_match.py my-jd.txt --md report.md          # 导出 Markdown 报告
+python scripts/jd_match.py my-jd.txt --lexicon my-words.txt  # 追加自定义词表
+```
+
+输出**技能词覆盖率** + 两张清单：已覆盖（按 JD 提及频次）、未覆盖（按重要性排序）。
+
+匹配原理：
+
+- 内置约 100 组中英混合技能词表（含常见别名归一，如「智能体 → agent」「工具调用 → function calling」「k8s → kubernetes」）
+- JD 中的英文技术词自动抽取（词边界匹配，停用词过滤），词表没覆盖的新词也能抓到
+- 中文不做无监督分词（不引入 jieba 等依赖），词表没覆盖的领域新词用 `--lexicon` 补，每行格式：`canonical|别名1|别名2`
+
+⚠️ **诚实边界**：「缺失」≠ 一定要写进简历——真会再补，不会当学习方向，面试别硬接。本工具是自查参考，不代表任何真实 ATS 系统的评分。示例报告见 `examples/sample-report.md`。
 
 ## Windows 编码注意事项（踩坑经验）
 
