@@ -1,7 +1,7 @@
 """v1 路由聚合。"""
 from fastapi import APIRouter
 
-from app.api.v1 import admin, amazon, analytics, auth, chat, copywriting, crm, knowledge, products, translation
+from app.api.v1 import admin, amazon, analytics, auth, chat, copywriting, crm, knowledge, opportunities, products, translation
 
 api_router = APIRouter()
 api_router.include_router(copywriting.router, prefix="/copywriting", tags=["文案生成"])
@@ -14,3 +14,4 @@ api_router.include_router(auth.router, prefix="/auth", tags=["鉴权"])
 api_router.include_router(amazon.router, prefix="/amazon", tags=["亚马逊 SP-API"])
 api_router.include_router(crm.router, prefix="/crm", tags=["CRM 客户管理"])
 api_router.include_router(products.router, prefix="/products", tags=["商品管理"])
+api_router.include_router(opportunities.router, prefix="/opportunities", tags=["商机管理"])

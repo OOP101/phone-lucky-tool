@@ -159,3 +159,25 @@ class Product(Base):
     images: Mapped[str] = mapped_column(Text, default="[]")  # JSON 数组
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
+class Opportunity(Base):
+    """销售商机（销售管道中的一个潜在成交机会）。"""
+    __tablename__ = "opportunities"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[str] = mapped_column(String(64), default="default", server_default="default", index=True)
+    title: Mapped[str] = mapped_column(String(255))
+    customer_id: Mapped[int] = mapped_column(Integer, index=True)
+    product_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    # 销售阶段：lead 初步接触 | need 需求确认 | quote 报价 | negotiation 谈判 | won 成交 | lost 流失
+    stage: Mapped[str] = mapped_column(String(20), default="lead", index=True)
+    expected_amount: Mapped[float] = mapped_column(Float, default=0.0)
+    currency: Mapped[str] = mapped_column(String(10), default="USD")
+    expected_close_date: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    probability: Mapped[int] = mapped_column(Integer, default=20)  # 赢单概率 %
+    close_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # won/lost 原因
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_by: Mapped[str] = mapped_column(String(64), default="system")
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())

@@ -1,0 +1,215 @@
+/* ============================================================
+ * 设计 Token · iOS Design System v2.0
+ * 正统 iOS 系统配色 + 克制的用色纪律：
+ * 大面积中性灰白，蓝色只做唯一主角，语义色仅用于状态
+ * ============================================================ */
+
+:root {
+  /* ---- 品牌与语义色（方案 A · 企业信任蓝，主色 #1D4ED8） ---- */
+  --color-primary: #1d4ed8;
+  --color-primary-hover: #2563eb;
+  --color-primary-active: #1e40af;
+  --color-primary-soft: rgba(29, 78, 216, 0.1);
+
+  /* 辅助色：iOS 亮青（仅用于次级图标/数据系列，不用于主按钮） */
+  --color-cyan: #5ac8fa;
+  --color-cyan-soft: rgba(90, 200, 250, 0.16);
+
+  /* 语义色：iOS 系统鲜亮色，只小面积出现在状态标签/图标，由用色纪律压住轻浮感 */
+  --color-success: #34c759;
+  --color-success-soft: rgba(52, 199, 89, 0.14);
+  --color-warning: #ff9500;
+  --color-warning-soft: rgba(255, 149, 0, 0.14);
+  --color-danger: #ff3b30;
+  --color-danger-soft: rgba(255, 59, 48, 0.1);
+  --color-info: #6b7280;
+  --color-info-soft: rgba(107, 114, 128, 0.12);
+
+  /* ---- 中性色（Apple 官网/iOS 灰阶） ---- */
+  --text-primary: #1d1d1f;
+  --text-secondary: #86868b;
+  --text-tertiary: #aeaeb2;
+  --bg-page: #f5f5f7;
+  --bg-card: #ffffff;
+  --bg-subtle: #f5f5f7;
+  --border-color: #d2d2d7;
+  --divider: #e8e8ed;
+
+  /* ---- 圆角 ---- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* ---- 阴影（极轻、中性） ---- */
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-primary: 0 4px 14px rgba(29, 78, 216, 0.22);
+
+  /* ---- 间距 ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* ---- 字体 ---- */
+  --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+    'Segoe UI', 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', Arial, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+
+  /* ---- 布局 ---- */
+  --sidebar-width: 232px;
+  --header-height: 60px;
+
+  /* ============================================================
+   * Element Plus 主题覆盖
+   * ============================================================ */
+  --el-color-primary: var(--color-primary);
+  --el-color-primary-light-3: #6083e4;
+  --el-color-primary-light-5: #8ea7eb;
+  --el-color-primary-light-7: #bbcaf3;
+  --el-color-primary-light-8: #d2dbf7;
+  --el-color-primary-light-9: #e8edfb;
+  --el-color-primary-dark-2: var(--color-primary-active);
+
+  --el-color-success: var(--color-success);
+  --el-color-warning: var(--color-warning);
+  --el-color-danger: var(--color-danger);
+  --el-color-info: var(--color-info);
+
+  --el-text-color-primary: var(--text-primary);
+  --el-text-color-regular: var(--text-primary);
+  --el-text-color-secondary: var(--text-secondary);
+  --el-border-color: var(--border-color);
+  --el-border-color-light: var(--divider);
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
+  --el-font-size-base: var(--font-size-base);
+  --el-font-family: var(--font-family);
+  --el-box-shadow-light: var(--shadow-sm);
+  --el-box-shadow: var(--shadow-sm);
+}
+
+/* ============================================================
+ * 全局基础样式
+ * ============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 细滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.28);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Element Plus 圆角统一 */
+.el-card {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--divider) !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+
+.el-button {
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+}
+
+.el-table {
+  --el-table-border-color: var(--divider);
+  --el-table-header-bg-color: var(--bg-subtle);
+  --el-table-header-text-color: var(--text-secondary);
+}
+.el-table th.el-table__cell {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.el-input__wrapper,
+.el-select__wrapper {
+  border-radius: var(--radius-sm) !important;
+}
+
+.el-tag {
+  font-weight: 500;
+}
+
+/* 页面通用间距 */
+.page {
+  padding: 0;
+}
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-5); }
+.mt-4 { margin-top: var(--space-4); }
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+/* 跳动三点（AI 加载） */
+.loading-dots {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+.loading-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: dot-bounce 1.4s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.16s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.32s; }
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* 路由切换轻动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.fade-leave-to {
+  opacity: 0;
+}

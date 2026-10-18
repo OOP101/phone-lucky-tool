@@ -1,119 +1,145 @@
 <template>
-  <div class="page">
+  <div class="prod-page">
+    <PageHeader
+      title="商品管理"
+      subtitle="维护本地商品档案、库存与成本，同步关联亚马逊 ASIN 与站点"
+    >
+      <template #actions>
+        <el-button type="primary" @click="showCreateDialog">
+          <el-icon style="margin-right: 4px"><Plus /></el-icon>新建商品
+        </el-button>
+      </template>
+    </PageHeader>
+
     <!-- 统计卡片 -->
-    <el-row :gutter="20" class="mb-4">
-      <el-col :span="6">
-        <el-card shadow="hover">
-          <div class="stat">
-            <div class="stat-label">总商品数</div>
-            <div class="stat-value">{{ stats.total || 0 }}</div>
-          </div>
-        </el-card>
+    <el-row :gutter="16" class="stat-row">
+      <el-col :xs="12" :sm="6">
+        <StatCard label="总商品数" :value="stats.total || 0" tone="primary">
+          <template #icon><el-icon :size="22"><Goods /></el-icon></template>
+        </StatCard>
       </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover">
-          <div class="stat">
-            <div class="stat-label">在售商品</div>
-            <div class="stat-value">{{ stats.active || 0 }}</div>
-          </div>
-        </el-card>
+      <el-col :xs="12" :sm="6">
+        <StatCard label="在售商品" :value="stats.active || 0" tone="cyan">
+          <template #icon><el-icon :size="22"><Sell /></el-icon></template>
+        </StatCard>
       </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover">
-          <div class="stat">
-            <div class="stat-label">低库存</div>
-            <div class="stat-value">{{ stats.low_stock || 0 }}</div>
-          </div>
-        </el-card>
+      <el-col :xs="12" :sm="6">
+        <StatCard
+          label="低库存"
+          :value="stats.low_stock || 0"
+          :tone="(stats.low_stock || 0) > 0 ? 'danger' : 'neutral'"
+        >
+          <template #icon><el-icon :size="22"><Warning /></el-icon></template>
+        </StatCard>
       </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover">
-          <div class="stat">
-            <div class="stat-label">库存总值</div>
-            <div class="stat-value">¥{{ formatMoney(stats.total_value) }}</div>
-          </div>
-        </el-card>
+      <el-col :xs="12" :sm="6">
+        <StatCard label="库存总值" :value="`¥${formatMoney(stats.total_value)}`" tone="neutral">
+          <template #icon><el-icon :size="22"><Money /></el-icon></template>
+        </StatCard>
       </el-col>
     </el-row>
 
-    <!-- 搜索和操作栏 -->
-    <el-card class="mb-4">
-      <el-row :gutter="20" align="middle">
-        <el-col :span="18">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索商品名称、SKU、ASIN..."
-            clearable
-            @keyup.enter="loadProducts"
-          >
-            <template #prefix>
-              <el-icon><Search /></el-icon>
-            </template>
-          </el-input>
-        </el-col>
-        <el-col :span="6">
-          <el-button type="primary" @click="showCreateDialog">
-            <el-icon><Plus /></el-icon>
-            新建商品
-          </el-button>
-        </el-col>
-      </el-row>
-    </el-card>
+    <!-- 搜索栏 -->
+    <AppCard class="filter-card">
+      <el-input
+        v-model="searchKeyword"
+        placeholder="搜索商品名称、SKU、ASIN…"
+        clearable
+        style="max-width: 380px"
+        @keyup.enter="reload"
+        @clear="reload"
+      >
+        <template #prefix>
+          <el-icon><Search /></el-icon>
+        </template>
+      </el-input>
+      <el-button type="primary" @click="reload">搜索</el-button>
+      <el-button
+        type="success"
+        plain
+        :loading="syncing"
+        class="sync-btn"
+        @click="syncFromAmazon"
+      >
+        <el-icon v-if="!syncing"><Refresh /></el-icon>
+        {{ syncing ? '同步中…' : '从亚马逊同步' }}
+      </el-button>
+    </AppCard>
 
     <!-- 商品列表 -->
-    <el-card>
-      <el-table :data="products" v-loading="loading" stripe>
-        <el-table-column prop="name" label="商品名称" min-width="200" />
-        <el-table-column prop="sku" label="SKU" width="120" />
-        <el-table-column prop="category" label="分类" width="120" />
-        <el-table-column prop="brand" label="品牌" width="100" />
-        <el-table-column label="价格" width="120">
+    <AppCard>
+      <el-table :data="products" v-loading="loading" style="width: 100%">
+        <el-table-column prop="name" label="商品名称" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="sku" label="SKU" width="130">
           <template #default="{ row }">
-            {{ row.currency }} {{ row.selling_price }}
+            <span class="mono">{{ row.sku }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="stock_quantity" label="库存" width="100">
+        <el-table-column prop="category" label="分类" width="110" />
+        <el-table-column prop="brand" label="品牌" width="100" />
+        <el-table-column label="售价" width="110">
           <template #default="{ row }">
-            <el-tag :type="row.stock_quantity < 10 ? 'danger' : 'success'">
+            <span class="price">{{ row.currency }} {{ row.selling_price }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="库存" width="90" align="center">
+          <template #default="{ row }">
+            <el-tag v-if="row.stock_quantity < 10" type="danger" size="small" round effect="light">
               {{ row.stock_quantity }}
             </el-tag>
+            <span v-else class="stock-ok">{{ row.stock_quantity }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="amazon_asin" label="ASIN" width="120" />
-        <el-table-column prop="status" label="状态" width="80">
+        <el-table-column prop="amazon_asin" label="ASIN" width="120">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'active' ? 'success' : 'info'">
+            <span class="mono">{{ row.amazon_asin || '–' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="80">
+          <template #default="{ row }">
+            <el-tag
+              :type="row.status === 'active' ? 'success' : 'info'"
+              size="small"
+              round
+              effect="light"
+            >
               {{ row.status === 'active' ? '在售' : '下架' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" width="130" fixed="right">
           <template #default="{ row }">
-            <el-button size="small" @click="viewProduct(row)">详情</el-button>
-            <el-button size="small" type="primary" @click="editProduct(row)">编辑</el-button>
+            <el-button size="small" text type="primary" @click="viewProduct(row)">详情</el-button>
+            <el-button size="small" text type="primary" @click="editProduct(row)">编辑</el-button>
           </template>
         </el-table-column>
+
+        <template #empty>
+          <EmptyState text="暂无商品" hint="点击右上角「新建商品」录入第一件商品" />
+        </template>
       </el-table>
 
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :total="total"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next"
-        @size-change="loadProducts"
-        @current-change="loadProducts"
-        class="mt-4"
-      />
-    </el-card>
+      <div class="pager">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :total="total"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next"
+          @size-change="loadProducts"
+          @current-change="loadProducts"
+          background
+        />
+      </div>
+    </AppCard>
 
     <!-- 新建/编辑商品对话框 -->
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑商品' : '新建商品'" width="700px">
-      <el-form :model="form" label-width="100px">
+      <el-form :model="form" label-width="92px">
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="SKU" required>
-              <el-input v-model="form.sku" :disabled="isEdit" />
+              <el-input v-model="form.sku" :disabled="isEdit" placeholder="如 LED-STRIP-5M" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -140,17 +166,17 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="成本价">
-              <el-input-number v-model="form.cost_price" :min="0" :precision="2" />
+              <el-input-number v-model="form.cost_price" :min="0" :precision="2" style="width: 100%" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="售价">
-              <el-input-number v-model="form.selling_price" :min="0" :precision="2" />
+              <el-input-number v-model="form.selling_price" :min="0" :precision="2" style="width: 100%" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="币种">
-              <el-select v-model="form.currency">
+              <el-select v-model="form.currency" style="width: 100%">
                 <el-option label="USD" value="USD" />
                 <el-option label="EUR" value="EUR" />
                 <el-option label="GBP" value="GBP" />
@@ -163,12 +189,12 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="库存数量">
-              <el-input-number v-model="form.stock_quantity" :min="0" />
+              <el-input-number v-model="form.stock_quantity" :min="0" style="width: 100%" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="状态">
-              <el-select v-model="form.status">
+              <el-select v-model="form.status" style="width: 100%">
                 <el-option label="在售" value="active" />
                 <el-option label="下架" value="inactive" />
               </el-select>
@@ -178,16 +204,16 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="亚马逊 ASIN">
-              <el-input v-model="form.amazon_asin" />
+              <el-input v-model="form.amazon_asin" placeholder="如 B0XXXXXXXX" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="亚马逊站点">
-              <el-select v-model="form.amazon_marketplace" clearable>
-                <el-option label="美国" value="US" />
-                <el-option label="英国" value="UK" />
-                <el-option label="德国" value="DE" />
-                <el-option label="日本" value="JP" />
+              <el-select v-model="form.amazon_marketplace" clearable style="width: 100%">
+                <el-option label="美国 US" value="US" />
+                <el-option label="英国 UK" value="UK" />
+                <el-option label="德国 DE" value="DE" />
+                <el-option label="日本 JP" value="JP" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -209,17 +235,22 @@
         <el-descriptions-item label="成本价">{{ detailData.currency }} {{ detailData.cost_price }}</el-descriptions-item>
         <el-descriptions-item label="售价">{{ detailData.currency }} {{ detailData.selling_price }}</el-descriptions-item>
         <el-descriptions-item label="库存">
-          <el-tag :type="detailData.stock_quantity < 10 ? 'danger' : 'success'">
+          <el-tag v-if="detailData.stock_quantity < 10" type="danger" round effect="light">
             {{ detailData.stock_quantity }}
           </el-tag>
+          <span v-else>{{ detailData.stock_quantity }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="状态">
-          <el-tag :type="detailData.status === 'active' ? 'success' : 'info'">
+          <el-tag
+            :type="detailData.status === 'active' ? 'success' : 'info'"
+            round
+            effect="light"
+          >
             {{ detailData.status === 'active' ? '在售' : '下架' }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="亚马逊 ASIN">{{ detailData.amazon_asin }}</el-descriptions-item>
-        <el-descriptions-item label="亚马逊站点">{{ detailData.amazon_marketplace }}</el-descriptions-item>
+        <el-descriptions-item label="亚马逊 ASIN">{{ detailData.amazon_asin || '–' }}</el-descriptions-item>
+        <el-descriptions-item label="亚马逊站点">{{ detailData.amazon_marketplace || '–' }}</el-descriptions-item>
         <el-descriptions-item label="描述" :span="2">{{ detailData.description }}</el-descriptions-item>
         <el-descriptions-item label="创建时间">{{ formatTime(detailData.created_at) }}</el-descriptions-item>
         <el-descriptions-item label="更新时间">{{ formatTime(detailData.updated_at) }}</el-descriptions-item>
@@ -236,8 +267,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Search, Plus } from '@element-plus/icons-vue'
+import { Search, Plus, Goods, Sell, Warning, Money, Refresh } from '@element-plus/icons-vue'
 import api from '../api'
+import PageHeader from '../components/PageHeader.vue'
+import AppCard from '../components/AppCard.vue'
+import StatCard from '../components/StatCard.vue'
+import EmptyState from '../components/EmptyState.vue'
 
 // 统计数据
 const stats = ref({})
@@ -249,6 +284,7 @@ const currentPage = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
 const searchKeyword = ref('')
+const syncing = ref(false)
 
 // 新建/编辑
 const dialogVisible = ref(false)
@@ -282,6 +318,11 @@ const loadStats = async () => {
   }
 }
 
+const reload = () => {
+  currentPage.value = 1
+  loadProducts()
+}
+
 // 加载商品列表
 const loadProducts = async () => {
   loading.value = true
@@ -299,6 +340,23 @@ const loadProducts = async () => {
     ElMessage.error('加载商品列表失败')
   } finally {
     loading.value = false
+  }
+}
+
+// 从亚马逊同步商品
+const syncFromAmazon = async () => {
+  syncing.value = true
+  try {
+    const res = await api.post('/products/sync-from-amazon', null, {
+      params: { marketplace: 'US' },
+    })
+    ElMessage.success(`同步完成：新增 ${res.created} 个，更新 ${res.updated} 个`)
+    loadProducts()
+    loadStats()
+  } catch (error) {
+    ElMessage.error('同步失败，请检查亚马逊连接状态')
+  } finally {
+    syncing.value = false
   }
 }
 
@@ -326,6 +384,7 @@ const showCreateDialog = () => {
 const editProduct = (row) => {
   isEdit.value = true
   form.value = { ...row }
+  detailDialogVisible.value = false
   dialogVisible.value = true
 }
 
@@ -372,7 +431,7 @@ const formatMoney = (value) => {
 }
 
 const formatTime = (time) => {
-  if (!time) return '-'
+  if (!time) return '–'
   return new Date(time).toLocaleString('zh-CN')
 }
 
@@ -383,31 +442,41 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page {
-  padding: 20px;
-}
-
-.mb-4 {
+.stat-row {
   margin-bottom: 16px;
 }
-
-.mt-4 {
+.stat-row :deep(.el-col) {
+  margin-bottom: 16px;
+}
+.filter-card {
+  margin-bottom: 16px;
+}
+.filter-card :deep(.el-card__body) {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+  padding: 14px 18px;
+}
+.sync-btn {
+  margin-left: auto;
+}
+.pager {
+  display: flex;
+  justify-content: flex-end;
   margin-top: 16px;
 }
-
-.stat {
-  text-align: center;
+.mono {
+  font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
-
-.stat-label {
-  font-size: 14px;
-  color: #909399;
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-size: 28px;
+.price {
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
+}
+.stock-ok {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 </style>

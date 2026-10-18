@@ -2,17 +2,19 @@
   <div class="chat-page">
     <div class="chat-panel">
       <div class="chat-header">
-        <el-icon><ChatDotRound /></el-icon>
-        <span>跨境电商智能客服</span>
-        <el-tag size="small" type="info" effect="plain">RAG + Agent</el-tag>
-        <el-tag size="small" type="success" effect="plain">流式回答</el-tag>
+        <el-icon :size="18" class="header-icon"><ChatDotRound /></el-icon>
+        <span class="header-title">跨境电商智能客服</span>
+        <el-tag size="small" type="info" effect="plain" round>RAG + Agent</el-tag>
+        <el-tag size="small" type="success" effect="plain" round>流式回答</el-tag>
       </div>
 
       <div ref="listRef" class="chat-list">
         <!-- 欢迎区 + 快捷指令卡片（仅在会话开始前展示） -->
         <div v-if="messages.length <= 1" class="welcome">
-          <div class="welcome-title">您好，我是您的跨境电商 AI 助手 👋</div>
-          <div class="welcome-sub">基于企业知识库实时作答，支持订单、物流、产品、售后与贸易术语咨询。点击下方卡片快速提问：</div>
+          <div class="welcome-title">您好，我是您的跨境电商 AI 助手</div>
+          <div class="welcome-sub">
+            基于企业知识库实时作答，支持订单、物流、产品、售后与贸易术语咨询。点击下方卡片快速提问：
+          </div>
           <div class="suggestion-grid">
             <div
               v-for="s in suggestions"
@@ -20,7 +22,7 @@
               class="suggestion-card"
               @click="send(null, s.text)"
             >
-              <div class="s-icon">{{ s.icon }}</div>
+              <div class="s-icon"><el-icon :size="19"><component :is="s.icon" /></el-icon></div>
               <div class="s-body">
                 <div class="s-title">{{ s.title }}</div>
                 <div class="s-desc">{{ s.desc }}</div>
@@ -36,19 +38,21 @@
           <div class="bubble-wrap">
             <div class="bubble" :class="{ thinking: msg.role === 'assistant' && !msg.content }">
               <template v-if="msg.content">{{ msg.content }}</template>
-              <template v-else-if="msg.thinking">正在思考…（已分析 {{ msg.reasoned || 0 }} 字）</template>
+              <template v-else-if="msg.thinking">
+                正在检索知识库并思考…（已分析 {{ msg.reasoned || 0 }} 字）
+              </template>
               <template v-else>正在思考…</template>
             </div>
             <div v-if="msg.intent" class="meta">
-              <el-tag size="small" type="primary" effect="plain">意图：{{ intentLabel(msg.intent) }}</el-tag>
-              <el-tag v-if="msg.need_human" size="small" type="danger" effect="plain">已转人工</el-tag>
+              <el-tag size="small" type="primary" effect="plain" round>意图：{{ intentLabel(msg.intent) }}</el-tag>
+              <el-tag v-if="msg.need_human" size="small" type="danger" effect="plain" round>已转人工</el-tag>
             </div>
             <div v-if="msg.sources && msg.sources.length" class="sources">
               <el-collapse>
                 <el-collapse-item :title="`知识来源（${msg.sources.length} 条，点击展开）`">
                   <div v-for="(s, j) in msg.sources" :key="j" class="source-item">
                     <div class="source-head">
-                      <el-tag size="small" type="success" effect="plain">{{ s.source }}</el-tag>
+                      <el-tag size="small" type="primary" effect="plain" round>{{ s.source }}</el-tag>
                       <span class="score">相关度 {{ (s.score * 100).toFixed(1) }}%</span>
                     </div>
                     <p class="source-text">{{ s.text }}</p>
@@ -68,13 +72,14 @@
       <div class="quick-chips">
         <span class="chips-label">快捷提问</span>
         <div class="chips-scroll">
-          <el-tag
+          <span
             v-for="s in suggestions"
             :key="s.text"
             class="chip"
-            effect="plain"
             @click="send(null, s.text)"
-          >{{ s.icon }} {{ s.title }}</el-tag>
+          >
+            <el-icon :size="13"><component :is="s.icon" /></el-icon>{{ s.title }}
+          </span>
         </div>
       </div>
 
@@ -87,7 +92,7 @@
           placeholder="请输入您的问题，例如：订单什么时候发货？支持哪些支付方式？（Enter 发送）"
           @keydown.enter.exact.prevent="send()"
         />
-        <el-button type="primary" size="large" :loading="loading" @click="send()">发送</el-button>
+        <el-button type="primary" :loading="loading" @click="send()">发送</el-button>
       </div>
     </div>
   </div>
@@ -95,20 +100,24 @@
 
 <script setup>
 import { nextTick, ref } from 'vue'
+import {
+  ChatDotRound, Van, CreditCard, Goods, Ship,
+  RefreshLeft, Medal, Sunny, Stamp,
+} from '@element-plus/icons-vue'
 import { TOKEN_KEY } from '../api'
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api/v1'
 
 // 快捷指令卡片（与示例知识库对齐，点击即发送）
 const suggestions = [
-  { icon: '📦', title: '订单什么时候发货？', desc: '现货 24-48 小时内发货', text: '订单什么时候发货？' },
-  { icon: '💳', title: '支持哪些支付方式？', desc: 'T/T、信用证、PayPal 等', text: '支持哪些支付方式？' },
-  { icon: '🔢', title: 'MOQ 起订量是多少？', desc: '常规产品 100 件起', text: '最小起订量 MOQ 是多少？' },
-  { icon: '🚢', title: 'FOB 和 CIF 的区别？', desc: '常用贸易术语解读', text: 'FOB 和 CIF 有什么区别？' },
-  { icon: '↩️', title: '退换货流程', desc: '售后申请与处理时效', text: '退换货流程是怎样的？' },
-  { icon: '📜', title: '产品国际认证', desc: 'CE、RoHS、FCC、FDA', text: '产品有哪些国际认证？' },
-  { icon: '💡', title: 'LED 灯带规格', desc: '热销产品参数一览', text: '智能LED灯带是什么规格？' },
-  { icon: '🏭', title: 'OEM 贴牌定制', desc: '可打客户 LOGO', text: '可以OEM贴牌定制吗？' },
+  { icon: Van, title: '订单什么时候发货？', desc: '现货 24-48 小时内发货', text: '订单什么时候发货？' },
+  { icon: CreditCard, title: '支持哪些支付方式？', desc: 'T/T、信用证、PayPal 等', text: '支持哪些支付方式？' },
+  { icon: Goods, title: 'MOQ 起订量是多少？', desc: '常规产品 100 件起', text: '最小起订量 MOQ 是多少？' },
+  { icon: Ship, title: 'FOB 和 CIF 的区别？', desc: '常用贸易术语解读', text: 'FOB 和 CIF 有什么区别？' },
+  { icon: RefreshLeft, title: '退换货流程', desc: '售后申请与处理时效', text: '退换货流程是怎样的？' },
+  { icon: Medal, title: '产品国际认证', desc: 'CE、RoHS、FCC、FDA', text: '产品有哪些国际认证？' },
+  { icon: Sunny, title: 'LED 灯带规格', desc: '热销产品参数一览', text: '智能LED灯带是什么规格？' },
+  { icon: Stamp, title: 'OEM 贴牌定制', desc: '可打客户 LOGO', text: '可以OEM贴牌定制吗？' },
 ]
 
 const input = ref('')
@@ -206,18 +215,19 @@ const send = async (evt, presetText) => {
 
 <style scoped>
 .chat-page {
-  height: calc(100vh - 100px);
+  height: calc(100vh - 116px);
   display: flex;
   justify-content: center;
 }
 .chat-panel {
   width: 100%;
-  max-width: 880px;
-  background: #fff;
-  border-radius: 12px;
+  max-width: 900px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--divider);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-xs);
   overflow: hidden;
 }
 .chat-header {
@@ -225,26 +235,34 @@ const send = async (evt, presetText) => {
   align-items: center;
   gap: 8px;
   padding: 14px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--divider);
+}
+.header-icon {
+  color: var(--color-primary);
+}
+.header-title {
+  font-size: var(--font-size-lg);
   font-weight: 600;
+  margin-right: 4px;
 }
 
 /* ---- 欢迎区与快捷指令卡片 ---- */
 .welcome {
-  padding: 28px 12px 8px;
+  padding: 36px 12px 12px;
   text-align: center;
 }
 .welcome-title {
-  font-size: 20px;
+  font-size: var(--font-size-2xl);
   font-weight: 700;
-  color: #303133;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 .welcome-sub {
-  margin: 10px auto 22px;
+  margin: 10px auto 24px;
   max-width: 560px;
-  color: #909399;
-  font-size: 13px;
-  line-height: 1.6;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.7;
 }
 .suggestion-grid {
   display: grid;
@@ -255,32 +273,33 @@ const send = async (evt, presetText) => {
 .suggestion-card {
   display: flex;
   gap: 10px;
-  padding: 12px;
-  border: 1px solid #ebeef5;
-  border-radius: 10px;
+  padding: 13px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s;
-  background: #fafbfc;
+  background: var(--bg-card);
+  transition: border-color 0.18s ease, background 0.18s ease;
 }
 .suggestion-card:hover {
-  border-color: #409eff;
-  background: #ecf5ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 .s-icon {
-  font-size: 22px;
+  color: var(--color-primary);
   line-height: 1;
+  margin-top: 1px;
+  flex-shrink: 0;
 }
 .s-title {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
+  line-height: 1.4;
 }
 .s-desc {
   margin-top: 3px;
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
 }
 
 .chat-list {
@@ -291,7 +310,7 @@ const send = async (evt, presetText) => {
 .msg-row {
   display: flex;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 .msg-row.user {
   flex-direction: row-reverse;
@@ -303,36 +322,40 @@ const send = async (evt, presetText) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 600;
   color: #fff;
   flex-shrink: 0;
 }
 .avatar.user {
-  background: #67c23a;
+  background: var(--color-primary);
 }
 .avatar.assistant {
-  background: #409eff;
+  background: #c7c7cc;
 }
 .bubble-wrap {
-  max-width: 75%;
+  max-width: 74%;
 }
 .bubble {
   padding: 10px 14px;
-  border-radius: 10px;
-  background: #f4f4f5;
-  color: #303133;
-  line-height: 1.6;
+  border-radius: 16px;
+  border-top-left-radius: 6px;
+  background: #e9e9eb;
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+  line-height: 1.7;
   white-space: pre-wrap;
   word-break: break-word;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 .msg-row.user .bubble {
-  background: #409eff;
+  background: var(--color-primary);
   color: #fff;
+  border-radius: 16px;
+  border-top-right-radius: 6px;
 }
 .bubble.thinking {
-  color: #909399;
-  font-size: 13px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
 }
 .meta {
   margin-top: 6px;
@@ -351,25 +374,25 @@ const send = async (evt, presetText) => {
   justify-content: space-between;
 }
 .score {
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
 }
 .source-text {
   margin-top: 4px;
-  font-size: 12px;
-  color: #606266;
-  line-height: 1.5;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 .typing {
   display: flex;
   gap: 4px;
-  padding: 0 20px 12px;
+  padding: 2px 0 8px 44px;
 }
 .typing span {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #c0c4cc;
+  background: #c7c7cc;
   animation: blink 1.2s infinite ease-in-out;
 }
 .typing span:nth-child(2) {
@@ -379,52 +402,56 @@ const send = async (evt, presetText) => {
   animation-delay: 0.4s;
 }
 @keyframes blink {
-  0%,
-  80%,
-  100% {
-    opacity: 0.3;
-  }
-  40% {
-    opacity: 1;
-  }
+  0%, 80%, 100% { opacity: 0.3; }
+  40% { opacity: 1; }
 }
 
 /* ---- 快捷输入 chips ---- */
 .quick-chips {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 8px 20px 0;
 }
 .chips-label {
-  font-size: 12px;
-  color: #c0c4cc;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 .chips-scroll {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
 }
 .chips-scroll::-webkit-scrollbar {
   height: 0;
 }
 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
   cursor: pointer;
   flex-shrink: 0;
-  transition: all 0.15s;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 .chip:hover {
-  color: #409eff;
-  border-color: #409eff;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .chat-input {
   display: flex;
   gap: 10px;
-  padding: 12px 20px 16px;
-  border-top: 1px solid #f0f0f0;
+  padding: 12px 20px 18px;
+  border-top: 1px solid var(--divider);
   align-items: flex-end;
 }
 </style>

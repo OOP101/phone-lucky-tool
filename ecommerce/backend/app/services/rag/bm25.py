@@ -21,9 +21,13 @@ class BM25:
         self.doc_len = [len(d) for d in corpus]
         self.avgdl = (sum(self.doc_len) / self.N) if self.N else 0.0
         self.df = {}
-        for doc in corpus:
-            for term in set(doc):
+        # 预计算每文档词频与倒排表，避免 get_scores 重复构造 Counter（千级语料热点）
+        self.tf: List[Counter] = [Counter(d) for d in corpus]
+        self.postings: dict = {}
+        for i, tfc in enumerate(self.tf):
+            for term in tfc:
                 self.df[term] = self.df.get(term, 0) + 1
+                self.postings.setdefault(term, []).append((i, tfc[term]))
         self.idf = {
             t: math.log((self.N - df + 0.5) / (df + 0.5) + 1.0)
             for t, df in self.df.items()
@@ -35,10 +39,7 @@ class BM25:
             idf = self.idf.get(term, 0.0)
             if idf == 0.0:
                 continue
-            for i, doc in enumerate(self.corpus):
-                tf = Counter(doc).get(term, 0)
-                if tf == 0:
-                    continue
+            for i, tf in self.postings.get(term, ()):
                 denom = tf + self.k1 * (1 - self.b + self.b * self.doc_len[i] / self.avgdl)
                 scores[i] += idf * (tf * (self.k1 + 1)) / denom
         return scores
