@@ -6,12 +6,12 @@
 
 | 项目 | 目录 | 技术栈 | 说明 |
 |---|---|---|---|
-| 直播带货话术助手 | [`livestream-assistant/`](./livestream-assistant) | LangGraph + FastAPI + Vue 3 + ChromaDB | 实时弹幕 → 意图识别 → RAG 检索 → 话术与策略推送 |
-| 企业级差旅助手 | [`travel-assistant/`](./travel-assistant) | LangGraph + FastAPI + React | 多智能体行程规划 / 预订 / 实时监控 |
-| 企业知识库问答 | [`knowledge-base/`](./knowledge-base) | RAG + 向量检索 + 重排序 | DOCX/PDF 批量入库、多轮对话记忆、JWT 权限 |
-| 跨境电商智能平台 | [`cross-border-shop/`](./cross-border-shop) | FastAPI + Vue 3 + RAG | 智能客服 / 营销文案 / 实时翻译 |
+| 直播带货话术助手 | [`livestream/`](./livestream) | LangGraph + FastAPI + Vue 3 + ChromaDB | 实时弹幕 → 意图识别 → RAG 检索 → 话术与策略推送 |
+| 企业级差旅助手 | [`travel/`](./travel) | LangGraph + FastAPI + React | 多智能体行程规划 / 预订 / 实时监控 |
+| 企业知识库问答 | [`knowledge/`](./knowledge) | RAG + 向量检索 + 重排序 | DOCX/PDF 批量入库、多轮对话记忆、JWT 权限 |
+| 跨境电商智能平台 | [`ecommerce/`](./ecommerce) | FastAPI + Vue 3 + RAG | 智能客服 / 营销文案 / 实时翻译 |
 | 个人主页 | [`homepage/`](./homepage) | 单文件 HTML | 主页 / 术语小词典 / 技术详解 |
-| 简历构建管线 | [`resume-builder/`](./resume-builder) | Python + Jinja2 + Headless Chrome | YAML 单一数据源 → HTML → PDF，带结构与页数校验 |
+| 简历构建管线 | [`resume/`](./resume) | Python + Jinja2 + Headless Chrome | YAML 单一数据源 → HTML → PDF，带结构与页数校验 |
 | 手机号识别工具 | [`phone-ocr/`](./phone-ocr) | 单文件 HTML + Tesseract.js | 截图批量 OCR 提取手机号，号段校验 + 运营商标注 + 多站查询 |
 
 ## 说明
