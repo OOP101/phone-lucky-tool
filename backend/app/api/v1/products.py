@@ -49,6 +49,13 @@ class ProductUpdate(BaseModel):
 
 # ============ 商品管理 ============
 
+def _profit_fields(p: Product) -> dict:
+    """计算单件商品的毛利润与毛利率（基于成本价与售价）。"""
+    gross_profit = p.selling_price - p.cost_price
+    gross_margin = round(gross_profit / p.selling_price * 100, 1) if p.selling_price else 0.0
+    return {"gross_profit": round(gross_profit, 2), "gross_margin": gross_margin}
+
+
 @router.get("", summary="商品列表")
 def list_products(
     page: int = Query(1, ge=1),
@@ -89,6 +96,7 @@ def list_products(
                 "brand": p.brand,
                 "cost_price": p.cost_price,
                 "selling_price": p.selling_price,
+                **_profit_fields(p),
                 "currency": p.currency,
                 "stock_quantity": p.stock_quantity,
                 "amazon_asin": p.amazon_asin,
@@ -190,7 +198,137 @@ def product_stats_overview(
     }
 
 
-@router.get("/products/{product_id}", summary="商品详情")
+@router.post("/sync-from-amazon", summary="从亚马逊同步商品")
+def sync_from_amazon(
+    marketplace: str = "US",
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+):
+    """从亚马逊拉取 FBA 在库商品并同步到本地商品档案。
+
+    流程：
+    1. 调用 FBA 库存接口，获取各 ASIN 的 FN-SKU 与库存数量
+    2. 调用商品目录接口，补全标题、品牌、售价
+    3. 按 SKU 做 upsert：本地已存在则更新库存，不存在则新建
+
+    Returns:
+        同步结果（新增数、更新数、明细）
+    """
+    # 局部导入，避免与商品 API 模块产生耦合/循环
+    from app.services.amazon import inventory as amz_inventory
+    from app.services.amazon import products as amz_catalog
+
+    tenant_id = user["tenant_id"]
+
+    summaries = amz_inventory.get_inventory_summary(marketplace_code=marketplace)
+
+    created, updated = 0, 0
+    details = []
+
+    for s in summaries:
+        asin = s.get("asin")
+        fn_sku = s.get("fn_sku")
+        sku = fn_sku or f"AMZ-{asin}"
+        total_qty = int(s.get("total_quantity", 0))
+
+        # 补全商品信息（失败不阻断同步，用兜底值）
+        name = f"Amazon-{asin}"
+        brand = None
+        price = 0.0
+        try:
+            cat = amz_catalog.get_catalog_item(asin, marketplace_code=marketplace)
+            name = cat.get("title") or name
+            brand = cat.get("brand")
+            price = float((cat.get("price") or {}).get("amount", 0) or 0)
+        except Exception:
+            pass
+
+        # 按 SKU upsert
+        product = (
+            db.query(Product)
+            .filter(Product.tenant_id == tenant_id, Product.sku == sku)
+            .first()
+        )
+
+        if product:
+            product.stock_quantity = total_qty
+            product.amazon_asin = asin
+            product.amazon_marketplace = marketplace
+            if price:
+                product.selling_price = price
+            action = "updated"
+            updated += 1
+        else:
+            product = Product(
+                tenant_id=tenant_id,
+                sku=sku,
+                name=name,
+                brand=brand,
+                selling_price=price,
+                stock_quantity=total_qty,
+                amazon_asin=asin,
+                amazon_marketplace=marketplace,
+                status="active",
+            )
+            db.add(product)
+            action = "created"
+            created += 1
+
+        details.append({
+            "sku": sku,
+            "asin": asin,
+            "name": name,
+            "stock_quantity": total_qty,
+            "action": action,
+        })
+
+    db.commit()
+
+    return {
+        "marketplace": marketplace,
+        "total_synced": len(details),
+        "created": created,
+        "updated": updated,
+        "products": details,
+    }
+
+
+@router.get("/inventory/alerts", summary="库存预警列表")
+def inventory_alerts(
+    threshold: int = Query(10, ge=0),
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+):
+    """返回库存低于阈值的在售商品（含缺货），按库存升序。"""
+    products = (
+        db.query(Product)
+        .filter(
+            Product.tenant_id == user["tenant_id"],
+            Product.status == "active",
+            Product.stock_quantity <= threshold,
+        )
+        .order_by(Product.stock_quantity.asc())
+        .all()
+    )
+
+    return {
+        "threshold": threshold,
+        "count": len(products),
+        "items": [
+            {
+                "id": p.id,
+                "sku": p.sku,
+                "name": p.name,
+                "amazon_asin": p.amazon_asin,
+                "stock_quantity": p.stock_quantity,
+                "is_out_of_stock": p.stock_quantity == 0,
+            }
+            for p in products
+        ],
+    }
+
+
+@router.get("/{product_id}", summary="商品详情")
 def get_product(
     product_id: int,
     db: Session = Depends(get_db),
@@ -213,6 +351,7 @@ def get_product(
         "description": product.description,
         "cost_price": product.cost_price,
         "selling_price": product.selling_price,
+        **_profit_fields(product),
         "currency": product.currency,
         "stock_quantity": product.stock_quantity,
         "amazon_asin": product.amazon_asin,
@@ -224,7 +363,7 @@ def get_product(
     }
 
 
-@router.put("/products/{product_id}", summary="更新商品")
+@router.put("/{product_id}", summary="更新商品")
 def update_product(
     product_id: int,
     req: ProductUpdate,
@@ -260,7 +399,7 @@ def update_product(
     return {"ok": True, "id": product.id}
 
 
-@router.delete("/products/{product_id}", summary="删除商品")
+@router.delete("/{product_id}", summary="删除商品")
 def delete_product(
     product_id: int,
     db: Session = Depends(get_db),

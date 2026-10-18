@@ -3,6 +3,7 @@
 用法：python scripts/ingest.py
 """
 import sys
+import time
 from pathlib import Path
 
 # 允许以脚本方式运行时导入 app
@@ -18,22 +19,30 @@ def main():
     init_db()
     db = SessionLocal()
     files = sorted(KNOWLEDGE_DIR.glob("*")) if KNOWLEDGE_DIR.exists() else []
-    supported = [f for f in files if f.suffix.lower() in kb_service.SUPPORTED_EXT]
+    supported = [f for f in files if f.is_file() and f.suffix.lower() in kb_service.SUPPORTED_EXT]
 
     if not supported:
         print(f"未在 {KNOWLEDGE_DIR} 找到可导入文档，请放入 txt/md/csv/pdf/docx 文件。")
         return
 
-    print(f"开始导入 {len(supported)} 个文档...")
-    for f in supported:
-        try:
-            content = f.read_bytes()
-            result = kb_service.add_document(db, f.name, content)
-            print(f"  ✔ {f.name} -> {result['chunk_count']} 个分块")
-        except Exception as e:  # noqa: BLE001
-            print(f"  ✘ {f.name} 导入失败：{e}")
+    payload = [(f.name, f.read_bytes()) for f in supported]
+    print(f"开始批量导入 {len(payload)} 个文档（解析→分块→统一向量化→一次入库）...")
 
-    print("导入完成。")
+    start = time.time()
+
+    def _progress(done, total, filename):
+        if done % 100 == 0 or done == total:
+            print(f"  解析进度 {done}/{total}")
+
+    result = kb_service.add_documents_bulk(db, payload, progress=_progress)
+    elapsed = time.time() - start
+
+    print(
+        f"导入完成：成功 {result['indexed']} 个文档 / {result['total_chunks']} 个分块，"
+        f"耗时 {elapsed:.1f}s。"
+    )
+    for filename, reason in result["skipped"]:
+        print(f"  ✘ {filename} 跳过：{reason}")
 
 
 if __name__ == "__main__":

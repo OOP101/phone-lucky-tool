@@ -27,10 +27,10 @@ class AmazonSPAPIClient:
         self.marketplace_code = marketplace_code or settings.AMAZON_DEFAULT_MARKETPLACE
         self.marketplace_config = get_marketplace(self.marketplace_code)
 
-        # 构建 Credentials 配置
+        # 构建 Credentials 配置（键名须与 python-amazon-sp-api 约定一致：lwa_app_id）
         self.credentials = dict(
             refresh_token=settings.AMAZON_LWA_REFRESH_TOKEN,
-            lwa_app_client_id=settings.AMAZON_LWA_CLIENT_ID,
+            lwa_app_id=settings.AMAZON_LWA_CLIENT_ID,
             lwa_client_secret=settings.AMAZON_LWA_CLIENT_SECRET,
             aws_access_key=settings.AMAZON_AWS_ACCESS_KEY,
             aws_secret_key=settings.AMAZON_AWS_SECRET_KEY,

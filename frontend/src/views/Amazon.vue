@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="amazon-page">
     <!-- 顶部状态栏 -->
     <div class="status-bar">
       <div class="status-left">
@@ -18,7 +18,7 @@
       <el-tab-pane name="orders">
         <template #label>
           <div class="tab-label">
-            <span class="tab-icon">📦</span>
+            <el-icon :size="15"><List /></el-icon>
             <span>订单</span>
             <span v-if="orders.length" class="tab-badge">{{ orders.length }}</span>
           </div>
@@ -42,7 +42,7 @@
             <el-option label="已发货" value="Shipped" />
             <el-option label="已完成" value="Completed" />
           </el-select>
-          <el-button type="primary" @click="queryOrders" :loading="ordersLoading" round>
+          <el-button type="primary" @click="queryOrders" :loading="ordersLoading">
             查询
           </el-button>
         </div>
@@ -74,10 +74,10 @@
           <el-table-column label="操作" width="180" fixed="right" align="center">
             <template #default="{ row }">
               <el-button size="small" text type="primary" @click="viewOrderDetail(row)">详情</el-button>
-              <el-button 
-                size="small" 
-                text 
-                type="success" 
+              <el-button
+                size="small"
+                text
+                type="primary"
                 :loading="analyzingOrderId === row.AmazonOrderId"
                 @click="analyzeOrder(row)"
               >
@@ -92,7 +92,7 @@
       <el-tab-pane name="catalog">
         <template #label>
           <div class="tab-label">
-            <span class="tab-icon">📋</span>
+            <el-icon :size="15"><Grid /></el-icon>
             <span>商品</span>
           </div>
         </template>
@@ -109,18 +109,18 @@
               <el-icon><Search /></el-icon>
             </template>
           </el-input>
-          <el-button type="primary" @click="searchCatalog" round>搜索</el-button>
+          <el-button type="primary" @click="searchCatalog">搜索</el-button>
         </div>
 
         <el-row :gutter="16">
           <el-col :span="6" v-for="item in catalogItems" :key="item.asin">
             <div class="product-card">
-              <img :src="item.image || 'https://via.placeholder.com/200'" class="product-image" />
+              <img :src="item.image || PLACEHOLDER_IMG" class="product-image" />
               <div class="product-body">
                 <div class="product-title">{{ item.title }}</div>
                 <div class="product-meta">ASIN: {{ item.asin }}</div>
                 <div class="product-price">{{ item.price }} {{ item.currency }}</div>
-                <el-button size="small" type="primary" round @click="generateCopy(item)">生成文案</el-button>
+                <el-button size="small" type="primary" @click="generateCopy(item)">生成文案</el-button>
               </div>
             </div>
           </el-col>
@@ -131,13 +131,13 @@
       <el-tab-pane name="inventory">
         <template #label>
           <div class="tab-label">
-            <span class="tab-icon">📊</span>
+            <el-icon :size="15"><DataLine /></el-icon>
             <span>库存</span>
           </div>
         </template>
 
         <div class="filter-bar">
-          <el-button type="primary" @click="queryInventory" :loading="inventoryLoading" round>
+          <el-button type="primary" @click="queryInventory" :loading="inventoryLoading">
             刷新库存
           </el-button>
         </div>
@@ -162,9 +162,9 @@
       <el-tab-pane name="ai">
         <template #label>
           <div class="tab-label">
-            <span class="tab-icon">✨</span>
+            <el-icon :size="15"><MagicStick /></el-icon>
             <span>AI</span>
-            <span v-if="aiAnalysis.loading || hotProducts.loading" class="tab-pulse"></span>
+            <span v-if="analysisLoading || copyLoading" class="tab-pulse"></span>
           </div>
         </template>
 
@@ -173,7 +173,7 @@
           <el-col :span="12">
             <div class="ai-card">
               <div class="ai-card-header">
-                <span class="ai-icon">🔍</span>
+                <el-icon :size="18" class="ai-icon"><DataAnalysis /></el-icon>
                 <span class="ai-title">订单智能分析</span>
               </div>
               <p class="ai-desc">基于最近订单数据，AI 自动生成销售分析报告</p>
@@ -182,18 +182,17 @@
                   <span class="ai-control-label">分析天数</span>
                   <el-input-number v-model="aiAnalysis.days" :min="1" :max="90" size="small" />
                 </div>
-                <el-button 
-                  type="primary" 
-                  @click="runOrderAnalysis" 
-                  :loading="aiAnalysis.loading" 
-                  round
+                <el-button
+                  type="primary"
+                  @click="runOrderAnalysis"
+                  :loading="analysisLoading"
                 >
-                  {{ aiAnalysis.loading ? '分析中…' : '开始分析' }}
+                  {{ analysisLoading ? '分析中…' : '开始分析' }}
                 </el-button>
               </div>
 
               <!-- 加载状态 -->
-              <div v-if="aiAnalysis.loading" class="ai-loading-state">
+              <div v-if="analysisLoading" class="ai-loading-state">
                 <div class="ai-loading-dots">
                   <span></span><span></span><span></span>
                 </div>
@@ -201,7 +200,7 @@
               </div>
 
               <!-- 结果展示 -->
-              <div v-if="aiAnalysis.result && !aiAnalysis.loading" class="ai-result">
+              <div v-if="aiAnalysis.result && !analysisLoading" class="ai-result">
                 <div class="ai-result-content" v-html="formatResult(aiAnalysis.result)"></div>
                 <el-button size="small" text type="primary" @click="copyText(aiAnalysis.result)">
                   复制结果
@@ -214,7 +213,7 @@
           <el-col :span="12">
             <div class="ai-card">
               <div class="ai-card-header">
-                <span class="ai-icon">🔥</span>
+                <el-icon :size="18" class="ai-icon"><Trophy /></el-icon>
                 <span class="ai-title">热销商品文案生成</span>
               </div>
               <p class="ai-desc">从热销订单中提取商品，自动生成多语言营销文案</p>
@@ -232,18 +231,17 @@
                     <el-option label="法语" value="fr" />
                   </el-select>
                 </div>
-                <el-button 
-                  type="primary" 
-                  @click="generateHotProductsCopy" 
-                  :loading="hotProducts.loading" 
-                  round
+                <el-button
+                  type="primary"
+                  @click="generateHotProductsCopy"
+                  :loading="copyLoading"
                 >
-                  {{ hotProducts.loading ? '生成中…' : '生成文案' }}
+                  {{ copyLoading ? '生成中…' : '生成文案' }}
                 </el-button>
               </div>
 
               <!-- 加载状态 -->
-              <div v-if="hotProducts.loading" class="ai-loading-state">
+              <div v-if="copyLoading" class="ai-loading-state">
                 <div class="ai-loading-dots">
                   <span></span><span></span><span></span>
                 </div>
@@ -251,7 +249,7 @@
               </div>
 
               <!-- 结果展示 -->
-              <div v-if="hotProducts.result && !hotProducts.loading" class="ai-result">
+              <div v-if="hotProducts.result && !copyLoading" class="ai-result">
                 <div class="ai-result-content" v-html="formatResult(hotProducts.result)"></div>
                 <el-button size="small" text type="primary" @click="copyText(hotProducts.result)">
                   复制结果
@@ -277,7 +275,7 @@
           <el-descriptions-item label="金额">{{ currentOrder.OrderTotal?.Amount }} {{ currentOrder.OrderTotal?.CurrencyCode }}</el-descriptions-item>
         </el-descriptions>
         <div style="margin-top: 20px">
-          <el-button type="success" round @click="analyzeOrder(currentOrder)" :loading="analyzingOrderId === currentOrder.AmazonOrderId">
+          <el-button type="primary" @click="analyzeOrder(currentOrder)" :loading="analyzingOrderId === currentOrder.AmazonOrderId">
             {{ analyzingOrderId === currentOrder.AmazonOrderId ? 'AI 分析中…' : 'AI 分析此订单' }}
           </el-button>
         </div>
@@ -287,10 +285,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
+import {
+  Search, List, Grid, DataLine, DataAnalysis,
+  Trophy, MagicStick,
+} from '@element-plus/icons-vue'
 import api from '../api'
+import { useTaskStore } from '../stores/tasks'
+
+const taskStore = useTaskStore()
+
+// 商品缺省占位图：内联 SVG，不依赖任何外网，离线/国内网络均可正常显示
+const PLACEHOLDER_IMG =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f5f7fa'/%3E%3Cg fill='none' stroke='%23c0c4cc' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='58' y='72' width='84' height='64' rx='7'/%3E%3Ccircle cx='80' cy='93' r='6' fill='%23c0c4cc' stroke='none'/%3E%3Cpath d='M58 124l25-20 20 14 20-19 19 21'/%3E%3C/g%3E%3C/svg%3E"
 
 const selectedMarketplace = ref('US')
 const isAuthorized = ref(false)
@@ -299,10 +307,10 @@ const activeTab = ref('orders')
 
 // 站点选项（分段控制器）
 const marketplaceOptions = [
-  { label: '🇺🇸 美国', value: 'US' },
-  { label: '🇬🇧 英国', value: 'UK' },
-  { label: '🇩🇪 德国', value: 'DE' },
-  { label: '🇯🇵 日本', value: 'JP' },
+  { label: 'US 美国', value: 'US' },
+  { label: 'UK 英国', value: 'UK' },
+  { label: 'DE 德国', value: 'DE' },
+  { label: 'JP 日本', value: 'JP' },
 ]
 
 // 订单
@@ -323,17 +331,44 @@ const catalogItems = ref([])
 const inventory = ref([])
 const inventoryLoading = ref(false)
 
-// AI 分析
-const aiAnalysis = ref({ days: 7, loading: false, result: '' })
-const hotProducts = ref({ topN: 5, language: 'en', loading: false, result: '' })
+// AI 分析（长任务挂在全局任务中心，切走页面不中断，回来自动回显）
+const aiAnalysis = ref({ days: 7, result: '' })
+const hotProducts = ref({ topN: 5, language: 'en', result: '' })
+const analysisTaskId = ref('')
+const copyTaskId = ref('')
+const analysisTask = computed(() => taskStore.tasks.find((t) => t.id === analysisTaskId.value))
+const copyTask = computed(() => taskStore.tasks.find((t) => t.id === copyTaskId.value))
+const analysisLoading = computed(() => analysisTask.value?.status === 'running')
+const copyLoading = computed(() => copyTask.value?.status === 'running')
+
+watch(analysisTask, (t) => {
+  if (t?.status === 'done' && t.result) aiAnalysis.value.result = t.result
+})
+watch(copyTask, (t) => {
+  if (t?.status === 'done' && t.result) hotProducts.value.result = t.result
+})
 
 // 工具函数
 const statusType = (status) => {
-  const map = { Pending: 'warning', Shipped: '', Completed: 'success', Canceled: 'danger' }
+  const map = {
+    Pending: 'warning',
+    Unshipped: 'warning',
+    PartiallyShipped: 'warning',
+    Shipped: '',
+    Completed: 'success',
+    Canceled: 'danger',
+  }
   return map[status] || 'info'
 }
 const statusLabel = (status) => {
-  const map = { Pending: '待发货', Shipped: '已发货', Completed: '已完成', Canceled: '已取消' }
+  const map = {
+    Pending: '待发货',
+    Unshipped: '待发货',
+    PartiallyShipped: '部分发货',
+    Shipped: '已发货',
+    Completed: '已完成',
+    Canceled: '已取消',
+  }
   return map[status] || status
 }
 const formatTime = (dateStr) => {
@@ -342,7 +377,13 @@ const formatTime = (dateStr) => {
 }
 const formatResult = (text) => {
   if (!text) return ''
-  return text.replace(/\n/g, '<br>')
+  // 先转义 HTML 再换行转 <br>，防止 LLM 输出/订单数据被注入导致 XSS
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/\n/g, '<br>')
 }
 const copyText = async (text) => {
   try {
@@ -374,6 +415,7 @@ const queryOrders = async () => {
     }
     if (orderQuery.value.status) params.order_statuses = orderQuery.value.status
     const res = await api.get('/amazon/orders', { params })
+    // 模板直接使用 SP-API 原始字段（AmazonOrderId/OrderStatus/PurchaseDate/OrderTotal）
     orders.value = res.orders || []
   } catch {
     ElMessage.error('查询订单失败')
@@ -388,24 +430,26 @@ const viewOrderDetail = (order) => {
   orderDetailVisible.value = true
 }
 
-// AI 分析订单
+// AI 分析订单（走任务中心，切换页面不会中断）
 const analyzeOrder = async (order) => {
   analyzingOrderId.value = order.AmazonOrderId
-  aiAnalysis.value.loading = true
   aiAnalysis.value.result = ''
-  try {
-    const res = await api.get('/amazon/ai/analyze-orders', {
-      params: { marketplace: selectedMarketplace.value, days: 7 }
-    })
-    aiAnalysis.value.result = res.analysis || '分析完成'
-    activeTab.value = 'ai'
-    ElMessage.success('AI 分析完成')
-  } catch {
-    ElMessage.error('AI 分析失败')
-  } finally {
-    analyzingOrderId.value = ''
-    aiAnalysis.value.loading = false
-  }
+  activeTab.value = 'ai'
+  await taskStore.run(
+    { type: 'amazon_analysis', title: `订单分析 · ${order.AmazonOrderId}` },
+    async () => {
+      const res = await api.get('/amazon/ai/analyze-orders', {
+        params: { marketplace: selectedMarketplace.value, days: 7 },
+      })
+      const text = res.analysis || '分析完成'
+      aiAnalysis.value.result = text
+      return text
+    },
+    (id) => { analysisTaskId.value = id }
+  )
+  analyzingOrderId.value = ''
+  const t = taskStore.tasks.find((x) => x.id === analysisTaskId.value)
+  if (t?.status === 'done') ElMessage.success('AI 分析完成')
 }
 
 // 商品搜索
@@ -418,7 +462,15 @@ const searchCatalog = async () => {
     const res = await api.get('/amazon/catalog/search', {
       params: { keywords: catalogQuery.value.keywords, marketplace: selectedMarketplace.value }
     })
-    catalogItems.value = res.items || []
+    // 字段适配：price 为嵌套对象，image 后端暂不提供（模板自动用占位图）
+    catalogItems.value = (res.items || []).map((i) => ({
+      asin: i.asin,
+      title: i.title,
+      brand: i.brand,
+      price: i.price?.amount,
+      currency: i.price?.currency_code,
+      image: i.image || '',
+    }))
   } catch {
     ElMessage.error('搜索商品失败')
   }
@@ -447,7 +499,15 @@ const queryInventory = async () => {
     const res = await api.get('/amazon/inventory/summary', {
       params: { marketplace: selectedMarketplace.value }
     })
-    inventory.value = res.inventory || []
+    // 字段适配：后端返回 summaries，字段名转换为表格所需格式
+    inventory.value = (res.summaries || []).map((s) => ({
+      sku: s.fn_sku,
+      asin: s.asin,
+      product_name: s.name || s.fn_sku,
+      available: s.available_quantity,
+      reserved: s.reserved_quantity,
+      total: s.total_quantity,
+    }))
   } catch {
     ElMessage.error('查询库存失败')
   } finally {
@@ -455,40 +515,44 @@ const queryInventory = async () => {
   }
 }
 
-// AI 分析
+// AI 分析（走任务中心）
 const runOrderAnalysis = async () => {
-  aiAnalysis.value.loading = true
   aiAnalysis.value.result = ''
-  try {
-    const res = await api.get('/amazon/ai/analyze-orders', {
-      params: { marketplace: selectedMarketplace.value, days: aiAnalysis.value.days }
-    })
-    aiAnalysis.value.result = res.analysis || '分析完成'
-    ElMessage.success('分析完成')
-  } catch {
-    ElMessage.error('分析失败')
-  } finally {
-    aiAnalysis.value.loading = false
-  }
+  await taskStore.run(
+    { type: 'amazon_analysis', title: `订单智能分析 · 近 ${aiAnalysis.value.days} 天` },
+    async () => {
+      const res = await api.get('/amazon/ai/analyze-orders', {
+        params: { marketplace: selectedMarketplace.value, days: aiAnalysis.value.days },
+      })
+      const text = res.analysis || '分析完成'
+      aiAnalysis.value.result = text
+      return text
+    },
+    (id) => { analysisTaskId.value = id }
+  )
+  const t = taskStore.tasks.find((x) => x.id === analysisTaskId.value)
+  if (t?.status === 'done') ElMessage.success('分析完成')
 }
 
 const generateHotProductsCopy = async () => {
-  hotProducts.value.loading = true
   hotProducts.value.result = ''
-  try {
-    const res = await api.post('/amazon/ai/generate-copy-from-orders', {
-      marketplace: selectedMarketplace.value,
-      days: 7,
-      top_n: hotProducts.value.topN,
-      target_language: hotProducts.value.language,
-    })
-    hotProducts.value.result = res.copy || '文案生成完成'
-    ElMessage.success('文案生成完成')
-  } catch {
-    ElMessage.error('文案生成失败')
-  } finally {
-    hotProducts.value.loading = false
-  }
+  await taskStore.run(
+    { type: 'amazon_copy', title: `热销商品文案 · Top ${hotProducts.value.topN}` },
+    async () => {
+      const res = await api.post('/amazon/ai/generate-copy-from-orders', {
+        marketplace: selectedMarketplace.value,
+        days: 7,
+        top_n: hotProducts.value.topN,
+        target_language: hotProducts.value.language,
+      })
+      const text = res.copy || '文案生成完成'
+      hotProducts.value.result = text
+      return text
+    },
+    (id) => { copyTaskId.value = id }
+  )
+  const t = taskStore.tasks.find((x) => x.id === copyTaskId.value)
+  if (t?.status === 'done') ElMessage.success('文案生成完成')
 }
 
 onMounted(async () => {
@@ -503,24 +567,37 @@ onMounted(async () => {
   catalogQuery.value.keywords = 'headphones'
   searchCatalog()
   queryInventory()
+
+  // 恢复最近的 AI 任务（进行中继续显示进度，已完成回显结果）
+  const latestAnalysis = taskStore.latestOfType('amazon_analysis')
+  if (latestAnalysis) {
+    analysisTaskId.value = latestAnalysis.id
+    if (latestAnalysis.status === 'done' && latestAnalysis.result) {
+      aiAnalysis.value.result = latestAnalysis.result
+    }
+  }
+  const latestCopy = taskStore.latestOfType('amazon_copy')
+  if (latestCopy) {
+    copyTaskId.value = latestCopy.id
+    if (latestCopy.status === 'done' && latestCopy.result) {
+      hotProducts.value.result = latestCopy.result
+    }
+  }
 })
 </script>
 
 <style scoped>
-.page {
-  padding: 20px;
-}
-
 /* 顶部状态栏 */
 .status-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  background: #fff;
-  border-radius: 12px;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
   margin-bottom: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-xs);
 }
 .status-left {
   display: flex;
@@ -533,16 +610,15 @@ onMounted(async () => {
   border-radius: 50%;
 }
 .status-dot.online {
-  background: #34c759;
-  box-shadow: 0 0 6px rgba(52, 199, 89, 0.4);
+  background: var(--color-success);
 }
 .status-dot.offline {
-  background: #ff9500;
+  background: var(--color-warning);
 }
 .status-text {
   font-size: 14px;
   font-weight: 500;
-  color: #1d1d1f;
+  color: var(--text-primary);
 }
 
 /* 标签页 */
@@ -562,7 +638,7 @@ onMounted(async () => {
   font-size: 16px;
 }
 .tab-badge {
-  background: #007aff;
+  background: var(--color-primary);
   color: #fff;
   font-size: 11px;
   min-width: 18px;
@@ -574,10 +650,10 @@ onMounted(async () => {
   padding: 0 5px;
 }
 .tab-pulse {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #34c759;
+  background: var(--color-primary);
   animation: pulse 1.2s ease-in-out infinite;
 }
 @keyframes pulse {
@@ -598,29 +674,29 @@ onMounted(async () => {
 .order-table .order-id {
   font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
   font-size: 13px;
-  color: #007aff;
+  color: var(--color-primary);
 }
 .text-secondary {
-  color: #86868b;
+  color: var(--text-secondary);
   font-size: 13px;
 }
 .amount {
   font-weight: 600;
-  color: #1d1d1f;
+  color: var(--text-primary);
 }
 
 /* 商品卡片 */
 .product-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 16px;
   transition: transform 0.2s, box-shadow 0.2s;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--divider);
 }
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-md);
 }
 .product-image {
   width: 100%;
@@ -633,7 +709,7 @@ onMounted(async () => {
 .product-title {
   font-size: 14px;
   font-weight: 500;
-  color: #1d1d1f;
+  color: var(--text-primary);
   margin-bottom: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -644,23 +720,23 @@ onMounted(async () => {
 }
 .product-meta {
   font-size: 12px;
-  color: #86868b;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 .product-price {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
-  color: #ff6600;
+  color: var(--text-primary);
   margin-bottom: 12px;
 }
 
 /* AI 卡片 */
 .ai-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  border: 1px solid #f0f0f0;
+  box-shadow: var(--shadow-xs);
+  border: 1px solid var(--divider);
 }
 .ai-card-header {
   display: flex;
@@ -669,16 +745,16 @@ onMounted(async () => {
   margin-bottom: 8px;
 }
 .ai-icon {
-  font-size: 24px;
+  color: var(--color-primary);
 }
 .ai-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1d1d1f;
+  color: var(--text-primary);
 }
 .ai-desc {
   font-size: 13px;
-  color: #86868b;
+  color: var(--text-secondary);
   margin-bottom: 16px;
 }
 .ai-controls {
@@ -694,7 +770,7 @@ onMounted(async () => {
 }
 .ai-control-label {
   font-size: 13px;
-  color: #86868b;
+  color: var(--text-secondary);
 }
 
 /* AI 加载状态 */
@@ -703,7 +779,7 @@ onMounted(async () => {
   align-items: center;
   gap: 12px;
   padding: 20px 0;
-  color: #86868b;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 .ai-loading-dots {
@@ -714,7 +790,7 @@ onMounted(async () => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #007aff;
+  background: var(--color-primary);
   animation: bounce 1.4s ease-in-out infinite;
 }
 .ai-loading-dots span:nth-child(2) { animation-delay: 0.2s; }
@@ -728,14 +804,14 @@ onMounted(async () => {
 .ai-result {
   margin-top: 16px;
   padding: 16px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8f4f8 100%);
-  border-radius: 12px;
-  border: 1px solid #e0e7ee;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--divider);
 }
 .ai-result-content {
   font-size: 14px;
   line-height: 1.7;
-  color: #1d1d1f;
+  color: var(--text-primary);
   margin-bottom: 12px;
   max-height: 300px;
   overflow-y: auto;

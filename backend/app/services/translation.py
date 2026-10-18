@@ -6,9 +6,11 @@
 import hashlib
 import json
 import logging
+import threading
 from collections import OrderedDict
 from typing import Dict, Optional
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.llm.base import extract_usage
@@ -20,6 +22,9 @@ logger = logging.getLogger(__name__)
 # 翻译记忆 LRU 容量：超出后淘汰最久未命中的条目（持久化仍在库中）
 _MEMORY_LRU_SIZE = 10_000
 _translation_memory_lru: "OrderedDict[str, str]" = OrderedDict()
+# FastAPI 同步路由在线程池中执行（copywriting 流式也用了线程），LRU 是
+# 复合操作（赋值 + move_to_end + 淘汰），需互斥保护，避免并发下 RuntimeError/KeyError
+_lru_lock = threading.Lock()
 
 
 def _memory_key(text: str, src: str, tgt: str) -> str:
@@ -27,17 +32,19 @@ def _memory_key(text: str, src: str, tgt: str) -> str:
 
 
 def _lru_get(key: str) -> Optional[str]:
-    hit = _translation_memory_lru.get(key)
-    if hit is not None:
-        _translation_memory_lru.move_to_end(key)
+    with _lru_lock:
+        hit = _translation_memory_lru.get(key)
+        if hit is not None:
+            _translation_memory_lru.move_to_end(key)
     return hit
 
 
 def _lru_put(key: str, value: str) -> None:
-    _translation_memory_lru[key] = value
-    _translation_memory_lru.move_to_end(key)
-    while len(_translation_memory_lru) > _MEMORY_LRU_SIZE:
-        _translation_memory_lru.popitem(last=False)
+    with _lru_lock:
+        _translation_memory_lru[key] = value
+        _translation_memory_lru.move_to_end(key)
+        while len(_translation_memory_lru) > _MEMORY_LRU_SIZE:
+            _translation_memory_lru.popitem(last=False)
 
 
 def _memory_lookup(db: Session, key: str) -> Optional[str]:
@@ -54,8 +61,16 @@ def _memory_lookup(db: Session, key: str) -> Optional[str]:
 
 def _memory_store(db: Session, key: str, translated: str) -> None:
     _lru_put(key, translated)
-    if not db.query(TranslationMemory).filter(TranslationMemory.hash == key).first():
-        db.add(TranslationMemory(hash=key, translated=translated))
+    if db.query(TranslationMemory).filter(TranslationMemory.hash == key).first():
+        return
+    # hash 有唯一约束：并发翻译同一新句时「检查-然后-插入」存在竞态，
+    # 用 SAVEPOINT 让重复插入在并发冲突时静默降级，且不污染外层事务（ApiUsage 仍正常落库）
+    try:
+        with db.begin_nested():  # SAVEPOINT
+            db.add(TranslationMemory(hash=key, translated=translated))
+            db.flush()
+    except IntegrityError:
+        logger.debug("翻译记忆并发写入冲突，已忽略重复行：%s", key)
 
 
 def _load_terms(db: Session) -> Dict[str, Dict[str, str]]:

@@ -1,5 +1,6 @@
 """亚马逊 SP-API 集成接口。"""
 import secrets
+import time
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -19,11 +20,17 @@ router = APIRouter()
 
 # ============ OAuth 授权 ============
 
+# OAuth state TTL 表：authorize 签发、callback 消费校验，防止 CSRF。
+# 进程内存储，重启即失效（重新授权即可），无需引入额外依赖。
+_OAUTH_STATES: dict = {}
+_OAUTH_STATE_TTL = 300  # state 有效期（秒）
+
 
 @router.get("/oauth/authorize", summary="发起亚马逊 OAuth 授权")
 def authorize(marketplace: str = "US", user: dict = Depends(require_user)):
     """生成亚马逊授权 URL，前端跳转到该 URL 进行卖家授权。"""
     state = secrets.token_urlsafe(16)
+    _OAUTH_STATES[state] = time.time()
     url = amazon_auth.get_authorization_url(state=state)
     return {"authorization_url": url, "state": state, "marketplace": marketplace}
 
@@ -37,6 +44,14 @@ async def oauth_callback(
 
     注意：实际生产中应将 refresh_token 加密存储到数据库，关联到用户/租户。
     """
+    # CSRF 校验：state 必须是本服务 authorize 签发且未过期的（一次性消费）
+    issued_at = _OAUTH_STATES.pop(state, None) if state else None
+    now = time.time()
+    for s, ts in list(_OAUTH_STATES.items()):  # 顺手清理过期 state
+        if now - ts > _OAUTH_STATE_TTL:
+            _OAUTH_STATES.pop(s, None)
+    if issued_at is None or now - issued_at > _OAUTH_STATE_TTL:
+        raise HTTPException(status_code=400, detail="state 无效或已过期（可能的 CSRF 攻击）")
     try:
         token_data = await amazon_auth.exchange_authorization_code(spapi_oauth_code)
         return {

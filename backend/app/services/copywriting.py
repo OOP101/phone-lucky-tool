@@ -1,13 +1,16 @@
 """智能文案生成服务：商品描述 / 广告语 / 活动文案 / SEO 标签，多语言。"""
 import asyncio
 import logging
-from typing import List, Optional
+import queue as queue_mod
+import threading
+from typing import Iterator, List, Optional
 
 from sqlalchemy.orm import Session
 
 from app.core.llm.base import extract_usage
 from app.core.llm.factory import get_llm
 from app.db.models import ApiUsage
+from app.db.session import SessionLocal
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +45,118 @@ _TYPE_KEYS = {
     "all": ["title", "description", "ad", "keywords"],
 }
 
+SECTION_LABELS = {
+    "title": "商品标题",
+    "description": "商品描述",
+    "ad": "广告语",
+    "campaign": "活动文案",
+    "keywords": "SEO 关键词",
+}
+
+
+def _build_prompt(
+    product_name: str,
+    category: str,
+    selling_points: str,
+    target_market: str,
+    target_language: str,
+) -> str:
+    lang_name = _LANG_NAMES.get(target_language, target_language)
+    return (
+        f"商品名称：{product_name}\n"
+        f"品类：{category}\n"
+        f"卖点关键词：{selling_points}\n"
+        f"目标市场：{target_market}\n"
+        f"目标语言：{target_language}（{lang_name}）\n"
+    )
+
+
+def stream_copywriting(
+    copy_type: str,
+    product_name: str,
+    category: Optional[str] = "",
+    selling_points: Optional[str] = "",
+    target_market: Optional[str] = "",
+    target_language: str = "en",
+    style: Optional[str] = "",
+    tone: Optional[str] = "",
+) -> Iterator[tuple]:
+    """SSE 流式生成：多段文案线程级并发，逐段实时产出。
+
+    产出 (event, data) 事件序列：
+      section_start {key, label}
+      delta         {key, text}
+      section_end   {key}
+      error         {key, message}   单段失败不影响其他段
+      done          {keys, result, errors}
+    保留与非流式接口一致的并发延迟（≈最慢一段），同时客户端逐字可见。
+    """
+    base = _build_prompt(product_name, category, selling_points, target_market, target_language)
+    system = _system(style, tone)
+    keys = _TYPE_KEYS.get(copy_type, _TYPE_KEYS["all"])
+    llm = get_llm()
+
+    q: "queue_mod.Queue[tuple]" = queue_mod.Queue()
+    texts: dict = {k: "" for k in keys}
+    errors: dict = {}
+    finished_lock = threading.Lock()
+    finished_count = {"n": 0}
+    SENTINEL = ("__worker_done__", None)
+
+    def _worker(key: str) -> None:
+        task_name, extra = _SPEC[key]
+        prompt = base + extra
+        q.put(("section_start", {"key": key, "label": SECTION_LABELS.get(key, key)}))
+        try:
+            for kind, piece in llm.stream_events(prompt, system=system, task=task_name):
+                if kind != "content":
+                    # 推理模型的思考过程不转发（多段并发会交错），段落级加载动效已足够反馈
+                    continue
+                texts[key] += piece
+                q.put(("delta", {"key": key, "text": piece}))
+            q.put(("section_end", {"key": key}))
+        except Exception as e:  # noqa: BLE001
+            logger.warning("文案段落 %s 流式生成失败: %s", key, e)
+            errors[key] = str(e)
+            q.put(("error", {"key": key, "message": str(e)}))
+        finally:
+            with finished_lock:
+                finished_count["n"] += 1
+            q.put(SENTINEL)
+
+    threads = [threading.Thread(target=_worker, args=(k,), daemon=True) for k in keys]
+    for t in threads:
+        t.start()
+
+    done_workers = 0
+    while done_workers < len(threads):
+        event, data = q.get()
+        if event == "__worker_done__":
+            done_workers += 1
+        else:
+            yield event, data
+
+    for t in threads:
+        t.join()
+
+    # token 用量独立会话落库（StreamingResponse 迭代时请求级 db 已关闭）
+    db = SessionLocal()
+    try:
+        for key in keys:
+            task_name, extra = _SPEC[key]
+            prompt_tokens, completion_tokens = extract_usage(None, base + extra, texts[key])
+            db.add(ApiUsage(
+                endpoint="/copywriting/stream",
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+            ))
+        db.commit()
+    finally:
+        db.close()
+
+    result = {k: texts[k] for k in keys if texts.get(k)}
+    yield "done", {"keys": keys, "result": result, "errors": errors}
+
 
 async def generate_copywriting_async(
     db: Session,
@@ -58,14 +173,7 @@ async def generate_copywriting_async(
 
     多段文案（product/all）通过 asyncio.gather 并发调用 LLM，延迟约为最慢一段。
     """
-    lang_name = _LANG_NAMES.get(target_language, target_language)
-    base = (
-        f"商品名称：{product_name}\n"
-        f"品类：{category}\n"
-        f"卖点关键词：{selling_points}\n"
-        f"目标市场：{target_market}\n"
-        f"目标语言：{target_language}（{lang_name}）\n"
-    )
+    base = _build_prompt(product_name, category, selling_points, target_market, target_language)
 
     llm = get_llm()
     system = _system(style, tone)

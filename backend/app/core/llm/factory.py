@@ -19,7 +19,11 @@ def _parse_failover(raw: str) -> List[dict]:
             continue
         parts = item.split("|")
         if len(parts) != 3 or not all(p.strip() for p in parts):
-            logger.warning("LLM_FAILOVER 条目格式无效(应为 base_url|api_key|model)：%r", item)
+            # 只记录 base_url 段，避免把含 api_key 的原始配置打进日志
+            logger.warning(
+                "LLM_FAILOVER 条目格式无效(应为 base_url|api_key|model)：%r",
+                item.split("|")[0].strip() or "<empty>",
+            )
             continue
         endpoints.append({"base_url": parts[0].strip(), "api_key": parts[1].strip(), "model": parts[2].strip()})
     return endpoints

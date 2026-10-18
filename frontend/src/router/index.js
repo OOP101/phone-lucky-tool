@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import MainLayout from '../layout/MainLayout.vue'
-import api, { ME_KEY, TOKEN_KEY } from '../api'
+import { useAuthStore } from '../stores/auth'
 
 const routes = [
   {
@@ -12,8 +12,14 @@ const routes = [
   {
     path: '/',
     component: MainLayout,
-    redirect: '/chat',
+    redirect: '/dashboard',
     children: [
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('../views/Dashboard.vue'),
+        meta: { title: '工作台', icon: 'HomeFilled' },
+      },
       {
         path: 'chat',
         name: 'Chat',
@@ -57,6 +63,12 @@ const routes = [
         meta: { title: '商品管理', icon: 'Goods' },
       },
       {
+        path: 'opportunities',
+        name: 'Opportunities',
+        component: () => import('../views/Opportunities.vue'),
+        meta: { title: '商机管理', icon: 'Aim' },
+      },
+      {
         path: 'analytics',
         name: 'Analytics',
         component: () => import('../views/Analytics.vue'),
@@ -77,19 +89,14 @@ const router = createRouter({
   routes,
 })
 
-// 守卫为无状态判断：本地已有当前用户（me）即放行，否则调 /auth/me 校验。
-// 演示模式（AUTH_REQUIRED=false）即使无令牌也会返回默认主体，正常进入；
-// 登录过期时由 axios 拦截器清除凭据并踢回登录页。
+// 守卫：本地已有身份直接放行，否则调 /auth/me 校验。
+// 演示模式（AUTH_REQUIRED=false）无令牌也会返回默认主体；
+// 登录过期由 axios 拦截器清除凭据并踢回登录页。
 router.beforeEach(async (to) => {
   if (to.name === 'Login') return true
-  if (localStorage.getItem(ME_KEY)) return true
-  try {
-    const me = await api.get('/auth/me', { __silent: true })
-    localStorage.setItem(ME_KEY, JSON.stringify(me))
-    return true
-  } catch (e) {
-    return { name: 'Login' }
-  }
+  const auth = useAuthStore()
+  const ok = await auth.restore()
+  return ok || { name: 'Login' }
 })
 
 router.afterEach((to) => {

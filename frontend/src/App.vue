@@ -1,25 +1,16 @@
 <template>
   <router-view v-slot="{ Component }">
-    <keep-alive>
-      <component :is="Component" />
-    </keep-alive>
+    <transition name="fade" mode="out-in">
+      <!-- 仅缓存明确声明的页面（如客服会话），其余页面切换即释放，
+           AI 长任务的连续性由全局任务中心（Pinia）保障 -->
+      <keep-alive :include="cachedViews">
+        <component :is="Component" />
+      </keep-alive>
+    </transition>
   </router-view>
 </template>
 
 <script setup>
+// 与页面 defineOptions({ name }) 对应
+const cachedViews = ['Chat']
 </script>
-
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-html,
-body,
-#app {
-  height: 100%;
-  font-family: 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
-  background: #f5f7fa;
-}
-</style>

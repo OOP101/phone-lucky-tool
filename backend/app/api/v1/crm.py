@@ -338,3 +338,102 @@ def upcoming_follow_ups(
             })
 
     return result
+
+
+# ============ AI 邮件写作 ============
+
+class AIEmailRequest(BaseModel):
+    customer_id: int
+    email_type: str = "development"  # development 开发信（首次触达） | follow_up 跟进邮件
+    language: str = "en"
+    context: Optional[str] = None  # 补充信息：产品、报价、特定卖点等
+
+
+@router.post("/ai/generate-email", summary="AI 写作客户邮件")
+async def generate_customer_email(
+    req: AIEmailRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+):
+    """基于客户档案，用 AI 写作开发信或跟进邮件。
+
+    - development：面向新客户的首次冷启动开发信（公司价值 + 明确号召）
+    - follow_up：结合历史跟进记录的跟进邮件（承接上文 + 推进动作）
+    """
+    from app.core.llm.base import extract_usage
+    from app.core.llm.factory import get_llm
+    from app.db.models import ApiUsage
+
+    customer = db.query(Customer).filter(
+        Customer.id == req.customer_id,
+        Customer.tenant_id == user["tenant_id"],
+    ).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="客户不存在")
+
+    # 跟进邮件需附带最近 3 条跟进记录
+    history_text = ""
+    if req.email_type == "follow_up":
+        recent = (
+            db.query(FollowUp)
+            .filter(FollowUp.customer_id == customer.id)
+            .order_by(FollowUp.created_at.desc())
+            .limit(3)
+            .all()
+        )
+        if recent:
+            lines = [
+                f"- {f.created_at.date() if f.created_at else ''}：{f.content}"
+                for f in reversed(recent)
+            ]
+            history_text = "【历史沟通】\n" + "\n".join(lines)
+
+    if req.email_type == "development":
+        task_goal = (
+            "这是一封首次触达新客户的开发信（cold email）。要求：开头一句话引起兴趣，"
+            "中间简要呈现合作价值与差异化优势，结尾给出明确、低门槛的行动号召，"
+            "整体简短（150 词以内），语气专业自信，不要使用空泛的套话。"
+        )
+    else:
+        task_goal = (
+            "这是一封跟进邮件。要求：自然承接历史沟通、不重复啰嗦，"
+            "提供一个继续推进的具体理由（新信息/限时/答疑），结尾给出明确的下一步，"
+            "简短（120 词以内），语气礼貌而有推进感。"
+        )
+
+    prompt = f"""你是一名资深外贸业务员，请为以下客户写一封邮件。
+
+{task_goal}
+
+【收件客户】
+- 公司：{customer.company_name}
+- 联系人：{customer.contact_person or '采购负责人'}
+- 行业：{customer.industry or '未指定'}
+{history_text}
+{"【补充信息】" + req.context if req.context else ""}
+
+请用{req.language}语输出，格式为：
+Subject: 邮件主题
+（空一行）
+邮件正文
+不要输出任何解释或署名占位符之外的内容。"""
+
+    llm = get_llm()
+    result = llm.generate(prompt, task="crm_email")
+    email_text = result.content
+
+    # 记录调用量
+    prompt_tokens, completion_tokens = extract_usage(result, prompt, email_text)
+    db.add(ApiUsage(
+        endpoint="/crm/ai/generate-email",
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+    ))
+    db.commit()
+
+    return {
+        "customer_id": customer.id,
+        "email_type": req.email_type,
+        "language": req.language,
+        "email": email_text,
+    }
