@@ -1,0 +1,167 @@
+schema: resume-data/1
+
+# ============================================================
+# 简历内容数据源 —— 改内容只改这个文件
+# 字段说明见 README「数据结构」；带 <span class="hl"> 的片段会被标红
+# ============================================================
+
+person:
+  name: 张三
+  name_plain: 张三
+  # 证件照：留空 → 使用内置占位图；也可填项目根的相对路径，如 assets/photo.jpg
+  photo: ''
+  contact_labels:
+    github: GitHub：
+    phone: 电话：
+    email: 邮箱：
+    base: Base：
+    status: 状态：
+    age: 年龄：
+  contact:
+    github: github.com/zhangsan-demo
+    phone: '13800000000'
+    email: zhangsan@example.com
+    base: 北京
+    status: 可随时到岗
+    age: 26 岁
+  meta_rows:
+  - - github
+    - phone
+  - - email
+    - base
+    - status
+    - age
+
+education:
+  school: 某某大学
+  major: 计算机科学与技术 · 统招本科
+  date: 2019/09 – 2023/06
+  note: 主修课程：数据结构、操作系统、计算机网络、数据库系统原理、软件工程基础、Python 开发、人工智能导论
+
+project_order:
+- rag_kb
+- agent_ops
+
+projects:
+  rag_kb:
+    date: 2024/06 – 2024/09
+    ai:
+      name: 企业知识问答助手（RAG）
+      role: RAG 应用开发工程师
+      pain: 企业知识散落在各类文档里，员工查一个标准答案要翻多个资料库，还可能拿到过时版本；新文档上传后迟迟检索不到，执行出错造成返工。
+      solutions:
+      - 自研多格式文档解析与中文语义切片，按分片指纹（chunk_hash）做增量定向重建、复用未变分片，解决知识库全量重建成本高、新文档生效慢的问题。
+      - 实现 BM25 稀疏召回与向量语义召回双路并行、RRF 融合排序，接入可插拔 Reranker 三档失败自动回退，解决专业术语场景纯语义检索命中不稳的问题。
+      - 基于 LangGraph 构建 StateGraph 工作流（意图分类 → 条件路由 → 知识节点 → 记忆写入），FastAPI 封装 REST 接口并 SSE 流式输出，按 kb_id 实现多知识库隔离。
+      values:
+      - 新文档上传后<span class="hl">分钟级生效</span>，避免全库重灌。
+      - 检索结果保留来源与相似度得分，答案可溯源。
+      - 无 API Key 场景自动切换规则引擎兜底，全链路离线可验证。
+    test:
+      name: 企业知识问答助手（RAG）检索评测
+      role: 大模型数据与评测 / 测试开发
+      pain: 检索链路环节多、参数组合多，效果好坏全靠感觉，缺少可复现的评测手段；Bad Case 无法归类，Prompt 迭代无从下手。
+      solutions:
+      - 构建 52 条检索评测集，开展 Top-K 召回率跑批对比与 Reranker 档位对比，当前评测集全命中（<span class="hl">Recall@3 100%、MRR 0.942</span>）。
+      - 对意图误分类、检索不命中等 Bad Case 归类分析，通过 Prompt 迭代与 doc_type 过滤路由提升意图识别准确率。
+      - 编写端到端自动化验证与幂等种子数据脚本，保证评测数据可复现。
+      values:
+      - 检索质量有<span class="hl">优化前后对比数据</span>，用数据验证效果。
+      - 任一档精排失败自动回退，服务可用性不受影响。
+      - 评测脚本可复现，回归验证一键跑通。
+
+  agent_ops:
+    date: 2024/01 – 2024/05
+    ai:
+      name: 智能运维巡检助手（Agent）
+      role: Agent 应用开发工程师
+      pain: 服务器巡检靠人工按清单逐项核对，耗时且易漏；告警信息分散在多个系统里，故障定位要来回切换工具。
+      solutions:
+      - 基于 LangGraph StateGraph 构建意图路由工作流（巡检 / 问答 / 报表三类意图），注册查询、执行、汇总三类工具实现「查完即办」闭环。
+      - 设计巡检结果结构化输出约束与 JSON 容错解析，模型输出不稳定时自动降级为模板报告。
+      - 定时轮询多源指标数据，异常按严重度分级生成提醒并推送。
+      values:
+      - 单次巡检从人工 30 分钟压缩到<span class="hl">1 分钟</span>。
+      - 异常分级推送，关键告警不再淹没在噪声里。
+      - 全链路降级体系，外部依赖缺失下功能链路不断。
+    test:
+      name: 智能运维巡检助手（Agent）工具链测试
+      role: 测试开发工程师
+      pain: Agent 链路涉及 LLM、工具调用、外部数据源多层依赖，传统断言难以覆盖输出不确定性，回归成本高。
+      solutions:
+      - 针对意图路由与工具调用设计评测用例，覆盖误分类、错误路由、工具超时等异常分支。
+      - 多级降级链路验证（LLM 降模板、数据源降 Mock），覆盖越权访问与异常输出帧的端到端场景。
+      - 搭建幂等种子数据与自动化回归脚本，20 项冒烟与单元测试全绿。
+      values:
+      - 异常场景覆盖<span class="hl">可复现、可回归</span>。
+      - 输出不稳定问题通过结构化约束与容错解析收敛。
+      - 回归验证从手工半天缩短到一键 5 分钟。
+
+work_blocks:
+  indep_ai:
+    org: 独立开发者（AI 应用方向）
+    role: 大模型应用开发工程师（独立开发）
+    date: 2023/07 – 2024/09
+    bullets:
+    - <b>独立全流程交付：</b>独立完成需求分析、架构设计、编码、自测到部署；主力交付企业知识问答助手、智能运维巡检助手两个项目，代码开源于 GitHub、全程可溯。
+    - <b>工程规范沉淀：</b>制定个人 AI 应用开发规范（Prompt 版本管理、LLM 统一封装、异常降级、日志埋点），沉淀可复用组件库。
+    - <b>质量保障：</b>搭建单元测试与端到端自动化验证，固化回归用例；全链路无 API Key 亦可离线验证。
+
+variants:
+  ai:
+    intent: 求职意向：AI 应用开发工程师 / 大模型应用开发（RAG · Agent 方向）
+    skills:
+    - - 大模型 & Agent 开发
+      - 熟练 LangChain / LangGraph：StateGraph 工作流、意图路由、Function Calling、多 Agent 编排；熟练 Prompt 工程与结构化输出约束、JSON 容错解析；理解 Transformer / Attention 机制，落地以 RAG / Agent 工程化为主。
+    - - RAG & 检索增强
+      - 熟练企业级 RAG 全链路：多格式文档解析、中文语义切片、向量化入库、chunk_hash 增量重建；熟练混合检索与重排序：BM25 + 向量双路召回、RRF 融合、可插拔 Reranker 降级；熟悉 ChromaDB / Milvus 适用场景。
+    - - 后端 & 工程化
+      - 熟练 Python / FastAPI：SSE 流式输出、asyncio 并发、线程池隔离、Pydantic 数据校验；熟悉 Docker Compose 编排、Nginx 反向代理、跨平台一键启动。
+    summary:
+    - <b>AI 应用工程化：</b>能独立完成 RAG 全链路和 Agent 编排，交付物可运行、可评测、可降级。
+    - <b>生产级问题攻坚：</b>真实修复过异步阻塞、并发串单等线上故障，能定位根因、配套回归用例防复发。
+    - <b>业务闭环思维：</b>每个技术选择都对应业务痛点，能讲清楚背后的业务原因。
+    meta_rows:
+    - - github
+      - phone
+    - - email
+      - base
+      - status
+      - age
+
+  test:
+    intent: 求职意向：测试开发工程师 / AI 应用质量与评测工程师
+    skills:
+    - - 测试与质量保障
+      - 熟练测试体系搭建：单元测试、端到端自动化验证、幂等种子数据脚本、回归用例固化；熟练多级降级链路验证与异常场景覆盖。
+    - - AI 系统评测
+      - 熟练评测体系搭建：检索评测集构建、Top-K 召回率 / Hit@K / MRR 跑批对比、Bad Case 归类分析与 Prompt 迭代。
+    - - Agent & RAG 技术栈
+      - 熟悉 LangChain / LangGraph 工作流与 RAG 检索链路，测得到点、也定位得了根因；熟悉 Python / FastAPI，能独立搭建被测系统与测试基建。
+    summary:
+    - <b>质量工程思维：</b>把「可运行、可评测、可降级」作为交付标准，测试点设计对齐业务风险。
+    - <b>懂被测系统的评测者：</b>既有大模型应用开发实战，又有评测集构建与跑批对比的一手经验。
+    - <b>数据驱动：</b>检索命中率、响应延迟等关键指标均有评测前后对比，用数据验证效果。
+    meta_rows:
+    - - github
+      - phone
+    - - email
+      - base
+      - age
+      - status
+
+profiles:
+  ai:
+    path: output/张三_AI应用开发工程师.html
+    variant: ai
+    template: ai
+    doc_title: 张三_AI应用开发工程师
+    work:
+    - indep_ai
+  test:
+    path: output/张三_测试开发工程师.html
+    variant: test
+    template: test
+    doc_title: 张三_测试开发工程师
+    work:
+    - indep_ai

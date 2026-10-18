@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="lHburEKGstEpOEJ6dFwemv">
+<head data-page-node-id="lB8Oz7yjoCnfpmkEzmJDRh">
+<meta charset="UTF-8" data-page-node-id="kYxc2xNBdeBHDckC7IRC4I" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="Wr4afYEFl8El9C9nU68APE" />
+<title>技术详解与面试高频题 · 乔晓</title>
+<style>
+  :root {
+    --bg: #f6f7fb; --surface: #fff; --text: #1c2333; --muted: #5b6478;
+    --primary: #2f6bff; --primary-soft: #e8efff; --accent: #7c5cff;
+    --border: #e5e8f0; --tag-bg: #f0f2f8; --shadow: 0 8px 30px rgba(28,35,51,.07);
+    --radius: 16px; --ok: #1f9d6b; --q: #c07b00;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: auto; } /* 锚点即时定位：不做长距离平滑滚动，点了就到 */
+  body { font-family: "PingFang SC","Microsoft YaHei","Segoe UI",sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; }
+  a { color: inherit; text-decoration: none; }
+  .container { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+
+  header { padding: 80px 0 56px; background: radial-gradient(600px 280px at 12% 0%, rgba(47,107,255,.10), transparent), radial-gradient(500px 260px at 88% 10%, rgba(124,92,255,.10), transparent); }
+  .back { display: inline-block; font-size: 14px; color: var(--primary); margin-bottom: 18px; }
+  h1 { font-size: 38px; letter-spacing: -1px; margin-bottom: 10px; }
+  h1 em { font-style: normal; background: linear-gradient(90deg,var(--primary),var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { color: var(--muted); font-size: 16px; max-width: 720px; }
+
+  /* TOC */
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 26px; box-shadow: var(--shadow); margin: 36px 0 12px; }
+  .toc h2 { font-size: 16px; margin-bottom: 14px; }
+  .toc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 8px 18px; }
+  .toc a { font-size: 14.5px; color: var(--muted); padding: 6px 10px; border-radius: 8px; display: block; }
+  .toc a:hover { background: var(--primary-soft); color: var(--primary); }
+
+  section { padding: 40px 0; }
+  .block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 30px 32px; box-shadow: var(--shadow); margin-bottom: 8px; }
+  .block h2 { font-size: 24px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .block h2 .num { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg,var(--primary),var(--accent)); color: #fff; font-size: 15px; flex: none; }
+  .block .tagline { color: var(--primary); font-weight: 600; font-size: 14px; margin-bottom: 16px; }
+  .block h3 { font-size: 16px; margin: 20px 0 8px; }
+  .block p, .block li { font-size: 15px; color: #2c3345; }
+  .block ul { margin: 6px 0 6px 18px; }
+  .block li { margin-bottom: 6px; }
+  .block code { background: var(--tag-bg); padding: 1px 7px; border-radius: 6px; font-size: 13.5px; font-family: Consolas, Menlo, monospace; }
+  .callout { background: var(--primary-soft); border-left: 4px solid var(--primary); border-radius: 8px; padding: 12px 16px; margin: 14px 0; font-size: 14.5px; color: #25304a; }
+
+  .qa { margin-top: 18px; border-top: 1px dashed var(--border); padding-top: 16px; }
+  .qa .q { font-weight: 700; color: var(--q); font-size: 15px; margin-bottom: 4px; }
+  .qa .q:before { content: "问 "; opacity: .6; }
+  .qa .a { font-size: 14.5px; color: #2c3345; }
+  .qa .a:before { content: "答 "; color: var(--ok); font-weight: 700; }
+
+  .end { text-align: center; color: var(--muted); font-size: 13.5px; padding: 30px 0 50px; border-top: 1px solid var(--border); margin-top: 30px; }
+  .end a { color: var(--primary); }
+
+  /* 浮动导航：深页随时一键回速查/回顶部 */
+  .float-nav {
+    position: fixed; right: 22px; bottom: 28px; z-index: 150;
+    display: flex; flex-direction: column; gap: 10px;
+    opacity: 0; visibility: hidden; transform: translateY(10px);
+    transition: opacity .2s ease, transform .2s ease, visibility .2s;
+  }
+  .float-nav.show { opacity: 1; visibility: visible; transform: translateY(0); }
+  .float-nav a {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--primary); color: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; line-height: 1.15; text-align: center;
+    box-shadow: 0 6px 18px rgba(47,107,255,.35);
+  }
+  .float-nav a .ico { font-size: 15px; }
+  .float-nav a.f-ghost { background: var(--surface); color: var(--primary); border: 1px solid var(--border); box-shadow: var(--shadow); font-size: 18px; }
+  .float-nav a:hover { transform: translateY(-2px); }
+
+  /* ===== 章节抽屉：点「深入」右侧滑出，读完收回，原位不动 ===== */
+  body.drawer-open { overflow: hidden; }
+  .drawer-mask {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(28, 35, 51, .42); backdrop-filter: blur(3px);
+    opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility .25s;
+  }
+  .drawer-mask.open { opacity: 1; visibility: visible; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 310;
+    width: min(680px, 94vw);
+    background: var(--bg);
+    box-shadow: -12px 0 40px rgba(28,35,51,.18);
+    transform: translateX(100%); transition: transform .28s ease;
+    display: flex; flex-direction: column;
+  }
+  .drawer-mask.open .drawer { transform: translateX(0); }
+  .d-head {
+    flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 20px; background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  .d-head .d-label { font-size: 13.5px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+  .d-head .d-label:before { content: ""; width: 6px; height: 16px; border-radius: 3px; background: linear-gradient(180deg, var(--primary), var(--accent)); }
+  .d-head .d-hint { font-size: 12px; color: var(--muted); }
+  .d-close {
+    width: 32px; height: 32px; border: none; border-radius: 8px; flex: none;
+    background: var(--tag-bg); color: var(--muted); font-size: 15px; cursor: pointer; line-height: 1;
+    transition: background .15s, color .15s;
+  }
+  .d-close:hover { background: var(--primary-soft); color: var(--primary); }
+  .d-body { flex: 1; overflow-y: auto; padding: 20px 22px 46px; }
+  .d-body .block { box-shadow: none; margin-bottom: 0; }
+
+
+  /* Quick reference 技能速查 */
+  .k-group h3 { font-size: 16px; margin: 22px 0 10px; color: var(--primary); }
+  .k-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
+  .k-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; box-shadow: var(--shadow); scroll-margin-top: 24px; }
+  .k-item:target { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-soft), var(--shadow); }
+  .k-name { font-weight: 700; font-size: 14.5px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .k-name a { font-size: 12px; color: var(--primary); font-weight: 600; flex: none; }
+  .k-item p { font-size: 13.5px; color: #2c3345; margin-top: 5px; line-height: 1.65; }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 28px; }
+    .block { padding: 22px; }
+  }
+</style>
+</head>
+<body data-page-node-id="hQB0iEEtpf7tHYWDjERqFQ">
+
+<header id="top" data-page-node-id="FjM9hMqHo2HMMUjufCOP4e">
+  <div class="container" data-page-node-id="VD3PzaFjMT1hEECEEZrFHq">
+    <a class="back" href="index.html" data-page-node-id="iUEgwRF1Y9fCf9SlfyOVgq">← 返回个人主页</a>
+    <h1 data-page-node-id="I6OM4f88hy6NdsYp14otDA">技术详解 &amp; <em data-page-node-id="EIkpLJldLJ0y5ZHUahulLb">面试高频题</em></h1>
+    <p class="lead" data-page-node-id="YQcq0oRBXkczdPwmBqJjtb">把主页里写到的每一项技术拆开讲清楚：它是什么、核心原理、你在项目里怎么用，以及面试官最可能追问的问题和回答思路。建议对照简历一起看。</p>
+  </div>
+</header>
+
+<div class="container" data-page-node-id="tayGFYOIOBugaPeKgzMYv8">
+  <div class="toc" data-page-node-id="JPKuAojqSooO09cfv98kju">
+    <h2 data-page-node-id="DAX7MRH4JP77v7gYqts2hZ">📑 目录</h2>
+    <div class="toc-grid" data-page-node-id="0uXoWFF9OEDI5TQj8m3OgC">
+      <a href="#quickref" data-page-node-id="HILgiTLZglhc1Tza4fm6VD">⚡ 技能速查 · 一句话面试要点</a>
+      <a href="#c1" data-page-node-id="5G8OMOGjSVDwaEGDjPGKqr">1. RAG 全链路</a>
+      <a href="#c2" data-page-node-id="xI2OpoD0EciurkDNjXiqop">2. 混合检索 BM25+向量+RRF</a>
+      <a href="#c3" data-page-node-id="e9y3oslBrwpR5W9S580lIy">3. 重排序 Rerank</a>
+      <a href="#c4" data-page-node-id="lujbT0X37rdlwk2pTDFpYD">4. Multi-Agent 与 LangGraph</a>
+      <a href="#c5" data-page-node-id="jqAS8SzFRUD4dm4HEmXFHa">5. 大模型接入与多模型热切换</a>
+      <a href="#c6" data-page-node-id="5PkW7SKtGTtRU4y858DAAl">6. Embedding 选型</a>
+      <a href="#c7" data-page-node-id="UIl9RJUbAvlEApDThGF5gR">7. SSE 流式与异步</a>
+      <a href="#c8" data-page-node-id="k4w7BNEPoBQH974PMs6VXo">8. 记忆与状态管理</a>
+      <a href="#c9" data-page-node-id="WtIKHH20Oqs4yhhpzU9KQX">9. 安全与鉴权</a>
+      <a href="#c10" data-page-node-id="GcjPhwIfLV9tMpGGeBWBrT">10. 可观测性</a>
+      <a href="#c11" data-page-node-id="CzTjBAlBr4p3CYldiNtRXT">11. 部署与运维</a>
+      <a href="#c12" data-page-node-id="6tLAJSsPjQHyWu20Hr9rhC">12. 模型微调 LoRA</a>
+    </div>
+  </div>
+
+
+  <!-- 0 技能速查 -->
+  <section id="quickref" data-page-node-id="huvLjUrHphsj8QkP7J8JtC">
+    <div class="block" data-page-node-id="CfxRyTYuAvceDpHDB1269R">
+      <h2 data-page-node-id="7NOzelxcp6Q5dF0m41YIWb"><span class="num" data-page-node-id="KYS3nWKvue9uNwKQQlJYxX">⚡</span> 技能速查 · 一句话面试要点</h2>
+      <div class="tagline" data-page-node-id="lDCOi3QOjUnKNyQ2sv56lr">主页「掌握的技术栈」中每一项技能的面试关键点速查卡 · 点击主页任一技能标签直达对应卡片</div>
+      <div class="k-group" data-page-node-id="sqHKICf7tgIwQnGWMqF47y">
+        <h3 data-page-node-id="sa93Q91OVXiyAzUG7RIrpn">🕸️ 多智能体编排与工作流</h3>
+        <div class="k-grid" data-page-node-id="83K4rTMOGyZHqGjLSV0mP8">
+          <div class="k-item" id="k-langchain" data-page-node-id="EQfSZQM8j8rQuFd7DGsjmZ"><div class="k-name" data-page-node-id="hRMPr8Z8pmH7FU5kCTxDGJ">LangChain<a href="#c4" data-page-node-id="LfmBmN2kNUIM6QB6geogzY">深入 →</a></div><p data-page-node-id="Ql46DL9hCSJLkSgvI0bA4y">核心抽象是可组合的调用链（Chain），面试常问与 LangGraph 的区别：Chain 适合线性流程，有状态、要循环就得上 LangGraph。</p></div>
+          <div class="k-item" id="k-langgraph" data-page-node-id="67li8MHWwCDwCQKRegJle7"><div class="k-name" data-page-node-id="30rHbItLvLj5n7DpJSGhxS">LangGraph<a href="#c4" data-page-node-id="Fal9ewFzoP1MlLTWMFu2UK">深入 →</a></div><p data-page-node-id="fGWusSm2crvUgbVXdWZW7B">核心是 StateGraph：节点处理共享状态、边决定流向，面试必问怎么用条件边实现循环工作流与人工介入。</p></div>
+          <div class="k-item" id="k-stategraph" data-page-node-id="hEBmlQJ0GaD3SIQhmB5bd1"><div class="k-name" data-page-node-id="z3BT4wmINYB7EuwLtFsqVr">StateGraph<a href="#c4" data-page-node-id="GH2x3OpAeNgztDkEKVHHDx">深入 →</a></div><p data-page-node-id="LmzIFozJhi4oQY2QscTHev">StateGraph 是 LangGraph 的骨架：State 对象在节点间流转，面试常问 State 字段怎么设计、reducer 如何合并并发写入。</p></div>
+          <div class="k-item" id="k-intent-routing" data-page-node-id="6jduAm5BXkHsccqvgMsbWH"><div class="k-name" data-page-node-id="LnBBcBYutW71s0vcTROQQz">意图路由<a href="#c4" data-page-node-id="1P3qrqQ4z0Sk7EScbeLtfd">深入 →</a></div><p data-page-node-id="HHwApBOS0qG6bGPD5VdzM7">意图路由即先分类再分发，面试答思路：规则分类器兜高频简单意图控成本，LLM 分类兜长尾语义，两层配合。</p></div>
+          <div class="k-item" id="k-supervisor" data-page-node-id="SqzvDMZratXpO2SEOZSLhl"><div class="k-name" data-page-node-id="qAjkgWw8W7QnkBwozPksoF">Supervisor 调度<a href="#c4" data-page-node-id="PySyfAMhDE5ZW3c5tw6NHx">深入 →</a></div><p data-page-node-id="BWn9YiNvvXgaeBQXSPd4va">Supervisor 是中心化多 Agent 编排：调度 Agent 决定任务交给谁、何时结束，面试常与去中心化 swarm 模式对比取舍。</p></div>
+          <div class="k-item" id="k-agent-memory" data-page-node-id="j9YQFdjA9tbvoI3E1o7Fc3"><div class="k-name" data-page-node-id="9J4DRktrmvSutneIqLEOLB">Agent Memory<a href="#c8" data-page-node-id="VDPqDXNPrwvGTh1uwAiGeF">深入 →</a></div><p data-page-node-id="kcB6WdaH4pgxOFu3zK0lsE">面试必分清短期记忆（会话历史 + 窗口裁剪）与长期记忆（向量库沉淀），并强调按 session_id 隔离防串话。</p></div>
+          <div class="k-item" id="k-redis-state" data-page-node-id="xKCDdkw5HbjZXYW7b8Zvvp"><div class="k-name" data-page-node-id="hoJex4MwyUAwYGcG7KYBOt">Redis 状态缓存<a href="#c8" data-page-node-id="tHXUm9VYX8vv2rR3Bo9mDd">深入 →</a></div><p data-page-node-id="2E2GUBbqHzbVxANlaGO5O5">把 Agent 状态放 Redis 可实现多实例无状态部署，面试常问过期策略、状态一致性与缓存失效后的降级路径。</p></div>
+        </div>
+      </div>
+      <div class="k-group" data-page-node-id="MOEu3eMlQ8CBgWDUhttB8M">
+        <h3 data-page-node-id="nGWrKuAC5GJk1GSv5P4G2b">📚 RAG 全链路与检索优化</h3>
+        <div class="k-grid" data-page-node-id="irSRcksqFDKLuaaFPjA6ZC">
+          <div class="k-item" id="k-doc-parser" data-page-node-id="YVn2mqnkhz717EZPDEOfEU"><div class="k-name" data-page-node-id="BF7CJtknMNdldEIODL8Hlm">多格式文档解析<a href="#c1" data-page-node-id="Nmit8BGGSYRprUf5Rd7KTg">深入 →</a></div><p data-page-node-id="LmK8HwyUOtz7EFFipEbeZW">面试常问 PDF 表格和扫描件怎么处理：解析库抽文本与表格、OCR 兜底，并强调解析质量直接决定 RAG 上限。</p></div>
+          <div class="k-item" id="k-chunking" data-page-node-id="eN6XWaDJDdlrK9SS64gB2m"><div class="k-name" data-page-node-id="nACxlz5wlfsHid2sgRP7Qd">语义切片<a href="#c1" data-page-node-id="BouwAUgxsQEl5EJ4VvAyWV">深入 →</a></div><p data-page-node-id="YQc97J3ZJR5mfDqY42vy8v">切片是 RAG 第一坑：固定长度会截断语义，面试答「按标题/段落结构切 + 重叠窗口 + 元数据随片继承」。</p></div>
+          <div class="k-item" id="k-embedding" data-page-node-id="NMwnFCAiq68NEGLGlKRsW8"><div class="k-name" data-page-node-id="qqTjoE94UVsC87SR1ictGV">Embedding<a href="#c6" data-page-node-id="C27IkjQOM5anX8tQxAL2Cx">深入 →</a></div><p data-page-node-id="FNU3QUke9cbmpCNgC1z2PS">Embedding 把文本映射为稠密向量、语义相近则向量相近，面试常问选型三维度：中文效果、向量维度、推理成本。</p></div>
+          <div class="k-item" id="k-bm25" data-page-node-id="SmWFWzthZTJibF5FoA9u3X"><div class="k-name" data-page-node-id="PlBEcVC48ErghfVUGYIScd">BM25<a href="#c2" data-page-node-id="1mzQVl1mF50aciSsyP83Qz">深入 →</a></div><p data-page-node-id="0KKTgC61bFYcGd2uXS4yLg">BM25 是基于词频与逆文档频率的稀疏检索，面试必问与向量检索的互补性：专有名词、型号、编号类查询它显著更强。</p></div>
+          <div class="k-item" id="k-vector-search" data-page-node-id="zuX2X46B0dZ3n4u8NEvEKV"><div class="k-name" data-page-node-id="OriM4mS3X8FnHPsoYvOdWk">向量检索<a href="#c2" data-page-node-id="RvnL0O5ZCvlvGlEuDIg6xN">深入 →</a></div><p data-page-node-id="Ofv9zHh2qiHtAEGQhigqd7">向量检索依赖 ANN 索引（HNSW / IVF），面试常问召回率与速度的权衡，以及余弦相似度与内积该怎么选。</p></div>
+          <div class="k-item" id="k-rrf" data-page-node-id="gYLoxDWv5GaHHlPxwQGBcn"><div class="k-name" data-page-node-id="2eLBIWYHy9jnXyiNL5PE3B">RRF 融合<a href="#c2" data-page-node-id="naZzcDsC0eYLfmmfslHd0N">深入 →</a></div><p data-page-node-id="EcJhM7sewwlQ75iaBEB4dT">RRF 用 1/(k+rank) 按排名融合多路检索结果，面试亮点：不需要调各路分数的权重、对异构检索器天然鲁棒。</p></div>
+          <div class="k-item" id="k-rerank" data-page-node-id="iHUdp5GvKNuSjC716zBm5w"><div class="k-name" data-page-node-id="DF0cN48rnP8a95SelNSl6F">Rerank 重排<a href="#c3" data-page-node-id="VkzFht7ldFyRML2MEYeGhE">深入 →</a></div><p data-page-node-id="ZATyGi6XYdZtbJTrGewg2B">Rerank 用交叉编码器对粗排 Top-N 逐对精排，面试必问为什么不直接全库交叉编码：算力开销完全不可接受。</p></div>
+          <div class="k-item" id="k-query-rewrite" data-page-node-id="jHCLVtpCfa6d8S9G6iKkxP"><div class="k-name" data-page-node-id="NESkh4VGJF7pCkNrHarjkR">Query Rewrite<a href="#c1" data-page-node-id="EEzsGyOmPXKt5bE8ZZ1Q09">深入 →</a></div><p data-page-node-id="TY1Q4I1JEw9DEwDCrBmfpT">Query Rewrite 解决多轮指代与口语化提问，面试可举例：把「它怎么配置」用 LLM 改写成含上下文的完整独立查询。</p></div>
+          <div class="k-item" id="k-chromadb" data-page-node-id="D1AVThrRTYJoBniwnyGbFI"><div class="k-name" data-page-node-id="CRWHAQJWBBAWvME8WmPTsN">ChromaDB<a href="#c1" data-page-node-id="YuEQDm300NTuNB0FQpAGYz">深入 →</a></div><p data-page-node-id="xPsoyY0COVP13DGGiY0ByX">Chroma 是轻量嵌入式向量库，面试常问与 Milvus / PgVector 的边界：十万级以下开发期首选，生产大规模换分布式方案。</p></div>
+        </div>
+      </div>
+      <div class="k-group" data-page-node-id="ud45prg80Q16noftI2PTy4">
+        <h3 data-page-node-id="4ecJOZtqPz4WEhr8LxoHGY">🧩 大模型接入与应用开发</h3>
+        <div class="k-grid" data-page-node-id="d34qYDs0VqBPGpXfmCAZYA">
+          <div class="k-item" id="k-deepseek" data-page-node-id="UUghOaWbNOejmCDCnghPsa"><div class="k-name" data-page-node-id="b1GXDH3JLlzFjMBZCzQDoQ">DeepSeek<a href="#c5" data-page-node-id="y8pDRekVLfkJQRwBp023Qh">深入 →</a></div><p data-page-node-id="pNvoaxvG4Wav94zbQuLyuN">面试常问 DeepSeek 的特点：MoE 架构性价比高、推理与代码能力强，API 兼容 OpenAI 协议、可私有化部署。</p></div>
+          <div class="k-item" id="k-qwen" data-page-node-id="37zYmR4ghQagzFeWaDmgXU"><div class="k-name" data-page-node-id="NQRYysQUtXFD7BFoDCKZhN">Qwen<a href="#c5" data-page-node-id="cIdRvVNkcWTu5ALJqPR18U">深入 →</a></div><p data-page-node-id="q4s2X45nzu4Yla8Yx1bJMC">Qwen 系列全开源可私有化，面试答选型理由：中文与结构化输出要求高、需要本地部署时优先考虑。</p></div>
+          <div class="k-item" id="k-moonshot" data-page-node-id="unvTKPhftjoi5asOkIrRrd"><div class="k-name" data-page-node-id="vCNm5YeFcI9aAhOMEoizMi">Moonshot<a href="#c5" data-page-node-id="ao8FyK6RHitZfyEAiSPIvl">深入 →</a></div><p data-page-node-id="7bQGe05FgfWqXmSlij7ZRp">Moonshot（Kimi）以超长上下文见长，面试点：整本文档、长合同分析等场景的默认候选。</p></div>
+          <div class="k-item" id="k-glm" data-page-node-id="0cYO0PTPkEPLRoUsWLmvrv"><div class="k-name" data-page-node-id="B9iKTO5e8bRA7ZM7tHJ8Ku">GLM<a href="#c5" data-page-node-id="deGye9owqeUuxoM1jT4g5N">深入 →</a></div><p data-page-node-id="WEOvlvJmOwYjeNHrQMYF11">智谱 GLM 对话与工具调用能力均衡，面试点：国产合规要求场景与 Agent 工具链生态支持。</p></div>
+          <div class="k-item" id="k-hunyuan" data-page-node-id="hDhqYHecs7BA2hiDUe8yUQ"><div class="k-name" data-page-node-id="scVWgI1yOUbPCvSm0NMGq1">混元<a href="#c5" data-page-node-id="LIPYjuSfDN4SVrhYV18z9G">深入 →</a></div><p data-page-node-id="WnQjbB6hQMnQRSHQFjNrqW">腾讯混元与腾讯云生态深度绑定，面试点：业务已在腾讯云体系时的默认选型与内网部署优势。</p></div>
+          <div class="k-item" id="k-openai-compat" data-page-node-id="SaNf6RR3vpU8kTBwk9aXad"><div class="k-name" data-page-node-id="tU92XCjURl3BwBp9vfFIdZ">OpenAI 兼容封装<a href="#c5" data-page-node-id="JLUjJwyk31tB4QoPGDjMA5">深入 →</a></div><p data-page-node-id="hfdA2tUdVYSUSwHRPj9FJo">面试亮点：国内主流模型 API 全部兼容 OpenAI 协议，封装一层多服务商注册表即可运行时热切换、零业务改动。</p></div>
+          <div class="k-item" id="k-prompt" data-page-node-id="D2gsnwkHs86NXXigXvHnAe"><div class="k-name" data-page-node-id="FmhMGb3qMCbYL2tQBbHZg6">Prompt Engineering<a href="#c5" data-page-node-id="PNMK1xuANCs2AECbVULxho">深入 →</a></div><p data-page-node-id="fE2dXKNJcuzg7i0rAYXumC">面试常考三件套：Few-shot 示例、思维链引导、结构化输出约束（JSON mode），核心是「角色 + 示例 + 输出格式」。</p></div>
+          <div class="k-item" id="k-function-calling" data-page-node-id="94q66A6y8a9uJWU73UczUE"><div class="k-name" data-page-node-id="dH8Ge0jSjGj5Bw6lHvHACT">Function Calling<a href="#c5" data-page-node-id="0w4hlQtD4jFnIoEB0w1boE">深入 →</a></div><p data-page-node-id="ZYK5Kv8GB8W6HEx5ZSdUVx">Function Calling 让模型输出结构化的函数调用参数，面试必问怎么防幻觉参数：JSON Schema 严格校验 + 工具白名单。</p></div>
+          <div class="k-item" id="k-vllm" data-page-node-id="4VornqStCfAxq8CCHicDRs"><div class="k-name" data-page-node-id="9oMeAg5PvKC2vWfBGNfqEL">vLLM<a href="#c5" data-page-node-id="SWGvNMHREainTibEv6Fngg">深入 →</a></div><p data-page-node-id="XgwxchcdA8tYusWA5jhhTw">vLLM 靠 PagedAttention 做高吞吐推理服务，面试常问为什么快：显存分页复用 + continuous batching 连续调度。</p></div>
+          <div class="k-item" id="k-lora" data-page-node-id="PvFbqnFT5Y0mlxpB11r6C2"><div class="k-name" data-page-node-id="fDLdUiWZkI2UobSdVVD2ec">LoRA 微调<a href="#c12" data-page-node-id="VvAWIKHUQkKRRKT4571tgE">深入 →</a></div><p data-page-node-id="3NOdh2oN59Kfk5P8u3lwc1">LoRA 冻结原权重只训低秩增量矩阵，面试必问：可训参数降千倍、可插拔换任务，效果与全量微调差距很小。</p></div>
+        </div>
+      </div>
+      <div class="k-group" data-page-node-id="jgcCtkr6UdiT3aGGZMhe0C">
+        <h3 data-page-node-id="A0tD2CDPmpjbZBAnswn89a">🛡️ Agent 高阶能力与风控</h3>
+        <div class="k-grid" data-page-node-id="fJMXbkVyhIIFJsEdQ7p38y">
+          <div class="k-item" id="k-custom-tools" data-page-node-id="QuHB852FZiTd45NbnFkkuL"><div class="k-name" data-page-node-id="XI7xXgaW1HSYbgYJVWrr4O">自定义工具集<a href="#c4" data-page-node-id="0dsLy44lHAoyBPEBtcUWV4">深入 →</a></div><p data-page-node-id="zMCE2A0FHEjqm2cSmZldJC">面试常问工具设计规范：输入输出用 JSON Schema 描述、带超时与异常回传，工具描述质量直接决定调用准确率。</p></div>
+          <div class="k-item" id="k-mcp" data-page-node-id="Yp1HFp3busqdjCK22xLwjS"><div class="k-name" data-page-node-id="SEnT1HYB9B7M3bnVQnIpFr">MCP 协议</div><p data-page-node-id="LuoiRsyqEl4x65PBB25z6R">MCP 是模型连接外部工具与资源的开放协议（类比为 AI 界的 USB-C），面试点：统一了工具发现与调用接口，一次接入多端复用。</p></div>
+          <div class="k-item" id="k-prompt-masking" data-page-node-id="5GXKYiLFWRaPwkEhqn5nYc"><div class="k-name" data-page-node-id="3Md3vMu0pFRYNxymCViojB">Prompt 脱敏<a href="#c9" data-page-node-id="6slaB6G6ASp5u4mlbIsuTq">深入 →</a></div><p data-page-node-id="wNMi8nANMfIBkIpltDT831">Prompt 脱敏在请求发出前抹掉手机号、密钥等敏感信息，面试答：正则 + NER 双通道识别，可逆映射本地留存以便回填。</p></div>
+          <div class="k-item" id="k-compliance" data-page-node-id="6BwSaGY25VfivNKJPgv5b1"><div class="k-name" data-page-node-id="HkpayREO3w4L7qiY7mzaR5">内容合规校验<a href="#c9" data-page-node-id="g7530nBGw1fVx2fUg6KVBc">深入 →</a></div><p data-page-node-id="7viqdOsBJC0VcadEqgJid7">输出合规是 LLM 结果的最后一道闸，面试点：敏感词库 + 分类模型双层过滤，命中即拦截并触发重写或拒答。</p></div>
+          <div class="k-item" id="k-token-stats" data-page-node-id="8AS0UIQQhZTzYa3UJeGQpo"><div class="k-name" data-page-node-id="HMqPZqheP3CtOwcBOp5DuD">Token 统计<a href="#c10" data-page-node-id="6s3SA8uEp9aZVbnggADOu4">深入 →</a></div><p data-page-node-id="rhcV5HJMoKPNZWs526baG8">Token 统计是成本治理的基础，面试可答：读取响应里的 usage 字段落库，按会话与用户聚合出实时成本看板。</p></div>
+          <div class="k-item" id="k-log-trace" data-page-node-id="l2SXWkDfSGub3VBGCFhUt7"><div class="k-name" data-page-node-id="zvkFi0VWeuMD10PiFZcENl">日志溯源<a href="#c10" data-page-node-id="GcJhk0lNkBuKTICyxqTm7f">深入 →</a></div><p data-page-node-id="cuOEw6WNqGeBkLZzvpkCew">日志溯源要求一次问答可完整回放，面试点：用 request_id 串联检索命中、最终 Prompt、模型输出三段日志。</p></div>
+          <div class="k-item" id="k-neo4j" data-page-node-id="vt1kVBtM0nff87msPLS6sm"><div class="k-name" data-page-node-id="BX5fHi7DIDqc7qO5NJ6rnA">Neo4j 知识图谱</div><p data-page-node-id="2JroOdNsPv8v4g2N2Zy8CJ">Neo4j 用图结构存实体与关系，面试常问 GraphRAG：图谱补足向量检索做不了的多跳关系推理（A 的上级的上游部门）。</p></div>
+        </div>
+      </div>
+      <div class="k-group" data-page-node-id="vTCrJDkqVahNHeNvyFBD4w">
+        <h3 data-page-node-id="yx4NW3LAVo4NormxsV4DM2">🔧 后端服务与中间件</h3>
+        <div class="k-grid" data-page-node-id="S6TqtJL7hIh41fM6qCIMhd">
+          <div class="k-item" id="k-python" data-page-node-id="hv1UBrPHwPY11Vu79BzyxV"><div class="k-name" data-page-node-id="9KuKORix0c3pvRUrUAqvY6">Python</div><p data-page-node-id="Y3oEJSZkbaK3v2CKRRYoU4">面试必问 GIL：全局锁让同一进程只有一个线程执行字节码，所以 IO 密集用协程/线程、CPU 密集用多进程。</p></div>
+          <div class="k-item" id="k-fastapi" data-page-node-id="Mf9SudvPuCEtWMjmhEjKv8"><div class="k-name" data-page-node-id="ZFwoYR9Ehe5l6wrsAqWRhY">FastAPI</div><p data-page-node-id="cTFE5QcGdOgsrxwqHOY6Az">FastAPI 基于 ASGI + Pydantic，面试常问为什么快（原生异步）、依赖注入怎么用、类型标注换自动文档与校验。</p></div>
+          <div class="k-item" id="k-sse" data-page-node-id="3xkMMfp2QzXk7usx7A9tFV"><div class="k-name" data-page-node-id="umTYR8tzMeh2qA2sBEFJ4S">SSE 流式<a href="#c7" data-page-node-id="WA3X4aoYEI6zjKmg2V6X7a">深入 →</a></div><p data-page-node-id="927SO3wy6wIF1IcvcDSSbw">SSE 是服务器单向推送的 HTTP 长连接，面试必问与 WebSocket 区别（单向更轻）；实战坑：Nginx 要关 proxy_buffering。</p></div>
+          <div class="k-item" id="k-asyncio" data-page-node-id="hNdb8TrSWoCCRU3gHnr211"><div class="k-name" data-page-node-id="oKYUE2B8pTB5wACRGsSC6A">asyncio<a href="#c7" data-page-node-id="wLLYSybJuN58tdAb7K7RdM">深入 →</a></div><p data-page-node-id="wjoWMmgKj43SkOX7YjFFGu">面试必问坑点：async 函数里调同步阻塞代码会卡死整个事件循环，解法是丢线程池——这是实战修过的真实问题。</p></div>
+          <div class="k-item" id="k-mysql" data-page-node-id="Y7hXzQaT6KtKsiKit8t7LA"><div class="k-name" data-page-node-id="TD16rCCUgflOA3gqhW2p0L">MySQL</div><p data-page-node-id="iNfEjGnT5QRO2v2waDosFa">面试常问三件套：B+ 树索引为什么快、四种事务隔离级别区别、InnoDB 与 MyISAM 的取舍（行锁 + 崩溃恢复）。</p></div>
+          <div class="k-item" id="k-postgresql" data-page-node-id="6CPW52rFKZVGeUBHjs16En"><div class="k-name" data-page-node-id="CF2EOgJ5SkzWlqGSYi9rEz">PostgreSQL</div><p data-page-node-id="pDgDENVDE1xeeLTZKWCorH">面试点：MVCC 多版本并发控制、与 MySQL 的取舍——复杂查询 / JSON / GIS 更强，还有 PgVector 向量插件。</p></div>
+          <div class="k-item" id="k-redis" data-page-node-id="ULqzSwDiivGlZ8IgvBd6x9"><div class="k-name" data-page-node-id="plgXRSRStKJbQ4Nab75WQF">Redis</div><p data-page-node-id="sAoawFR0z0V3MoVH7nuxe2">面试必问缓存三兄弟：穿透（空值缓存）、击穿（互斥锁）、雪崩（过期时间打散），以及单线程为什么还快。</p></div>
+          <div class="k-item" id="k-kafka" data-page-node-id="4i8QJdZNilVkWgSKZW8Ar9"><div class="k-name" data-page-node-id="obJBsqMW9XiKbC33Srp483">Kafka</div><p data-page-node-id="ol7WGuZflkEkpccFfcJyzM">面试常问为什么快：顺序写磁盘 + 零拷贝 + 批量压缩；怎么不丢消息：ack=all + 幂等生产者 + 手动提交位移。</p></div>
+          <div class="k-item" id="k-sqlite" data-page-node-id="n6X85klQqLBy4B9RPB8gL8"><div class="k-name" data-page-node-id="zBrWOe1ePkX8M0OhyYWQ2S">SQLite</div><p data-page-node-id="DTvYUriH9F91xytoJdug56">SQLite 是嵌入式单文件数据库，面试点：适合本地与低并发场景，开 WAL 模式可支持读写并发，零部署成本。</p></div>
+        </div>
+      </div>
+      <div class="k-group" data-page-node-id="Ua728UYZTZ6LGvhizbmeQF">
+        <h3 data-page-node-id="8NhAmEaJxdqQDXh9QYAoIA">🚀 部署运维与效率工具</h3>
+        <div class="k-grid" data-page-node-id="ThZ3vLUdmGI5n7SR7bMZuL">
+          <div class="k-item" id="k-docker" data-page-node-id="BDtq4BEHCLISVS2mJglFTX"><div class="k-name" data-page-node-id="ONpyqhr4j44usCj0JUrZjZ">Docker<a href="#c11" data-page-node-id="zbXxOuCkKbnjAQPshO2QSa">深入 →</a></div><p data-page-node-id="73dKxBeSZLsQQ3hkZaoDit">面试必问容器与虚拟机的区别：容器共享宿主内核所以秒级启动，镜像分层靠 UnionFS 复用存储。</p></div>
+          <div class="k-item" id="k-compose" data-page-node-id="RhZpittafxw76CnfOfgO7f"><div class="k-name" data-page-node-id="SNKQucvvdt1VPaFEUh3Lpn">Docker Compose<a href="#c11" data-page-node-id="5ir1rlZBcGIb5OqGT3dWIO">深入 →</a></div><p data-page-node-id="Me3T5DNbXQvZA0Cn5jfW67">Compose 用一份 YAML 声明多服务编排，面试点：depends_on 只保证启动顺序，就绪等待要自己配 healthcheck。</p></div>
+          <div class="k-item" id="k-linux" data-page-node-id="qEXtiGewnUEuhH96AEeI0K"><div class="k-name" data-page-node-id="hGabKzEq8HdGrs3H8AG1QQ">Linux<a href="#c11" data-page-node-id="0GIw8lupk4zrb7UuFj1EO1">深入 →</a></div><p data-page-node-id="NyP9DdqDLleNVJXfon9Xpu">面试常问排查命令链：top / ps 定位进程，ss / netstat 查端口占用，journalctl 与 tail -f 追日志。</p></div>
+          <div class="k-item" id="k-nginx" data-page-node-id="B4oQPBYJF3jKE8bvAXz5hs"><div class="k-name" data-page-node-id="2bZswMTdKjZPCx7wAsAZlb">Nginx<a href="#c11" data-page-node-id="n7R5BgzFYjO6ztejDAqcGQ">深入 →</a></div><p data-page-node-id="lc3lCVJFlOJfVfb22LiHCM">面试常问反向代理与负载均衡策略；实战点：SSE 流式场景必须关 proxy_buffering，否则打字机效果变一次性吐出。</p></div>
+          <div class="k-item" id="k-prometheus" data-page-node-id="mRKGccumXqTxnijWTDtA4P"><div class="k-name" data-page-node-id="neDdcGzsbuKnxJER8oWNuR">Prometheus<a href="#c10" data-page-node-id="rGPWisoAektGK7SyUyo0Qz">深入 →</a></div><p data-page-node-id="R73UjtmjbDDJYbchjLikIP">Prometheus 是拉取式指标监控，面试点：PromQL 查询聚合、exporter 暴露 /metrics 端点、与 Grafana 配套告警。</p></div>
+          <div class="k-item" id="k-numpy" data-page-node-id="Ql3h1xCX5OESX6BLpWjxT2"><div class="k-name" data-page-node-id="fcmw9Sj4Ynvg6oBDe1J5GK">NumPy</div><p data-page-node-id="0Q0ZCKAkfqF8S9FoRkFXtu">面试点：向量化运算代替 Python 循环、广播机制规则，快的原因是 C 实现 + 连续内存布局。</p></div>
+          <div class="k-item" id="k-pandas" data-page-node-id="IexAWWr4LRSJc3ac5VDFHT"><div class="k-name" data-page-node-id="ZAKGGVNuFGmbSIeCAMElVl">Pandas</div><p data-page-node-id="T1SnXP5bKsDt62iuIqVWlH">面试常问 loc 与 iloc 区别（标签 vs 位置）、DataFrame 与 SQL 的概念对应、大数据量分块读取。</p></div>
+          <div class="k-item" id="k-sklearn" data-page-node-id="m7LwyVnFrMw1xHPLRm6ZE9"><div class="k-name" data-page-node-id="OxsbXtQdvGEeyEHBXF0xaA">Scikit-learn</div><p data-page-node-id="p4XxYevR6oDEJe37V8NGVW">面试点：fit / transform / predict 的统一接口约定、用 Pipeline 封装预处理防止交叉验证时数据泄漏。</p></div>
+          <div class="k-item" id="k-ai-dev" data-page-node-id="NkvA1xxk28fatLzEQcB3Hh"><div class="k-name" data-page-node-id="tOS710T7ajUKInvkU22j2A">AI 辅助开发</div><p data-page-node-id="8ylWCjepnQq8Ozllt3sANT">面试亮点：AI 工具覆盖脚手架、重构、测试全流程，但强调人审闭环——AI 产出必须过测试与 code review 才合入。</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1 RAG -->
+  <section id="c1" data-page-node-id="6fKAPoVjge1kRd4HcPFfLh">
+    <div class="block" data-page-node-id="Xo6GaU0xt3Hot1N9QHAGtH">
+      <h2 data-page-node-id="ReRir4j8xxHYoO6FXCuOoQ"><span class="num" data-page-node-id="yheGt0rkE2eVX6TlHFroRB">1</span> RAG 全链路</h2>
+      <div class="tagline" data-page-node-id="3ZBQ8gzQokGOSpRMX48u0E">Retrieval-Augmented Generation，检索增强生成</div>
+      <h3 data-page-node-id="F59RRs9o4nVF97gUivXqVv">是什么</h3>
+      <p data-page-node-id="96LLUPwKdNLGA8GFEec2Da">RAG 就是「先查资料，再让大模型回答」。它解决大模型的两个硬伤：<b data-page-node-id="QMBjMDNKsJvVptmdFVEZcG">知识过时</b>（训练数据有截止日期）和<b data-page-node-id="RWDCoxE9S7gub3gfJhPPpx">幻觉</b>（一本正经编答案）。做法是把企业私有文档存进向量库，用户提问时先检索最相关的片段，连同问题一起喂给大模型，让模型「基于证据」作答，并给出出处。</p>
+      <h3 data-page-node-id="xMGDG1mfkOfKfLEzQLfiqD">核心链路（你项目里就是这条）</h3>
+      <ul data-page-node-id="MiVbKUnXzQK6IJ1MJNgjtP">
+        <li data-page-node-id="XrGKtKhwG603wMk4jMRVg1"><b data-page-node-id="Yi6FvP22bkNwXEDGutZC7R">文档解析</b>：PDF / Word / Markdown / Excel 用 PyMuPDF、python-docx 等解析成纯文本。</li>
+        <li data-page-node-id="ICsHYfz9YInqjHcleNe2gG"><b data-page-node-id="gABG7p1ZenHxC2zoVbi7K9">切片 Chunking</b>：长文切成小段（常用 RecursiveCharacterTextSplitter，按标题/段落递归切）。</li>
+        <li data-page-node-id="CaqEIC75UyOiPcTAqbEsgn"><b data-page-node-id="2e2HOKXHcNxfCiUZZydF4C">Embedding</b>：每段文本转成向量（一串数字），语义相近的文本向量也相近。</li>
+        <li data-page-node-id="c7SMjsP54DxHtamFb6oe44"><b data-page-node-id="C3Nj3umHEgujl9uMAWb7HE">入库</b>：向量存进向量库（ChromaDB / Milvus / PgVector）。</li>
+        <li data-page-node-id="zEoyEccIdQMW5XSGhHE8Ea"><b data-page-node-id="bzI4JCeXYbk3EVhulRABhT">检索</b>：问题也转向量，找最相似的若干段（语义检索）+ 关键词检索（BM25）融合。</li>
+        <li data-page-node-id="2roM7LDekfQYhXMw6tsOB7"><b data-page-node-id="UqFiefrg8IbH70qwdMjhmr">重排</b>：初步结果用 Rerank 模型精排，挑最相关的。</li>
+        <li data-page-node-id="sHyWf0t1tumxBPwXoepSpf"><b data-page-node-id="xlbzPsyTuY2S6zYpUnFejE">生成</b>：拼接「问题 + 检索片段」给 LLM，SSE 流式输出答案，附带来源 doc_id。</li>
+      </ul>
+      <div class="callout" data-page-node-id="gx7LDR8eBhqOXoFZs4PdBC">你在「企业智能知识中枢 · RAG 底座」里把所有环节都自研了一遍，并实现了<b data-page-node-id="e72ZNkeOF2VDLiPlcQDFfb">按 doc_id 增量更新</b>（删旧块→写新块），新 SOP 分钟级生效——这就是简历里的核心技术亮点。</div>
+      <div class="qa" data-page-node-id="X1WfjfmEReuxFwhvtcd95E">
+        <div class="q" data-page-node-id="DQ9tiNGpFzB6wQonnFj8bh">为什么不用微调（Fine-tuning）而用 RAG？</div>
+        <div class="a" data-page-node-id="NsirgTQyhmaDFd0HADvlR6">知识库每周更新约 30%，微调要把新数据重新训练、周期长成本高，且无法给出答案出处（合规审计要求原文可溯源）。RAG 改文档即生效、天生可溯源，更适合「知识频繁变动 + 要可解释」的企业场景。结论：优先 RAG，微调只用在垂直风格/格式适配上。</div>
+      </div>
+      <div class="qa" data-page-node-id="tgKPT7JPQdZTuR5wsvv5Zt">
+        <div class="q" data-page-node-id="ExQHrmph163zQB0oCAWHtq">Chunk 切太大或太小有什么问题？怎么定？</div>
+        <div class="a" data-page-node-id="CAV1J24XVM2JFpQK3qRCFu">太大→一段塞太多噪音，检索精度下降、浪费 token；太小→语义被切碎，单块信息不全。经验值 300~800 字 / 块，重叠（overlap）10%~20% 防止语义在边界被切断；专业文档按标题结构切更稳。</div>
+      </div>
+      <div class="qa" data-page-node-id="3smShCvlVYJzyZ5qNaGC2X">
+        <div class="q" data-page-node-id="WeFPrUh2INx4WQNWSgNAZG">怎么衡量 RAG 效果好不好？</div>
+        <div class="a" data-page-node-id="626mU5QgHLQXtS06wG7XTx">分阶段看：检索层用「召回率 / 命中率」；生成层用「有答案率、忠实度（是否编造）、相关性」。工程上靠「坏例驱动」——收集答错的问题，定位是检索没召回还是生成跑偏，针对性调优，而不是单点调一个大指标。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 Hybrid -->
+  <section id="c2" data-page-node-id="abLG9wHTMHPham5Dr3eLYJ">
+    <div class="block" data-page-node-id="mXfwHZcmaLY61PltnE3dnk">
+      <h2 data-page-node-id="cM02ox6XUHbizK35QcKsnO"><span class="num" data-page-node-id="tt2FYSAW0fXgqnEfxYR7Bd">2</span> 混合检索：BM25 + 向量 + RRF</h2>
+      <div class="tagline" data-page-node-id="KbS5CcTGVN20JtC3cPwqhX">Hybrid Retrieval，用两种互补的检索拼在一起</div>
+      <h3 data-page-node-id="Jgi0q9aiFQx8ydSfi775YF">两种检索的差别</h3>
+      <ul data-page-node-id="9uqEBKwmnVhOSVexmoUwoj">
+        <li data-page-node-id="NpNS3H0Pd1G7cGONXVCveX"><b data-page-node-id="YSQVnacGOBDVlaMQQTj11H">向量检索（语义）</b>：靠 Embedding 算相似度，能理解「同义词 / 换个说法」。但专有名词、型号、缩写容易翻车（比如 "L/C" 和 "信用证" 不一定向量接近）。</li>
+        <li data-page-node-id="of7Mls6OQ3h7HDoomKBF7m"><b data-page-node-id="zXmvFeUPTWYKrx99l4UxvE">BM25（关键词）</b>：经典信息检索算法，按词频和逆文档频率算相关，<b data-page-node-id="VwCF1nVdynDrX4yGeQhZTi">精确匹配强</b>——"FOB""CIF""L/C" 这类术语它一抓一个准，但理解不了语义。</li>
+      </ul>
+      <h3 data-page-node-id="dKBFRYf8PE8Psd1SStuRDb">RRF 怎么融合</h3>
+      <p data-page-node-id="7wFzAcQXQYtapaUCQkWp7U"><code data-page-node-id="zJ28s3dSD4t6E2GDdnvaM0">RRF = Σ 1/(k + rank_i)</code>，k 通常取 60。两个检索各自排好名，把每个文档在两份榜单里的排名按这个公式打分再相加，得到融合排名。好处是<b data-page-node-id="PKTE2S1k7YzAr7qgkmpTpp">不依赖分数绝对值</b>（向量得分和 BM25 得分量纲不同，不能直接加），只看相对名次，简单又稳。</p>
+      <div class="callout" data-page-node-id="qLYb6KGT4cq9HAT3gY7mtU">你项目里是自研 HybridRetriever 同时跑 Chroma 向量召回和 BM25 稀疏召回，RRF 融合后再接轻量精排器二次重排，专门解决「专业术语场景纯语义检索命中不稳」。</div>
+      <div class="qa" data-page-node-id="y8FANKfEkPJEvWo1C3Kwr4">
+        <div class="q" data-page-node-id="4WCsdJugpJdW9oUzYgQw73">为什么不能直接把向量得分和 BM25 得分加一起？</div>
+        <div class="a" data-page-node-id="XBi02bNNgipxhbpvdCfjod">两者分数分布不同（向量是余弦 0~1，BM25 可能很大），直接加权相加会被某一方的量纲主导，需要归一化。RRF 只用「排名」不看分数大小，绕开了量纲问题。</div>
+      </div>
+      <div class="qa" data-page-node-id="Upec8buEjg5ZA2xF0aDWpt">
+        <div class="q" data-page-node-id="yz7P0ZFFCMUNveQAMlkO5C">RRF 的 k 怎么选？影响大吗？</div>
+        <div class="a" data-page-node-id="GIIBHkcWfaf9It1hWGFvvP">k 控制「低排名项衰减多快」。k 越大，排名靠后的项贡献越大，融合越平滑；常用 60。对结果影响不算敏感，调参收益远小于把两路召回本身做对。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 Rerank -->
+  <section id="c3" data-page-node-id="COfuD2D9LNxzXBs1nL7Gl9">
+    <div class="block" data-page-node-id="UhaIf3DDPledQL9UKVic7w">
+      <h2 data-page-node-id="Ho0TCdb9z6DpwLAnLQFbb2"><span class="num" data-page-node-id="fNCUhuIyyreICPoz7EjbXg">3</span> 重排序 Rerank</h2>
+      <div class="tagline" data-page-node-id="C1dMROwVpHPHiKOn9TOrVx">Retrieval 之后再做一次精排，提升 top-k 质量</div>
+      <h3 data-page-node-id="p9NpEpTp2UkTcGkd51BDeV">是什么</h3>
+      <p data-page-node-id="zJ7BnH2om6Mrz9Ty9aib1b">召回阶段（向量+BM25）追求「快、广」，可能召回几十条；Rerank 阶段用更大的交叉编码器（Cross-Encoder）把「问题 + 每个候选片段」成对送入模型，判断<b data-page-node-id="mn4Sd7cnQSPfw626IeFrhB">真正的语义相关度</b>，把 top-k（比如 3~5 条）留给生成环节。Bi-Encoder（Embedding）快但粗，Cross-Encoder 慢但准，所以先召回后重排是标准搭配。</p>
+      <div class="callout" data-page-node-id="s2aOl79CsqY12rLEGIGA44">你的「混合检索 + 二次重排」亮点是：RRF 融合后接一个轻量精排器，按字符重合度再筛一遍，兼顾「精确关键词命中」和「语义相关性」。</div>
+      <div class="qa" data-page-node-id="xYJFhgu4uyTvpVYAGfPKte">
+        <div class="q" data-page-node-id="Ca330tGSCaTuaZNOMEhmNX">为什么不能一开始就用 Rerank 模型直接检索？</div>
+        <div class="a" data-page-node-id="EyVLNfK6wzQIe89STqHLIi">Cross-Encoder 是对「query 和 doc 两两组合」算分，候选有上万条时组合爆炸、太慢。所以检索用便宜的 Bi-Encoder 先缩到几十条，再上 Cross-Encoder 精排，是性能与效果的折中。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 Agent -->
+  <section id="c4" data-page-node-id="HF7j03x31LfzQ1yibmoMAB">
+    <div class="block" data-page-node-id="NzVW1Ng8DA0MSy3RVWfKjv">
+      <h2 data-page-node-id="4fNdHWttPeVc7FvJE8SNhR"><span class="num" data-page-node-id="gO7vO0ivQNHs3yL6T6WUj4">4</span> Multi-Agent 与 LangGraph</h2>
+      <div class="tagline" data-page-node-id="mWQ6pa130HHj8RFU7I5JAu">多智能体编排：让多个 Agent 分工协作完成复杂任务</div>
+      <h3 data-page-node-id="KKEf7K8cmjEt5DKwMiYCoM">核心概念</h3>
+      <ul data-page-node-id="TS7AENVexIh7Fo6xjmLS2c">
+        <li data-page-node-id="RJXyGIX20SGBZDOEt4CnoD"><b data-page-node-id="X4DoMBNq1dz4Hp6hXZXdYa">Agent</b>：能「感知→规划→调工具→执行」的循环体，本质是 LLM + 工具 + 记忆。</li>
+        <li data-page-node-id="N00l8koVgs1sPrhzNCbqvk"><b data-page-node-id="indvlRSRYL4sIb1b4DCzUS">意图路由</b>：先判断用户想干嘛（问答 / 规划 / 管理 / 应急），再分发给对应 Agent。</li>
+        <li data-page-node-id="wLS9hqjpRxauhLGBMvTXhB"><b data-page-node-id="aXOVExNrydJ83Ql2eYB6ZI">Supervisor 调度</b>：一个「主管」Agent 决定下一步交给哪个子 Agent，类似项目经理。</li>
+        <li data-page-node-id="BCnb4HFHsfJH4fG61jzAvA"><b data-page-node-id="iddQDJGYmMM1flVpNHg50Y">StateGraph（LangGraph）</b>：用「状态图」编排 Agent，节点 = 步骤，边 = 流转，共享 <code data-page-node-id="EUVUsc8iNPI17FyXIzuF3j">State</code> 在节点间传递意图和结果，支持条件分支和长期状态管理。</li>
+      </ul>
+      <h3 data-page-node-id="g3yk9oyN1luMKEAZSSx8dN">你的实践</h3>
+      <p data-page-node-id="H4u3A1TIPuDmDdJhiOqLq7">智慧出行里用<b data-page-node-id="txDztTadn3KtN153tqxaFP">三层 FastAPI 微服务 + LangGraph StateGraph 意图路由</b>，编排中心做调度、规划引擎生成行程、感知引擎监控实时数据。RAG 底座里用 <code data-page-node-id="e8dBR90HRgdHBOsokdsy3a">route→act</code> 两节点：规则分类器判断「纯问答 or 行动办理」，注册 <code data-page-node-id="5TdDmrUaZcFQnfyxRR5mMj">query_knowledge / launch_workflow / list_workflows</code> 三类工具，把「查知识」和「办业务」串成闭环（查完即办）。</p>
+      <div class="callout" data-page-node-id="K00RumBqkCAlqMRlCVyKSy">LangChain 与 LangGraph 的选型边界（你的收获原话）：核心看两点——是否要复杂条件分支、是否依赖长期状态管理。简单链路用 Chain 即可，有状态流转才上 Graph。</div>
+      <div class="qa" data-page-node-id="6V4yzU2QOKCVwBf8XNBt5Z">
+        <div class="q" data-page-node-id="ZstcheOwi391kwP1wxDUdK">LangChain 和 LangGraph 到底什么关系？什么时候用哪个？</div>
+        <div class="a" data-page-node-id="bh1BuWsEFJ4WYg6wqXLGPI">LangChain 是组件库（链、检索器、工具），适合线性 Pipeline；LangGraph 在其之上用图来编排，适合有「循环 / 分支 / 多轮状态」的 Agent。一句话：要状态机和可控流转就 LangGraph。</div>
+      </div>
+      <div class="qa" data-page-node-id="3bBCLfndsfCVlcSB3VivY9">
+        <div class="q" data-page-node-id="XqYHQaUNOpher5eTVGxksb">Agent 怎么避免「乱调工具」或陷入死循环？</div>
+        <div class="a" data-page-node-id="mDRjr25QQD0CGA1evyFHzp">① 工具定义清楚输入输出和边界；② 用状态图显式约束流转（只能走允许的边）；③ 设最大步数 / 超时护栏；④ 关键动作（如发审批、写库）加确认或权限校验，不能让 Agent 无脑执行。</div>
+      </div>
+      <div class="qa" data-page-node-id="v8KG0eFxcpTY03k4nCE0yN">
+        <div class="q" data-page-node-id="EhHToJMhUv7p28OYEtlVHB">你项目里「查完即办」的闭环是怎么实现的？</div>
+        <div class="a" data-page-node-id="Feu8NTEDrBLIrlwnSglUsP">意图分类器判定是「行动类」后，进入 act 节点，调用注册好的业务工具（launch_workflow 等），工具执行结果回写 State，再决定下一步。需要人工审批的环节（如差旅超标）插入审批门禁，未通过不生效。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 LLM -->
+  <section id="c5" data-page-node-id="ojDIRAP16UmHnXgyO0y6o9">
+    <div class="block" data-page-node-id="bGffs8yjF8T3WG0LnlHw1W">
+      <h2 data-page-node-id="jKUUX0hYUhGGPVm21OeZzu"><span class="num" data-page-node-id="XQ28AdPfEOk61hl47fYHVt">5</span> 大模型接入与多模型热切换</h2>
+      <div class="tagline" data-page-node-id="VczY8xuqUe4dGjP1gI7IG7">LLMManager：一个接口接 DeepSeek / Qwen / 混元 / GLM / Moonshot</div>
+      <h3 data-page-node-id="xlJxm2jTUmCSQ5i9I3rU2I">是什么</h3>
+      <p data-page-node-id="9WdRBa4ScG2DsGbeNGzSBh">不同厂商的大模型 API 格式各异。你封装了一层 <code data-page-node-id="sskd2VHCcNvPmqwgbLcOYm">LLMManager</code>，内部维护「多服务商注册表」，统一成 OpenAI 兼容接口。业务代码只调一个方法，<b data-page-node-id="i5jTSJ0KSiMdkPkaCdXWnR">运行时改配置即可切换模型，业务零改动</b>；配置持久化，重启自动恢复。</p>
+      <h3 data-page-node-id="FHhXQb9qkpiWTrISRTC0zG">关键能力</h3>
+      <ul data-page-node-id="V8d541qB7Inkr2z2aH1yqs">
+        <li data-page-node-id="abHmB9wRI6mci79MWlfEXU"><b data-page-node-id="XmPbRWegezcXih8xG2nO0h">热切换</b>：线上根据效果/成本/可用性随时换模型，不重启服务。</li>
+        <li data-page-node-id="Qoon337z8le6cbwtiHvLMy"><b data-page-node-id="iPcx7iIBVBiTbHhjnAb49P">降级</b>：无 API Key 时走内置规则引擎 + 哈希向量兜底，全链路离线可验证。</li>
+        <li data-page-node-id="k94X9DAHDqOWA6WW9REmgA"><b data-page-node-id="ITeUKxThAddAxEURHaLCeK">私有化</b>：DeepSeek / Qwen 用 vLLM 本地部署对外提供推理服务。</li>
+      </ul>
+      <div class="qa" data-page-node-id="qE9qnL8N8u1GRdgiHFmF6j">
+        <div class="q" data-page-node-id="VZYlD2d7JrFVnbRITdDFIV">OpenAI 兼容接口封装有什么好处？</div>
+        <div class="a" data-page-node-id="Edd32u8R2DANZutfhAdndf">市面上一大半国产模型（DeepSeek、通义、Moonshot、GLM、混元）都提供 OpenAI 格式兼容端点。统一成这一套后，换模型只改 base_url 和 api_key，调用代码不变，极大降低耦合。</div>
+      </div>
+      <div class="qa" data-page-node-id="PD56KGRYtNij6rsT1BDrvP">
+        <div class="q" data-page-node-id="JN5ahM2iUAZI8k0IFOQ50B">多模型热切换在生产上要注意什么？</div>
+        <div class="a" data-page-node-id="Z1k61EEdqcAat6pfG5zfix">① 不同模型输出格式/能力不一，要测对齐；② 切换有延迟和失败率，需熔断+降级；③ Token 计费和限速不同，成本看板要区分；④ 配置变更要灰度，别全量一刀切。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 Embedding -->
+  <section id="c6" data-page-node-id="idUo3Nfjcvx6n01VF5M9ld">
+    <div class="block" data-page-node-id="HLVibDV31OtsWvsF14obte">
+      <h2 data-page-node-id="LrzrcZ4qQZC8lAzS3x8jNt"><span class="num" data-page-node-id="Bv6ByAYdorO4PgrcTZpb4B">6</span> Embedding 选型</h2>
+      <div class="tagline" data-page-node-id="KYPDTByfsomKL9DrpksbIW">中文 RAG 用 BAAI/bge-large-zh-v1.5（1024 维）</div>
+      <h3 data-page-node-id="1V5CKDdEYdS39uhe4RMlVG">是什么</h3>
+      <p data-page-node-id="q7kFXxHajuiRMsw5GwhkYK">Embedding 模型把文本变成向量，是语义检索的地基。选错模型，后面再怎么调重排都救不回来。</p>
+      <div class="callout" data-page-node-id="qCMqEjCbZre8qQELStFkNG">你的选型结论：中文场景锁定 <b data-page-node-id="Yj9TGVYeVAFN2IlYLMYL3s">BAAI/bge-large-zh-v1.5（1024 维）</b>，弃用 OpenAI ada 和 M3E。理由——bge 系列中文榜单常年靠前，且支持「指令式检索」（给 query 加前缀提升召回）；ada 中文弱、M3E 效果已被 bge 超越。支持「本地私有化 / OpenAI 兼容 API / 关键词降级」三后端可插拔，失败自动熔断。</div>
+      <div class="qa" data-page-node-id="qVS9mYD47vpGJJoTwm6Ti4">
+        <div class="q" data-page-node-id="96kk9yEeIXdz7CWTn3rtsZ">维度（1024）对检索有什么影响？</div>
+        <div class="a" data-page-node-id="YMZoz2dnPvf7ayOO41vrf5">维度越高通常表达能力越强，但存储和检索开销也大。1024 是效果与成本的平衡点。关键是<b data-page-node-id="ZqrZhpCVrEA8Jlnt5Kjg7r">检索时和入库时要用同一个模型</b>，否则向量空间不一致，检索全废。</div>
+      </div>
+      <div class="qa" data-page-node-id="8wrFDRzjCF8odFYCZsnyRJ">
+        <div class="q" data-page-node-id="3VySjnXGMg3HksZxEWLkuK">为什么强调「本地私有化」Embedding？</div>
+        <div class="a" data-page-node-id="Y6E5yfrDsCQTyMJWCNtGLn">企业文档涉敏，走外部 API 有合规风险且依赖网络。本地部署 bge 既能离线跑，又避免数据出境；同时保留云端 API 作为可插拔备选。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 SSE -->
+  <section id="c7" data-page-node-id="wnZYRYxXrAea3YAhF4RsDH">
+    <div class="block" data-page-node-id="Wpx2yk8rnRoRJN7F4kuZr6">
+      <h2 data-page-node-id="KhhfBKuudIemJBxNjO7OgO"><span class="num" data-page-node-id="wXiBUmS2TJYoDjjZI3ctKW">7</span> SSE 流式输出与异步并发</h2>
+      <div class="tagline" data-page-node-id="OxG36sFDoWvcgdFA55vRcs">FastAPI + SSE，让答案「边想边出」</div>
+      <h3 data-page-node-id="SVtaB7ZxJHKaXhEdgxB37F">是什么</h3>
+      <p data-page-node-id="Hb8tx69XGVCSurxqc7dmFw">SSE（Server-Sent Events）是服务端向浏览器单向推流的协议。大模型生成慢，如果等全部生成完再返回，用户要干等很久；用 SSE 逐 token 推送，前端打字机式渲染，<b data-page-node-id="AzYA04FymlXakQkOOTfaPI">首字到达即可见</b>，体验好很多。你项目里问答首字响应优化到 <b data-page-node-id="jreyb1JhDp4hd70gsXIz6R">1.3 秒</b>。</p>
+      <h3 data-page-node-id="Kx1lve7Jz6sZ36GUwLpXow">你踩过的坑（重点，面试常问）</h3>
+      <ul data-page-node-id="zJgA4hLrHCOZEh0fA7EEVV">
+        <li data-page-node-id="3RW09XoOZyPROORgQPEQm8"><b data-page-node-id="gQ5ZGRmeltO9TgDHIouTQZ">阻塞事件循环</b>：async 路由里同步调 LLM，会卡死整个服务。→ 线程池化（<code data-page-node-id="GG1w06SmlfUqHTKIe4cFOY">run_in_executor</code>）。</li>
+        <li data-page-node-id="B0kquNzUYJC6pgzIQM4p95"><b data-page-node-id="8tbY8tVTs40qniB9D5LqSG">并发串单</b>：生成器写成全局单例，多用户请求互相覆盖配置、"串单"。→ 每请求独立实例。</li>
+        <li data-page-node-id="vMiBFBbFJIXos8rZQgHtL1"><b data-page-node-id="2vQheKYdpd6r7ggrGoSNUa">异常污染 JSON</b>：LLM 报错文本混进行程 JSON。→ 独立 error 帧协议 + 重试保护。</li>
+        <li data-page-node-id="Y27qx0H3C1QuQChEF9aZPp"><b data-page-node-id="83TOLkDYgQQribW2i9Wocy">非原子写</b>：JSON 文件并发写入损坏。→ 临时文件 + rename 原子替换 + 线程锁。</li>
+      </ul>
+      <div class="callout" data-page-node-id="t1xYrmYCcgzPVvwVlaK5hW">这些「线上 bug 修复」是简历硬货：把「服务卡死 / 串单 / 数据损坏」的根因和修复说清楚，最能体现工程能力，比讲模型原理更打动面试官。</div>
+      <div class="qa" data-page-node-id="4YG3ESa0dBVN5fnsYaO5Dy">
+        <div class="q" data-page-node-id="tYQmCyNEcQH7jVIylMSa1E">SSE 和 WebSocket 有什么区别？为什么用 SSE？</div>
+        <div class="a" data-page-node-id="2DQh6rKIfOBydQTcA8p7IG">SSE 是服务端→客户端的单向流，基于 HTTP、实现简单、自动重连；WebSocket 是全双工双向。问答/行程生成只需要服务端推，不需要客户端频繁发，SSE 刚好够用且更轻。</div>
+      </div>
+      <div class="qa" data-page-node-id="nusg4L9gXFmCYXfG9cmhv2">
+        <div class="q" data-page-node-id="5GRZ7yrVGMF6oLzl2zQ8kq">FastAPI 里 async 和 sync 路由混用要注意什么？</div>
+        <div class="a" data-page-node-id="QsgZbrXuifV0VJeOo0jZ57">async 路由里不能写阻塞 IO（如同步 requests、同步 LLM 调用），否则占住事件循环。阻塞操作要用线程池（run_in_executor）或换成异步 SDK。你的「线程池化」就是为此。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 Memory -->
+  <section id="c8" data-page-node-id="XFDhgwUVbZrHbnCLEZL5n1">
+    <div class="block" data-page-node-id="ivw6Rh52CwgXcHyYC7Fquw">
+      <h2 data-page-node-id="hrY88t1K7FwUxxNbH83WJ2"><span class="num" data-page-node-id="0ZTzGyN6TrH9oZMpEhLfFA">8</span> 记忆与状态管理</h2>
+      <div class="tagline" data-page-node-id="L9v9zhNSYo2fvZCOsq0tBK">多轮对话 / Agent 状态，靠 Memory + Redis</div>
+      <h3 data-page-node-id="M5U3IY5bYSpSnbAnLpzads">是什么</h3>
+      <ul data-page-node-id="jV8MLUxKSGSgLCsPrzRXts">
+        <li data-page-node-id="WRuhw4ZrBPHyJgZiwOSe2z"><b data-page-node-id="C3K9G77l6dQw36gutZShoa">会话记忆</b>：用 ConversationBufferMemory 按 session_id 存最近 N 轮对话，检索时拼上下文，支持指代消解（"它"指前文）。为防止长会话记忆膨胀，按轮数裁剪窗口。</li>
+        <li data-page-node-id="owxmzv5xHhTqRhuiXA3fnL"><b data-page-node-id="Ke5e5a8FQYyEWLQF2xFEpg">Agent 状态缓存</b>：Redis 存 Agent 运行态、会话历史，跨请求复用、支持高并发。</li>
+      </ul>
+      <div class="qa" data-page-node-id="VzKGOcihnpFWmqiB81WCbV">
+        <div class="q" data-page-node-id="szQl7vAEaYlzYLfP8GcfHr">长对话怎么控制 token 成本？</div>
+        <div class="a" data-page-node-id="PPvZhXHV8dcvmfIb1DaDVW">① 只保留最近 N 轮（滑动窗口）；② 更早的对话做摘要压缩成一段；③ 或用向量检索只召回与当前问题相关的历史片段，而不是全量塞进去。</div>
+      </div>
+      <div class="qa" data-page-node-id="BGkNgAXWATFwFNC9lH26T1">
+        <div class="q" data-page-node-id="OmSFfV4bmCYVpDIMR7GB4W">为什么 Agent 状态放 Redis 而不是内存变量？</div>
+        <div class="a" data-page-node-id="Hh07EODyNJN0FB3WbiBGLm">多进程 / 多实例部署下，进程内存不共享，用户第二次请求可能落到另一个实例，状态就丢了。Redis 是共享、可持久化的中心存储，且支持过期和并发安全。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 Security -->
+  <section id="c9" data-page-node-id="22nKiSHH8F2ERzeGprjA1l">
+    <div class="block" data-page-node-id="vIqnnFEoCZtKUfWSaHbUBR">
+      <h2 data-page-node-id="Jyf6eG6FYgNGxoLJsFgQiL"><span class="num" data-page-node-id="inPJzyh30ElnqL6L7v2w41">9</span> 安全与鉴权</h2>
+      <div class="tagline" data-page-node-id="FI8bnWzrFnbPTmyjOTilEe">JWT / 脱敏 / 越权防护（IDOR）</div>
+      <h3 data-page-node-id="THH4qxJoimc7bMxKgX6Vam">你做了什么</h3>
+      <ul data-page-node-id="171iB6LmBzbLIdpznApQtl">
+        <li data-page-node-id="zVIBzwaMrrGPaNDXUem8EQ"><b data-page-node-id="1Cwo59KPzFU2Kl63tGZxTE">JWT 认证</b>：PBKDF2 + HS256，<b data-page-node-id="dHFfdIPNxvGhCgGOGme58R">零第三方依赖</b>（自己实现，不引库），多角色权限控制，注册防自助提权。</li>
+        <li data-page-node-id="QT6CDxIxbP7iOaaynUN709"><b data-page-node-id="Zf6Ugc5ZD3X3JUpOBA87eU">收窄后门</b>：dev 万能 key 仅开发环境生效，生产关掉。</li>
+        <li data-page-node-id="yWgHLIQXnWNezzc0H79axE"><b data-page-node-id="lxKUiUldSX12FqDak9lxlB">越权防护（IDOR）</b>：行程生成后校验属主，防 A 用户改 B 用户的行程。</li>
+        <li data-page-node-id="oKL9WFXUVxmn653AGoGWk3"><b data-page-node-id="5MVm80pIYlWlogBnWq720T">Prompt 脱敏 & 合规</b>：PII 脱敏（解析阶段清掉身份证/手机号等）、内容合规校验、敏感信息过滤。</li>
+      </ul>
+      <div class="qa" data-page-node-id="LcCPwJxO73NcjVVTAstkM0">
+        <div class="q" data-page-node-id="9iOjlpnzYALGf8qgpIWqxX">HS256 和 RS256 的 JWT 有什么区别？你为什么用 HS256？</div>
+        <div class="a" data-page-node-id="e6LAyFihGh60Mq6TxMJVhp">HS256 用同一个密钥签名+验签（对称），RS256 用私钥签、公钥验（非对称，适合多服务）。你项目是单体/少服务，HS256 足够且实现简单，所以零依赖自实现。多服务分发的场景才更值得上 RS256。</div>
+      </div>
+      <div class="qa" data-page-node-id="BR4EapOaVMfuV3RcCEXHas">
+        <div class="q" data-page-node-id="QuTivQdOCKbejeGYJDyE5j">什么是 IDOR？怎么修？</div>
+        <div class="a" data-page-node-id="MUlrwxwQsQaqpPlQ7tEOcW">Insecure Direct Object Reference：用户改 URL/参数里的 id 就能访问别人的数据。修法是每个涉及资源的接口都校验「当前用户是否拥有该资源」，而不是只靠登录态。</div>
+      </div>
+      <div class="qa" data-page-node-id="jitowEB5XAANofvXB44Sxa">
+        <div class="q" data-page-node-id="x6HoBCDI0nlcGUIQYtSb1r">Prompt 注入怎么防？</div>
+        <div class="a" data-page-node-id="0qBzEN9pVHYEZ6lVubzdel">把「系统指令」和「用户输入」严格分离、用分隔符包裹用户输入；对会触发工具调用的输入做权限二次确认；对外显内容做敏感词/合规过滤；不可信文档进知识库前先做清洗脱敏。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 Observability -->
+  <section id="c10" data-page-node-id="sgDtytNSYxFcCwjAGzQuzS">
+    <div class="block" data-page-node-id="ciCcH4MIbHb0P7dhJZvmYw">
+      <h2 data-page-node-id="pqiXwhYvZBDQZdLR1yBquI"><span class="num" data-page-node-id="4gbfOgYBNXOXeObtoIpB5a">10</span> 可观测性</h2>
+      <div class="tagline" data-page-node-id="4MbNdLRZU1EGLdjrBOvO2J">Token 统计 / 监控 / 日志 / 链路追踪</div>
+      <h3 data-page-node-id="5FHHVgS4DrqN8q9Ut6NhTY">是什么</h3>
+      <p data-page-node-id="tyDAcZ5pGCoYeLnZubbFOb">AI 应用出问题时很难定位——是检索没召回？模型抽风？还是接口超时？所以需要三件套：</p>
+      <ul data-page-node-id="IFWq64GtW6G8YbTGOFAZPj">
+        <li data-page-node-id="3A7CnNOnBKBQWtn76DzPIP"><b data-page-node-id="kmXSVddIhn6GW2k28X3Wk2">指标（Metrics）</b>：接入 Prometheus，看 QPS、首字延迟、Token 用量（支撑成本看板）。</li>
+        <li data-page-node-id="1hF0rJmE5Ewkbc6sAbeRTZ"><b data-page-node-id="IKXTDHELfNQKIQ4X1ijXAn">日志（Logs）</b>：结构化 JSON 日志，便于检索；Token 用量接 LLM 真实 usage。</li>
+        <li data-page-node-id="vvzWvKyhPHHsZssou11emj"><b data-page-node-id="W9LcmYabP03KCkGsSfAtiE">链路追踪（Tracing）</b>：一次请求穿过路由→检索→重排→生成，全链路打点，定位瓶颈。</li>
+      </ul>
+      <div class="callout" data-page-node-id="mmta8LpF3mebuGqvfdTnzN">你的原话：「企业级 AI 落地，工程厚度比模型效果更关键，PoC 到生产差的往往不是算法而是稳定性与可观测性。」这句话建议背下来，面试官很吃这套认知。</div>
+      <div class="qa" data-page-node-id="oOonKhWCWgBIDPfMkJ6fOq">
+        <div class="q" data-page-node-id="WWDznTJN7D0w0ewHthrBWJ">怎么评估一次 RAG 回答的「成本」？</div>
+        <div class="a" data-page-node-id="6TPKDBPUciYELdwi7YDOGJ">用 LLM 返回的 usage 字段（prompt_tokens + completion_tokens），乘单价得单次成本；按会话/按模型聚合做成本看板；结合命中率看「每有效回答的花费」，指导是否要换小模型或缩短上下文。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 Deploy -->
+  <section id="c11" data-page-node-id="JM8VaQIoi590pqqGH4JZEH">
+    <div class="block" data-page-node-id="sOBDhBNx0VWyUFgIez87Bh">
+      <h2 data-page-node-id="tMODHMgXbNe96pFQC7IBC5"><span class="num" data-page-node-id="yXw7PdLtnBFjAZDWLPZ2dD">11</span> 部署与运维</h2>
+      <div class="tagline" data-page-node-id="13VkVLY2beQjHrgYBCXDU9">Docker Compose / Nginx / 跨平台一键启动</div>
+      <h3 data-page-node-id="1wMUyJhtjM2PXVzZAHPI9V">你做了什么</h3>
+      <ul data-page-node-id="sMphzPdieJc7jspsZrdn4v">
+        <li data-page-node-id="Q3NnGZiAFfYvAoaSXz2fkg"><b data-page-node-id="VNZ55uJkz4Edwye2DanTX4">容器化</b>：多服务（前端 / 后端 / 中间件）用 Docker Compose 编排，一条命令起全套。</li>
+        <li data-page-node-id="9l1T5ZbSD5BJSr08MAY2IY"><b data-page-node-id="7GZoAo9pgDAUuUB7Z3Nhg4">跨平台</b>：Windows / POSIX 一键启动器，外贸平台用 launcher 同时拉起前后端。</li>
+        <li data-page-node-id="C9I13CXdJeb4RBA3fU1OCP"><b data-page-node-id="PmoUZyd2mzJGTD3PbcvRgS">反向代理</b>：Nginx 做 HTTPS、静态资源、端口转发。</li>
+        <li data-page-node-id="v7X7ygfZcaGg8VA4MZ2AtN"><b data-page-node-id="GxeVpouAdUFX5ftyXLJ1FV">离线降级</b>：任何依赖缺失（LLM / 向量 / 感知数据）都能 Mock 兜底，功能链路不断。</li>
+      </ul>
+      <div class="qa" data-page-node-id="WDlzY5za5jsx3WwUquckzX">
+        <div class="q" data-page-node-id="ME0xYCPfgoTSs1UsrT4zg3">为什么需要「全链路降级」？</div>
+        <div class="a" data-page-node-id="eImJ0A0zfwlyJiWBRQAe7l">企业内网常缺外部 API Key 或网络受限，但还要能演示和跑通。降级让「没模型走模板、没向量走关键词、没实时数据走 Mock」，保证任何时候系统都能用、能讲清楚，不至于 demo 翻车。</div>
+      </div>
+      <div class="qa" data-page-node-id="6G2M2rOqnsq0WWhDtF3nNB">
+        <div class="q" data-page-node-id="nk4e113A2YBkURdlk5FdLz">Docker 和直接跑 Python 脚本比，优势在哪？</div>
+        <div class="a" data-page-node-id="6TX0OyckAmP3olSbntInfk">环境一致（开发=测试=生产）、依赖隔离、一键扩缩、便于 CI/CD 和标准运维。对多服务系统，Compose 把启动顺序和网络都管起来，省去手动配环境。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 LoRA -->
+  <section id="c12" data-page-node-id="TPCF6v4aTtLcouf2ZYlouG">
+    <div class="block" data-page-node-id="fxFy0lzhbJAcSFo82BN44H">
+      <h2 data-page-node-id="2ASmRhkc83gnCQqNAWAIVf"><span class="num" data-page-node-id="LdyXcQRiSjOJnJEWSDquiw">12</span> 模型微调 LoRA</h2>
+      <div class="tagline" data-page-node-id="RGhjZCbcBMvkxz0vam0qHL">用 LoRA 提升模型在垂直业务场景的适配</div>
+      <h3 data-page-node-id="BEOx0FBcoHDacRnf9wMNAk">是什么</h3>
+      <p data-page-node-id="H4vaj6eRBOS5SzTBnBFJdG">全量微调要改全部参数，贵且易灾难性遗忘。LoRA（Low-Rank Adaptation）只在 Transformer 层里插入很小的「低秩矩阵」做训练，<b data-page-node-id="8BHokheqhKWPZFeT67DTfL">原模型冻结、只训新增的少量参数</b>，显存省、训练快、还能多个 LoRA 热插拔切换。</p>
+      <div class="callout" data-page-node-id="UA7lNnxZxk2HbathbZBtpK">你在领铄的经历里提到：完成 DeepSeek / Qwen 私有化部署（vLLM 推理），并用 LoRA 微调提升垂直业务场景适配。这是「部署 + 微调」都碰过，比只调 API 的候选人更有深度。</div>
+      <div class="qa" data-page-node-id="FTGLEZmmINeJrcp1cE0Q9x">
+        <div class="q" data-page-node-id="ijIbHMyyjcdxdk4DzZtMuH">LoRA 相比全量微调的优势？</div>
+        <div class="a" data-page-node-id="PWc2wl9Bd99ttDvFWERFAo">① 训练参数量极少（常 <1%），显存和算力需求大降；② 原模型不变，一个基座可挂多个 LoRA 适配不同任务；③ 不易灾难性遗忘；④ 权重小、便于分发和热切换。</div>
+      </div>
+      <div class="qa" data-page-node-id="SUG1R7LtOhF5PPhmPt53O0">
+        <div class="q" data-page-node-id="xHSSTJtqVApZYT4psO6cdi">什么场景值得微调，什么场景 RAG 就够了？</div>
+        <div class="a" data-page-node-id="WaAzgNLGrom8oUomnYOeCQ">要「改模型的说话方式 / 特定格式输出 / 领域风格」→ 微调或 LoRA；要「注入最新/私有事实并要可溯源」→ RAG。你简历的取向是：RAG 做主、LoRA 做垂直适配补充，不依赖微调解决知识更新。</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="end" data-page-node-id="Skf5WN8M6xgaWlCmF9kMEP">
+    <p data-page-node-id="iwUi3jTvfjoHJYxvZFDVK0">📌 这份详解配合 <a href="index.html" data-page-node-id="l5MBN9BxKK9i7DCS6kFDYU">个人主页</a> 与简历一起看效果最好。</p>
+    <p data-page-node-id="fd8TlCs7SgytzEpKLJZRcb">📖 英文专业词看着发怵？→ <a href="glossary.html" data-page-node-id="EN9cUSkLxMLWgHz6lES4Ps">术语小词典</a>（人话版逐个讲）</p>
+    <p data-page-node-id="RMo4CcauPJAo1rQXIyikLW">建议把每节「面试高频题」用自己的话复述一遍，能讲清「为什么 + 项目里怎么落地」就是加分项。</p>
+    <p style="margin-top:10px;opacity:.6;" data-page-node-id="4d2bl0mUvrxBiMMsGZ9sKM">© 2026 乔晓 · AI 应用开发工程师</p>
+  </div>
+</div>
+
+<!-- 章节抽屉 -->
+<div class="drawer-mask" id="drawerMask" aria-hidden="true">
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label="章节详解">
+    <div class="d-head">
+      <span class="d-label">📖 章节详解</span>
+      <span class="d-hint">读完点 ✕ 或空白处返回原位</span>
+      <button class="d-close" id="dClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="d-body" id="dBody"></div>
+  </aside>
+</div>
+
+<!-- 浮动导航 -->
+<div class="float-nav" id="floatNav">
+  <a href="#quickref" title="回到技能速查"><span class="ico">⚡</span>速查</a>
+  <a href="#top" class="f-ghost" title="回到顶部">↑</a>
+</div>
+
+<script>
+(function () {
+  var nav = document.getElementById('floatNav');
+  function toggle() {
+    nav.classList.toggle('show', window.scrollY > 420);
+  }
+  window.addEventListener('scroll', toggle, { passive: true });
+  toggle();
+
+  // ===== 章节抽屉：点「深入」右侧滑出完整章节，原位不动 =====
+  var mask = document.getElementById('drawerMask');
+  var dBody = document.getElementById('dBody');
+  var dClose = document.getElementById('dClose');
+  var lastFocus = null;
+
+  function openDrawer(link) {
+    var sec = document.querySelector(link.getAttribute('href'));
+    var block = sec && sec.querySelector('.block');
+    if (!block) return; // 找不到章节时保持默认跳转
+    dBody.innerHTML = '';
+    dBody.appendChild(block.cloneNode(true));
+    dBody.scrollTop = 0;
+    lastFocus = document.activeElement;
+    mask.classList.add('open');
+    mask.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('drawer-open');
+    dClose.focus();
+  }
+
+  function closeDrawer() {
+    mask.classList.remove('open');
+    mask.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('drawer-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  document.querySelectorAll('.k-name a[href^="#c"]').forEach(function (a) {
+    a.setAttribute('role', 'button');
+    a.setAttribute('tabindex', '0');
+    var handler = function (e) { e.preventDefault(); openDrawer(a); };
+    a.addEventListener('click', handler);
+    a.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(e); }
+    });
+  });
+
+  dClose.addEventListener('click', closeDrawer);
+  mask.addEventListener('click', function (e) { if (e.target === mask) closeDrawer(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && mask.classList.contains('open')) closeDrawer();
+  });
+})();
+</script>
+
+</body>
+</html>

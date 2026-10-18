@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>{{ doc_title }}</title>
+<style>
+  :root{
+    --blue:#1d4ed8; --blue-soft:#eff4ff; --blue-line:#c7d8f8;
+    --ink:#1f2937; --muted:#5b6472; --line:#e2e8f2; --card:#fafbfe;
+    --red:#c0392b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
+       color:var(--ink);font-size:12.5px;line-height:1.78;background:#e9edf3}
+  .page{width:210mm;min-height:297mm;margin:0 auto;background:#fff;
+        padding:16mm 16mm 18mm;box-shadow:0 2px 20px rgba(15,35,80,.12)}
+  @page{size:A4;margin:11mm 12mm 12mm}
+  @media print{
+    /* 打印专用排版密度：屏幕版式不动，只让 PDF 分页连贯、页页有边距。
+       2026-09-22：页边距改由 @page 提供（.page 的 padding 打印时归零），
+       下面的行高/段距收紧是配合 3 页排布的实测值，动之前先跑 build_all 量页数。 */
+    body{background:#fff;line-height:1.5}
+    .page{width:auto;min-height:auto;padding:0;box-shadow:none}
+    .hdr{padding-bottom:11px}
+    .sec{margin-top:11px}
+    .sec:first-child{margin-top:0}
+    .sec>h2{margin-bottom:7px}
+    .block{margin-bottom:10px}
+    .block>b{margin:5px 0 2px}
+    li{margin:2.5px 0}
+    .fix{margin:4px 0}
+    .val{margin:5px 0 2px;padding:6px 12px}
+    .skill-group{margin:0 0 6px;padding:7px 12px}
+    .sec>h2,.block .bt,.block>b{page-break-after:avoid}
+  }
+
+  /* ---------- 页头 ---------- */
+  .hdr{display:flex;align-items:flex-start;gap:20px;
+       border-bottom:2px solid var(--blue);padding-bottom:14px;margin-bottom:4px}
+  .hdr-main{flex:1;min-width:0}
+  .hdr .photo{flex:0 0 auto;width:24mm;height:32mm;object-fit:cover;display:block;
+              margin-top:11px;
+              border:1px solid var(--line);border-radius:2px;background:#f2f5fa}
+  .hdr h1{font-size:27px;letter-spacing:5px;color:var(--ink);font-weight:700}
+  .hdr .intent{font-size:14px;color:var(--blue);font-weight:700;margin-top:6px;letter-spacing:.5px}
+  .hdr .meta{margin-top:9px;color:var(--muted);font-size:11.5px}
+  .hdr .meta .mrow{display:flex;flex-wrap:wrap;gap:4px 30px}
+  .hdr .meta .kv{white-space:nowrap}
+  .hdr .meta .kv i{font-style:normal;font-weight:600;color:#444441;margin-right:7px}
+
+  /* ---------- 章节 ---------- */
+  .sec{margin-top:17px}
+  .sec>h2{font-size:14.5px;color:var(--blue);letter-spacing:2.5px;margin-bottom:10px;
+          display:flex;align-items:center;gap:9px;font-weight:700}
+  .sec>h2::before{content:"";width:4px;height:15px;background:var(--blue);
+                  border-radius:2px;flex:0 0 auto}
+  .sec>h2::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- 条目块 ---------- */
+  .block{margin-bottom:15px}
+  .block .bt{display:flex;align-items:baseline;gap:10px;font-weight:700;font-size:13px;margin-bottom:5px}
+  .block .bt .role{font-weight:400;color:var(--muted);font-size:11.5px}
+  .block .bt .date{margin-left:auto;color:var(--muted);font-weight:400;font-size:11.5px;white-space:nowrap}
+  ul{padding-left:18px;margin:3px 0}
+  li{margin:4px 0;padding-left:2px;text-align:justify}
+  li::marker{color:var(--blue)}
+
+  /* ---------- 专业技能 ---------- */
+  .skill-group{display:flex;gap:12px;margin:0 0 9px;padding:9px 13px;
+               background:var(--card);border:1px solid #eef2f9;border-radius:7px;
+               page-break-inside:avoid}
+  .skill-group .g{flex:0 0 126px;font-weight:700;color:var(--blue);line-height:1.6}
+  .skill-group .d{flex:1;text-align:justify}
+
+  /* ---------- 项目经历 ---------- */
+  .proj-bg{color:var(--muted);margin:4px 0;text-align:justify}
+  .course{font-size:11.5px;line-height:1.7}
+  .block>b{display:block;color:var(--blue);font-size:12.5px;letter-spacing:1px;margin:7px 0 3px}
+  .fix{display:flex;gap:10px;margin:6px 0}
+  .fix .n{flex:0 0 19px;height:19px;border-radius:50%;background:var(--blue-soft);
+          color:var(--blue);font-size:11px;font-weight:700;text-align:center;
+          line-height:17px;margin-top:3px;border:1px solid var(--blue-line)}
+  .fix .b{flex:1;text-align:justify}
+  .val{margin:8px 0 3px;padding:8px 13px;background:#f7f9fd;
+       border-left:3px solid var(--blue);border-radius:0 7px 7px 0}
+  .val li{margin:3px 0}
+
+  .hl{color:var(--red)}          /* 标红不加粗 */
+  .clear{display:none}
+</style>
+</head>
+{% include '_body.html.j2' %}

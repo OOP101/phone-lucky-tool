@@ -1,0 +1,83 @@
+<body>
+<!-- 本文件由 简历工程/scripts/build_all.py 生成，请勿手改：改内容 → 简历工程/resume_data.yaml；改样式 → 简历工程/resume_templates/*.j2 -->
+<div class="page">
+
+  <div class="hdr">
+    <div class="hdr-main">
+      <h1>{{ person.name }}</h1>
+      <div class="intent">{{ intent }}</div>
+      <div class="meta">
+{% for row in meta_rows %}
+        <div class="mrow">{% for item in row %}<span class="kv"><i>{{ item.label }}</i>{{ item.value }}</span>{% endfor %}</div>
+{% endfor %}
+      </div>
+    </div>
+    <img class="photo" alt="{{ person.name_plain }} 证件照" src="{{ photo }}">
+  </div>
+
+  <div class="sec">
+    <h2>专业技能</h2>
+
+{% for g in skills %}
+    <div class="skill-group"><div class="g">{{ g.name }}</div><div class="d">
+      {{ g.text }}
+    </div></div>
+{% endfor %}
+  </div>
+
+  <div class="sec">
+    <h2>工作经历</h2>
+{% for w in work %}
+    <div class="block">
+      <div class="bt">{{ w.org }}<span class="role">{{ w.role }}</span><span class="date">{{ w.date }}</span><span class="clear"></span></div>
+      <ul>
+{% for b in w.bullets %}
+        <li>{{ b }}</li>
+{% endfor %}
+      </ul>
+    </div>
+{% endfor %}
+  </div>
+
+  <div class="sec">
+    <h2>项目经历</h2>
+
+{% for p in projects %}
+    <div class="block">
+      <div class="bt">{{ p.name }}<span class="role">{{ p.role }}</span><span class="date">{{ p.date }}</span><span class="clear"></span></div>
+      <div class="proj-bg"><b>业务痛点：</b>{{ p.pain }}</div>
+      <b>主要方案：</b>
+{% for s in p.solutions %}
+      <div class="fix"><div class="n">{{ loop.index }}</div><div class="b">{{ s }}</div></div>
+{% endfor %}
+      <div class="val"><b>业务价值：</b>
+        <ul>
+{% for v in p['values'] %}
+          <li>{{ v }}</li>
+{% endfor %}
+        </ul>
+      </div>
+    </div>
+{% endfor %}
+  </div>
+
+  <div class="sec">
+    <h2>教育背景</h2>
+    <div class="block">
+      <div class="bt">{{ education.school }}<span class="role">{{ education.major }}</span><span class="date">{{ education.date }}</span><span class="clear"></span></div>
+      <div class="proj-bg course">{{ education.note }}</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>个人概述</h2>
+    <ul>
+{% for s in summary %}
+      <li>{{ s }}</li>
+{% endfor %}
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

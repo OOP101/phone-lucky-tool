@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>{{ doc_title }}</title>
+<style>
+  :root{
+    --blue:#1d4ed8; --blue-soft:#eff4ff; --blue-line:#c7d8f8;
+    --ink:#1f2937; --muted:#5b6472; --line:#e2e8f2; --card:#fafbfe;
+    --red:#c0392b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
+       color:var(--ink);font-size:12.5px;line-height:1.78;background:#e9edf3}
+  .page{width:210mm;min-height:297mm;margin:0 auto;background:#fff;
+        padding:16mm 16mm 18mm;box-shadow:0 2px 20px rgba(15,35,80,.12)}
+  @page{size:A4;margin:11mm 12mm 12mm}
+
+  /* ---------- 页头 ---------- */
+  .hdr{display:flex;align-items:flex-start;gap:20px;
+       border-bottom:2px solid var(--blue);padding-bottom:14px;margin-bottom:4px}
+  .hdr-main{flex:1;min-width:0}
+  .hdr .photo{flex:0 0 auto;width:24mm;height:32mm;object-fit:cover;display:block;
+              margin-top:11px;
+              border:1px solid var(--line);border-radius:2px;background:#f2f5fa}
+  .hdr h1{font-size:27px;letter-spacing:5px;color:var(--ink);font-weight:700}
+  .hdr .intent{font-size:14px;color:var(--blue);font-weight:700;margin-top:6px;letter-spacing:.5px}
+  .hdr .meta{margin-top:9px;color:var(--muted);font-size:11.5px}
+  .hdr .meta .mrow{display:flex;flex-wrap:wrap;gap:4px 30px}
+  .hdr .meta .kv{white-space:nowrap}
+  .hdr .meta .kv i{font-style:normal;font-weight:600;color:#444441;margin-right:7px}
+
+  /* ---------- 章节 ---------- */
+  .sec{margin-top:17px}
+  .sec>h2{font-size:14.5px;color:var(--blue);letter-spacing:2.5px;margin-bottom:10px;
+          display:flex;align-items:center;gap:9px;font-weight:700}
+  .sec>h2::before{content:"";width:4px;height:15px;background:var(--blue);
+                  border-radius:2px;flex:0 0 auto}
+  .sec>h2::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- 条目块 ---------- */
+  .block{margin-bottom:15px}
+  .block .bt{display:flex;align-items:baseline;gap:10px;font-weight:700;font-size:13px;margin-bottom:5px}
+  .block .bt .role{font-weight:400;color:var(--muted);font-size:11.5px}
+  .block .bt .date{margin-left:auto;color:var(--muted);font-weight:400;font-size:11.5px;white-space:nowrap}
+  ul{padding-left:18px;margin:3px 0}
+  li{margin:4px 0;padding-left:2px;text-align:justify}
+  li::marker{color:var(--blue)}
+
+  /* ---------- 专业技能 ---------- */
+  .skill-group{display:flex;gap:12px;margin:0 0 9px;padding:9px 13px;
+               background:var(--card);border:1px solid #eef2f9;border-radius:7px;
+               page-break-inside:avoid}
+  .skill-group .g{flex:0 0 126px;font-weight:700;color:var(--blue);line-height:1.6}
+  .skill-group .d{flex:1;text-align:justify}
+
+  /* ---------- 项目经历 ---------- */
+  .proj-bg{color:var(--muted);margin:4px 0;text-align:justify}
+  .course{font-size:11.5px;line-height:1.7}
+  .block>b{display:block;color:var(--blue);font-size:12.5px;letter-spacing:1px;margin:7px 0 3px}
+  .fix{display:flex;gap:10px;margin:6px 0}
+  .fix .n{flex:0 0 19px;height:19px;border-radius:50%;background:var(--blue-soft);
+          color:var(--blue);font-size:11px;font-weight:700;text-align:center;
+          line-height:17px;margin-top:3px;border:1px solid var(--blue-line)}
+  .fix .b{flex:1;text-align:justify}
+  .val{margin:8px 0 3px;padding:8px 13px;background:#f7f9fd;
+       border-left:3px solid var(--blue);border-radius:0 7px 7px 0}
+  .val li{margin:3px 0}
+
+  .hl{color:var(--red)}          /* 标红不加粗 */
+  .clear{display:none}
+  /* ⚠ 本块必须保持在样式表最末尾：里面用 .hdr / .sec / .block / li / .skill-group 等
+     与屏幕规则同名的选择器，CSS 同优先级下「后者胜」，只有排在最后才压得住屏幕规则。
+     2026-09-22 之前它写在开头 → 这些间距声明全部没生效（踩过）。 */
+  @media print{
+    /* 打印专用排版密度：屏幕版式不动，只让 PDF 分页连贯、页页有边距。
+       2026-09-22 实测（可用高 ≈776.7pt/页，量法见 scripts/verify_roundtrip 同目录的
+       build_all 输出页数 + 每页填充率）：
+         · 单工作块（test，「独立开源开发者」）   正文 ≈2327pt ≈ 3.03 页
+           → 必须收紧到 1.52 行高才收得进 3 页，否则末页只剩一两行，看着像断页。
+         · 双工作块（公司 + 独立两块并存的那种组合）  正文 ≈2570pt ≈ 3.31 页，压不进 3 页
+           → 强压只会让末页只剩三行；这里按「工作块数量」自动放宽密度，
+             让内容自然铺满 4 页（末页应落在「教育背景 + 个人概述」整块上）。
+           （2026-09-22 起 test_co 已删掉公司块、只剩单块，实际走上面的 1.52 分支；
+             这个双块分支留给以后再加公司经历 / 多段工作经历时用。）
+       动这些值前，先跑 scripts/build_all.py 量页数与每页填充率。 */
+{% if work|length > 1 %}
+    body{background:#fff;line-height:1.66}
+    .page{width:auto;min-height:auto;padding:0;box-shadow:none}
+    .hdr{padding-bottom:12px}
+    .sec{margin-top:13px}
+    .sec:first-child{margin-top:0}
+    .sec>h2{margin-bottom:8px}
+    .block{margin-bottom:11px}
+    .block>b{margin:6px 0 3px}
+    li{margin:3.5px 0}
+    .fix{margin:5px 0}
+    .val{margin:6px 0 2px;padding:7px 13px}
+    .skill-group{margin:0 0 6px;padding:8px 13px}
+{% else %}
+    /* 单工作块（当前是 test / test_co 两份「测试开发」版式）：正文 ≈2327pt ≈ 3.03 页。
+       2026-09-22 二次收紧的起因：「工作经历」第 4 条「AI 辅助开发工作流」被挤到第 2 页顶部
+       单独一行（P1 末行 y1=804.9pt，版心底 807.9pt，只剩 3pt）→ 用户要求「整体上移」。
+       改法：只压空白间距（技能卡内边距/边距、节间距、条目间距），行高 1.52 与字号不动。
+       注意：本块必须在样式表末尾（见文件下方注释），否则会被同名屏幕规则盖掉。
+       动这些值前先跑 scripts/build_all.py 量页数。 */
+    body{background:#fff;line-height:1.52}
+    .page{width:auto;min-height:auto;padding:0;box-shadow:none}
+    .hdr{padding-bottom:11px}
+    .sec{margin-top:14px}
+    .sec:first-child{margin-top:0}
+    .sec>h2{margin-bottom:8px}
+    .block{margin-bottom:13px}
+    .block>b{margin:6px 0 3px}
+    li{margin:3.5px 0}
+    .fix{margin:5px 0}
+    .val{margin:6px 0 3px;padding:7px 13px}
+    .skill-group{margin:0 0 7px;padding:7px 13px}
+{% endif %}
+    .sec>h2,.block .bt,.block>b{page-break-after:avoid}
+  }
+
+</style>
+</head>
+{% include '_body.html.j2' %}

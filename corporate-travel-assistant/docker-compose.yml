@@ -1,0 +1,35 @@
+version: "3.9"
+
+# ============================================
+# 企业智行 v3 · Docker Compose（单服务：Agent 内核）
+# ============================================
+
+services:
+  core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cjh-agent-core
+    ports:
+      - "${CORE_PORT:-8001}:8001"
+    environment:
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=${LLM_BASE_URL}
+      - LLM_MODEL=${LLM_MODEL}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE}
+      - LLM_MAX_TOKENS=${LLM_MAX_TOKENS}
+      - TENCENT_MAAS_API_KEY=${TENCENT_MAAS_API_KEY:-}
+      - TENCENT_MAAS_BASE_URL=${TENCENT_MAAS_BASE_URL:-}
+      - TENCENT_MAP_KEY=${TENCENT_MAP_KEY:-}
+      - TENCENT_MAP_SK=${TENCENT_MAP_SK:-}
+      - DEV_API_KEY=${DEV_API_KEY:-ak_dev_local}
+      - TRIP_DATA_DIR=/data/trips
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_JSON=${LOG_JSON:-false}
+    volumes:
+      - ./shared:/app/shared
+      - trip_data:/data
+    restart: unless-stopped
+
+volumes:
+  trip_data:
