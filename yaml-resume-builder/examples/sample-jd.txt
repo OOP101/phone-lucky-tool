@@ -1,0 +1,16 @@
+AI 应用开发工程师
+
+岗位职责：
+1. 负责 LLM 智能体应用的设计与开发，基于 LangChain / LangGraph 构建多智能体协作与工具调用链路；
+2. 构建企业级 RAG 知识库系统：文档解析、语义切分、向量数据库（Milvus / ChromaDB）选型、混合检索与 Rerank 重排序；
+3. 负责模型服务化：FastAPI 接口开发、SSE 流式输出、Docker 容器化与 Kubernetes 部署；
+4. 参与模型微调（LoRA / SFT）与推理优化（vLLM），提升响应速度、降低推理成本；
+5. 搭建效果评测体系：评测集构建、Recall / MRR 跑批、Bad Case 归因与 Prompt 迭代；
+6. 集成 MCP 外部工具生态，对接第三方 API 与业务系统。
+
+任职要求：
+1. 本科及以上学历，计算机相关专业，2 年以上后端开发经验；
+2. 熟练 Python，熟悉 MySQL / Redis，了解消息队列 Kafka；
+3. 熟悉大模型应用开发，理解 Transformer 原理，有 RAG / Agent 项目落地经验；
+4. 有 GraphRAG、多模态、RLHF 经验者优先；
+5. 具备高并发系统治理经验：熔断、限流、降级、链路追踪。
