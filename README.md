@@ -1,6 +1,6 @@
 # AI 应用作品集
 
-五个 AI 应用项目，各自独立可运行。每个项目的提交历史都完整保留，可单独检出使用。
+六个项目，各自独立可运行。每个项目的提交历史都完整保留，可单独检出使用。
 
 ## 项目索引
 
@@ -11,6 +11,7 @@
 | [`enterprise-knowledge-assistant/`](./enterprise-knowledge-assistant) | 企业知识库问答 | RAG + 向量检索 + 重排序 | DOCX/PDF 批量入库、多轮对话记忆、JWT 权限 |
 | [`cross-border-ecommerce-ai/`](./cross-border-ecommerce-ai) | 跨境电商智能平台 | FastAPI + Vue 3 + RAG | 智能客服 / 营销文案 / 实时翻译 |
 | [`personal-homepage/`](./personal-homepage) | 个人主页 | 单文件 HTML | 主页 / 术语小词典 / 技术详解 |
+| [`yaml-resume-builder/`](./yaml-resume-builder) | 简历构建管线 | Python + Jinja2 + Headless Chrome | YAML 单一数据源 → HTML → PDF，带结构与页数校验 |
 
 ## 说明
 
